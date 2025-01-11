@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id
+  email         String    @unique
+  firstName     String?
+  fullName      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  meetings      Meeting[]
+  teamMembers   TeamMember[]
+}
+
+model Meeting {
+  id            String    @id @default(cuid())
+  title         String
+  transcript    String?   @db.Text
+  summary       String?   @db.Text
+  recordingUrl  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  teamId        String?
+  team          Team?     @relation(fields: [teamId], references: [id])
+}
+
+model Team {
+  id            String    @id @default(cuid())
+  name          String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  meetings      Meeting[]
+  members       TeamMember[]
+}
+
+model TeamMember {
+  id            String    @id @default(cuid())
+  userId        String
+  teamId        String
+  role          String    @default("MEMBER") // OWNER, ADMIN, MEMBER
+  user          User      @relation(fields: [userId], references: [id])
+  team          Team      @relation(fields: [teamId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([userId, teamId])
+}
