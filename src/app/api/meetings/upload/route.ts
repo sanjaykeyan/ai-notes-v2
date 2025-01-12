@@ -1,67 +1,54 @@
-import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import prisma from "@/lib/prisma";
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+import { NextResponse } from 'next/server';
+import prisma  from '@/lib/prisma';
+import { auth } from '@clerk/nextjs/server';
 
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
+    console.log('Current userId:', userId);
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const formData = await req.formData();
-    const file = formData.get("file") as File;
-    const title = formData.get("title") as string;
+    const file = formData.get('file') as File;
+    // First response to indicate upload complete
+    const uploadStream = new TransformStream();
+    const writer = uploadStream.writable.getWriter();
+    const encoder = new TextEncoder();
 
-    if (!file || !title) {
-      return NextResponse.json(
-        { error: "File and title are required" },
-        { status: 400 }
-      );
-    }
-
-    // Generate unique filename
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${userId}/${Date.now()}.${fileExt}`;
-
-    // Upload to S3
-    const command = new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME!,
-      Key: fileName,
-      ContentType: file.type,
+    const responseStream = new Response(uploadStream.readable, {
+      headers: { 'Content-Type': 'text/event-stream' },
     });
 
-    const uploadUrl = await getSignedUrl(s3Client, command);
+    // Send "uploading complete" message
+    writer.write(encoder.encode('data: {"status": "processing"}\n\n'));
 
-    // Create meeting record
+    // Send to Flask server
+    const flaskResponse = await fetch('http://localhost:5000/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const { transcription, summary } = await flaskResponse.json();
+
+    // Store in database
     const meeting = await prisma.meeting.create({
       data: {
-        title,
-        userId,
-        recordingUrl: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`,
-      },
+        title: file.name,
+        transcript: transcription,
+        summary,
+        userId
+      }
     });
 
-    // Start transcription process (implement this next)
-    await startTranscription(meeting.id, fileName);
+    writer.write(encoder.encode(`data: {"status": "complete", "meeting": ${JSON.stringify(meeting)}}\n\n`));
+    writer.close();
 
-    return NextResponse.json({ meeting });
+    return responseStream;
   } catch (error) {
-    console.error("Upload error:", error);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
   }
-}
-
-async function startTranscription(meetingId: string, fileName: string) {
-  // We'll implement this in the next step
 }

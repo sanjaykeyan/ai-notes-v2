@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { isNewUser } from "@/lib/user-utils";
 import UploadButton from "@/components/upload-button";
+import DeleteMeetingButton from "@/components/DeleteMeetingButton";
 
 export default async function NewUserDashboard() {
   const { userId } = await auth();
@@ -150,12 +151,15 @@ export default async function NewUserDashboard() {
                       className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                     >
                       <td className="py-3 px-2">
-                        <a
-                          href={`/meetings/${meeting.id}`}
-                          className="text-blue-600 hover:text-blue-800 font-medium"
-                        >
-                          {meeting.title || "Untitled Meeting"}
-                        </a>
+                        <div className="flex items-center justify-between">
+                          <a
+                            href={`/meetings/${meeting.id}`}
+                            className="text-blue-600 hover:text-blue-800 font-medium"
+                          >
+                            {meeting.title || "Untitled Meeting"}
+                          </a>
+                          <DeleteMeetingButton id={meeting.id} />
+                        </div>
                       </td>
                       <td className="py-3 px-2 text-sm text-gray-600">
                         {new Date(meeting.createdAt).toLocaleDateString()}

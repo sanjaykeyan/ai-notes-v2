@@ -9,16 +9,26 @@ interface UploadButtonProps {
   isNewUser?: boolean;
 }
 
+
 export default function UploadButton({ type, isNewUser }: UploadButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const buttonConfig = {
     meeting: {
-      gradient: "from-blue-600 to-purple-600",
-      text: isNewUser ? "Upload Your First Meeting" : "Upload Recording",
+      gradient: isProcessing
+        ? "from-gray-400 to-gray-500"
+        : "from-blue-600 to-purple-600",
+      text: isProcessing
+        ? "Processing..."
+        : isNewUser
+        ? "Upload Your First Meeting"
+        : "Upload Recording",
       icon: (
         <svg
-          className="w-6 h-6 group-hover:animate-bounce"
+          className={`w-6 h-6 ${
+            isProcessing ? "" : "group-hover:animate-bounce"
+          }`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -53,30 +63,29 @@ export default function UploadButton({ type, isNewUser }: UploadButtonProps) {
     },
   };
 
-  const config = buttonConfig[type];
-
   return (
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className={`group relative ${
-          isNewUser
-            ? `bg-gradient-to-r ${config.gradient} text-white px-10 py-4`
-            : "bg-gray-50 text-gray-600 px-4 py-2"
-        } rounded-xl font-medium hover:shadow-xl hover:scale-105 transition-all duration-300
-        flex items-center gap-3`}
+        disabled={isProcessing}
+        className={`group flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white bg-gradient-to-r ${
+          buttonConfig[type].gradient
+        } transition-all duration-300 hover:shadow-lg disabled:cursor-not-allowed`}
       >
-        {config.icon}
-        {config.text}
+        {buttonConfig[type].icon}
+        {buttonConfig[type].text}
       </button>
+
       {type === "meeting" ? (
-        <UploadMeetingModal
-          isOpen={isModalOpen}
+        <UploadMeetingModal 
+          isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)}
+          onProcessingStart={() => setIsProcessing(true)}
+          onProcessingEnd={() => setIsProcessing(false)}
         />
       ) : (
-        <UploadTranscriptModal
-          isOpen={isModalOpen}
+        <UploadTranscriptModal 
+          isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)}
         />
       )}

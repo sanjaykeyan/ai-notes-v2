@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 interface UploadMeetingModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onProcessingStart: () => void;
+  onProcessingEnd: () => void;
 }
 
 export default function UploadMeetingModal({
@@ -19,19 +21,23 @@ export default function UploadMeetingModal({
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  const [phase, setPhase] = useState<"idle" | "uploading" | "processing">("idle");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file || !title) return;
 
     try {
       setLoading(true);
-
+      setPhase("uploading");
+      
       // Upload simulation
       for (let i = 0; i <= 100; i += 10) {
         setProgress(i);
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
 
+      setPhase("processing");
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", title);
@@ -50,6 +56,7 @@ export default function UploadMeetingModal({
     } finally {
       setLoading(false);
       setProgress(0);
+      setPhase("idle");
     }
   };
 
@@ -141,7 +148,11 @@ export default function UploadMeetingModal({
                 disabled={loading || !file || !title}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
-                {loading ? "Uploading..." : "Upload"}
+                {phase === "uploading"
+                  ? "Uploading..."
+                  : phase === "processing"
+                  ? "Processing..."
+                  : "Upload"}
               </button>
             </div>
           </form>
