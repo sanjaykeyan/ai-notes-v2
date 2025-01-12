@@ -4,6 +4,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
+In one Terminal run
+
 ```bash
 npm run dev
 # or
@@ -13,6 +15,16 @@ pnpm dev
 # or
 bun dev
 ```
+
+In Another terminal run
+
+```bash
+cd python-server
+pip install flask assemblyai groq
+python app.py
+```
+
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
