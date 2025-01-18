@@ -13,11 +13,16 @@
     "@aws-sdk/s3-request-presigner": "^3.726.1",
     "@clerk/nextjs": "^6.9.9",
     "@headlessui/react": "^2.2.0",
+    "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.2.1",
+    "@tailwindcss/typography": "^0.5.16",
+    "lucide-react": "^0.473.0",
     "next": "15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hot-toast": "^2.5.1"
+    "react-hot-toast": "^2.5.1",
+    "react-split": "^2.0.14",
+    "tailwind-scrollbar": "^3.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

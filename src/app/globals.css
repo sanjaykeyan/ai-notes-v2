@@ -24,4 +24,74 @@ body {
   .animate-bounce-slow {
     animation: bounce 2s infinite;
   }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Elegant Scrollbar */
+  .elegant-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(203, 213, 225, 0.4) transparent;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(203, 213, 225, 0.4);
+    border-radius: 9999px;
+  }
+
+  .elegant-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(148, 163, 184, 0.5);
+  }
+
+  .content-text {
+    @apply text-[15px] leading-relaxed text-gray-700;
+  }
+
+  .heading-text {
+    @apply font-semibold text-gray-900 tracking-tight;
+  }
+}
+
+/* Split Pane Styles */
+.split {
+  display: flex;
+}
+
+.gutter {
+  background-color: #f3f4f6;
+  position: relative;
+}
+
+.gutter:hover {
+  background-color: #e5e7eb;
+}
+
+.gutter.gutter-horizontal {
+  cursor: col-resize;
+}
+
+.gutter.gutter-horizontal::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 2rem;
+  background-color: #cbd5e1;
+  border-radius: 9999px;
 }

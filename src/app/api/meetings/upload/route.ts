@@ -1,35 +1,42 @@
-
-import { NextResponse } from 'next/server';
-import prisma  from '@/lib/prisma';
-import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
-    console.log('Current userId:', userId);
+    console.log("Current userId:", userId);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await req.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get("file") as File;
+    if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
+
     // First response to indicate upload complete
     const uploadStream = new TransformStream();
     const writer = uploadStream.writable.getWriter();
     const encoder = new TextEncoder();
 
     const responseStream = new Response(uploadStream.readable, {
-      headers: { 'Content-Type': 'text/event-stream' },
+      headers: { "Content-Type": "text/event-stream" },
     });
 
     // Send "uploading complete" message
     writer.write(encoder.encode('data: {"status": "processing"}\n\n'));
 
     // Send to Flask server
-    const flaskResponse = await fetch('http://localhost:5000/upload', {
-      method: 'POST',
-      body: formData
+    const flaskResponse = await fetch("http://127.0.0.1:5000/upload", {
+      method: "POST",
+      body: formData,
     });
+
+    if (!flaskResponse.ok) {
+      throw new Error(`Flask server error: ${flaskResponse.statusText}`);
+    }
 
     const { transcription, summary } = await flaskResponse.json();
 
@@ -39,16 +46,22 @@ export async function POST(req: Request) {
         title: file.name,
         transcript: transcription,
         summary,
-        userId
-      }
+        userId,
+      },
     });
 
-    writer.write(encoder.encode(`data: {"status": "complete", "meeting": ${JSON.stringify(meeting)}}\n\n`));
+    writer.write(
+      encoder.encode(
+        `data: {"status": "complete", "meeting": ${JSON.stringify(
+          meeting
+        )}}\n\n`
+      )
+    );
     writer.close();
 
     return responseStream;
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    return NextResponse.json({ error: "Processing failed" }, { status: 500 });
   }
 }

@@ -1,0 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+.meetings-container {
+  font-family: "Inter", sans-serif;
+}
+
+.meetings-container .content-text {
+  @apply text-[15px] leading-relaxed text-gray-700;
+}
+
+.meetings-container .heading-text {
+  @apply font-semibold text-gray-900 tracking-tight;
+}
