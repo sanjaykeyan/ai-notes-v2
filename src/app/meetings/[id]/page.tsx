@@ -31,7 +31,7 @@ export default function MeetingPage({
     <div className="h-full flex flex-col overflow-hidden no-scrollbar pb-[72px] bg-gray-50">
       {/* Meeting Title */}
       <div className="py-4 px-6 flex-shrink-0 bg-white border-b border-gray-200">
-        <h1 className="text-xl heading-text">
+        <h1 className="text-lg heading-text">
           {meeting.title || "Untitled Meeting"}
         </h1>
       </div>
@@ -39,19 +39,22 @@ export default function MeetingPage({
       {/* Resizable Three-Panel Layout */}
       <Split
         className="flex-1 flex split px-2"
-        sizes={[20, 40, 40]}
+        sizes={[20, 50, 30]} // Changed from [20, 40, 40] to make the transcript panel smaller
         minSize={[150, 300, 300]}
         gutterSize={4}
         snapOffset={30}
       >
         <div className="overflow-hidden h-full">
-          <ScreenA />
+          <ScreenA meetingId={meeting.id} />
         </div>
         <div className="overflow-hidden h-full">
           <ScreenB summary={meeting.summary ?? ""} />
         </div>
         <div className="overflow-hidden h-full">
-          <ScreenC transcript={meeting.transcript ?? ""} />
+          <ScreenC
+            transcript={meeting.transcript ?? ""}
+            meetingId={meeting.id}
+          />
         </div>
       </Split>
 
