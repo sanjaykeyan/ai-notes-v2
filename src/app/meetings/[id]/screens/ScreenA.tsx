@@ -1,50 +1,62 @@
+"use client";
 import { useState } from "react";
+import { MagnifyingGlassIcon, BookmarkIcon } from "@heroicons/react/24/outline";
 import Bookmarks from "./Bookmarks";
+import SmartFilters from "./SmartFilters";
 
 interface ScreenAProps {
   meetingId: string;
+  onBookmarksChange?: () => void;
 }
 
-export default function ScreenA({ meetingId }: ScreenAProps) {
-  const [activeTab, setActiveTab] = useState<"smart-filters" | "bookmarks">(
-    "smart-filters"
+export default function ScreenA({
+  meetingId,
+  onBookmarksChange,
+}: ScreenAProps) {
+  const [selectedView, setSelectedView] = useState<"search" | "bookmarks">(
+    "search"
   );
 
   return (
-    <div className="bg-white/70 backdrop-blur-sm shadow-xl h-full flex flex-col">
-      <div className="p-4 border-b shrink-0">
-        <div className="flex space-x-4">
+    <div className="h-full flex">
+      {/* Sidebar */}
+      <div className="h-full w-[60px] border-r border-gray-200 bg-white">
+        <nav className="p-2 space-y-2">
           <button
-            onClick={() => setActiveTab("smart-filters")}
-            className={`px-3 py-1.5 text-sm rounded-md ${
-              activeTab === "smart-filters"
-                ? "bg-gray-100 text-gray-900"
-                : "text-gray-600 hover:text-gray-900"
+            onClick={() => setSelectedView("search")}
+            className={`w-full p-3 rounded-md ${
+              selectedView === "search" ? "bg-gray-100" : ""
             }`}
           >
-            SmartFilters
+            <MagnifyingGlassIcon className="h-5 w-5" />
           </button>
           <button
-            onClick={() => setActiveTab("bookmarks")}
-            className={`px-3 py-1.5 text-sm rounded-md ${
-              activeTab === "bookmarks"
-                ? "bg-gray-100 text-gray-900"
-                : "text-gray-600 hover:text-gray-900"
+            onClick={() => setSelectedView("bookmarks")}
+            className={`w-full p-3 rounded-md ${
+              selectedView === "bookmarks" ? "bg-gray-100" : ""
             }`}
           >
-            Bookmarks
+            <BookmarkIcon className="h-5 w-5" />
           </button>
-        </div>
+        </nav>
       </div>
-      <div className="relative flex-1 overflow-hidden">
-        <div className="absolute inset-0 overflow-y-auto elegant-scrollbar">
-          <div className="p-4">
-            {activeTab === "smart-filters" ? (
-              <div>{/* SmartFilters content */}</div>
-            ) : (
-              <Bookmarks meetingId={meetingId} />
-            )}
-          </div>
+
+      {/* Content */}
+      <div className="flex-1 bg-white/70 backdrop-blur-sm shadow-xl">
+        <div className="px-4 py-3 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {selectedView === "bookmarks" ? "Bookmarks" : "Smart Filters"}
+          </h2>
+        </div>
+        <div className="p-4">
+          {selectedView === "bookmarks" ? (
+            <Bookmarks
+              meetingId={meetingId}
+              onBookmarksChange={onBookmarksChange}
+            />
+          ) : (
+            <SmartFilters meetingId={meetingId} />
+          )}
         </div>
       </div>
     </div>

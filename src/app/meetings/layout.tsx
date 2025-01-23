@@ -1,5 +1,6 @@
+"use client";
+import React from "react";
 import "./meetings.css";
-import Sidebar from "@/components/MeetingSidebar";
 
 export default function MeetingsLayout({
   children,
@@ -8,9 +9,10 @@ export default function MeetingsLayout({
 }) {
   return (
     <div className="h-screen overflow-hidden pt-[72px] bg-white meetings-container">
-      <div className="h-full flex">
-        <Sidebar />
-        <div className="flex-1">{children}</div>
+      <div className="h-full flex flex-col">
+        <div className="flex-1 flex">
+          <div className="h-full flex-1">{children}</div>
+        </div>
       </div>
     </div>
   );

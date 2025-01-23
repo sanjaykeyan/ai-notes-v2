@@ -36,7 +36,8 @@ model Meeting {
   user          User      @relation(fields: [userId], references: [id])
   teamId        String?
   team          Team?     @relation(fields: [teamId], references: [id])
-  bookmarks     Bookmark[]
+  bookmarks     Bookmark[] @relation("MeetingBookmarks")
+  speakerMappings SpeakerMapping[] @relation("MeetingSpeakerMappings")
 }
 
 model Team {
@@ -65,7 +66,19 @@ model Bookmark {
   id            String    @id @default(cuid())
   text          String    @db.Text
   meetingId     String
-  meeting       Meeting   @relation(fields: [meetingId], references: [id])
+  meeting       Meeting   @relation("MeetingBookmarks", fields: [meetingId], references: [id], onDelete: Cascade)
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @default(now())
+}
+
+model SpeakerMapping {
+  id            String    @id @default(cuid())
+  originalName  String
+  customName    String
+  meetingId     String
+  meeting       Meeting   @relation("MeetingSpeakerMappings", fields: [meetingId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now())
+
+  @@unique([meetingId, originalName])
 }

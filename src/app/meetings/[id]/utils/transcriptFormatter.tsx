@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface SpeakerLabelProps {
   speaker: string;
+  meetingId: string;
+  customNames: Record<string, string>;
+  onSpeakerUpdate: (original: string, custom: string) => void;
 }
 
 const speakerColors: { [key: string]: string } = {};
@@ -14,20 +17,49 @@ const colorPalette = [
   "bg-cyan-100 text-cyan-800",
 ];
 
-const SpeakerLabel: React.FC<SpeakerLabelProps> = ({ speaker }) => {
-  // Assign consistent colors to speakers
+const SpeakerLabel: React.FC<SpeakerLabelProps> = ({
+  speaker,
+  meetingId,
+  customNames,
+  onSpeakerUpdate,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [customName, setCustomName] = useState(
+    customNames[speaker] || speaker.replace(/^Speaker\s*/, "")
+  );
+
   if (!speakerColors[speaker]) {
     const colorIndex = Object.keys(speakerColors).length % colorPalette.length;
     speakerColors[speaker] = colorPalette[colorIndex];
   }
 
-  const speakerIdentifier = speaker.replace(/^Speaker\s*/, "");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsEditing(false);
+    onSpeakerUpdate(speaker, customName);
+  };
+
+  if (isEditing) {
+    return (
+      <form onSubmit={handleSubmit} className="inline-block">
+        <input
+          type="text"
+          value={customName}
+          onChange={(e) => setCustomName(e.target.value)}
+          className="px-2.5 py-0.5 rounded-md text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          autoFocus
+          onBlur={handleSubmit}
+        />
+      </form>
+    );
+  }
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium ${speakerColors[speaker]}`}
+      onClick={() => setIsEditing(true)}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium ${speakerColors[speaker]} cursor-pointer hover:opacity-80`}
     >
-      {speakerIdentifier}
+      {customNames[speaker] || speaker.replace(/^Speaker\s*/, "")}
     </span>
   );
 };
@@ -51,7 +83,13 @@ function highlightText(text: string, searchTerm: string) {
   );
 }
 
-export function formatTranscript(transcript: string, searchTerm: string = "") {
+export function formatTranscript(
+  transcript: string,
+  searchTerm: string = "",
+  meetingId: string,
+  customNames: Record<string, string> = {},
+  onSpeakerUpdate: (original: string, custom: string) => void
+) {
   if (!transcript) return [];
 
   const lines = transcript.split("\n").filter((line) => line.trim());
@@ -71,7 +109,12 @@ export function formatTranscript(transcript: string, searchTerm: string = "") {
       return (
         <div key={index} className="mb-6 last:mb-0">
           <div className="mb-2">
-            <SpeakerLabel speaker={speaker.trim()} />
+            <SpeakerLabel
+              speaker={speaker.trim()}
+              meetingId={meetingId}
+              customNames={customNames}
+              onSpeakerUpdate={onSpeakerUpdate}
+            />
           </div>
           <div className="pl-4 content-text">
             {highlightText(text.trim(), searchTerm)}

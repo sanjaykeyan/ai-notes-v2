@@ -11,3 +11,18 @@
 .meetings-container .heading-text {
   @apply font-semibold text-gray-900 tracking-tight;
 }
+
+/* Add these new styles */
+.split {
+  padding: 0 !important;
+  margin: 0;
+  transition: all 0.3s ease;
+}
+
+.gutter {
+  transition: all 0.3s ease;
+  background-color: #f3f4f6;
+}
+.split > div {
+  padding-left: 0 !important;
+}
