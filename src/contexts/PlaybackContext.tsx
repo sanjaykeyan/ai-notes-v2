@@ -3,24 +3,43 @@ import React, { createContext, useContext, useState } from 'react';
 interface PlaybackContextType {
   currentTime: number;
   setCurrentTime: (time: number) => void;
+  seekTo: (time: number) => void;
+  registerSeekCallback: (callback: (time: number) => void) => void;
 }
-
-const PlaybackContext = createContext<PlaybackContextType | undefined>(undefined);
+const PlaybackContext = createContext<PlaybackContextType>({
+  currentTime: 0,
+  setCurrentTime: () => {},
+  seekTo: () => {},
+  registerSeekCallback: () => {},
+});
 
 export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0);
+  const [seekCallback, setSeekCallback] = useState<((time: number) => void) | null>(null);
+
+  // Memoize the callback registration function
+  const registerSeekCallback = React.useCallback((callback: (time: number) => void) => {
+    setSeekCallback(() => callback);
+  }, []); // Empty dependency array since this function never needs to change
+
+  const seekTo = React.useCallback((time: number) => {
+    if (seekCallback) {
+      seekCallback(time);
+    }
+  }, [seekCallback]);
+
+  const value = React.useMemo(() => ({
+    currentTime,
+    setCurrentTime,
+    seekTo,
+    registerSeekCallback,
+  }), [currentTime, seekTo, registerSeekCallback]);
 
   return (
-    <PlaybackContext.Provider value={{ currentTime, setCurrentTime }}>
+    <PlaybackContext.Provider value={value}>
       {children}
     </PlaybackContext.Provider>
   );
 }
 
-export function usePlayback() {
-  const context = useContext(PlaybackContext);
-  if (context === undefined) {
-    throw new Error('usePlayback must be used within a PlaybackProvider');
-  }
-  return context;
-}
+export const usePlayback = () => useContext(PlaybackContext);

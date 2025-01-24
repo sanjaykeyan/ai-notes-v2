@@ -22,7 +22,7 @@ export default function ScreenC({
   timestampMapping = [], // Add default empty array
   onBookmarkCreate,
 }: ScreenCProps) {
-  const { currentTime } = usePlayback();
+  const { currentTime, seekTo } = usePlayback();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreatingBookmark, setIsCreatingBookmark] = useState(false);
   const [showPopover, setShowPopover] = useState(false);
@@ -101,6 +101,11 @@ export default function ScreenC({
   };
 
   // Load custom names when component mounts
+  interface SpeakerMapping {
+    originalName: string;
+    customName: string;
+  }
+
   useEffect(() => {
     const loadCustomNames = async () => {
       try {
@@ -108,7 +113,7 @@ export default function ScreenC({
         if (response.ok) {
           const mappings = await response.json();
           const names = mappings.reduce(
-            (acc: Record<string, string>, mapping: any) => {
+            (acc: Record<string, string>, mapping: SpeakerMapping) => {
               acc[mapping.originalName] = mapping.customName;
               return acc;
             },
@@ -229,6 +234,11 @@ export default function ScreenC({
     return currentIndex >= 0 ? currentIndex : null;
   };
 
+  const handleSegmentClick = (startTime: number) => {
+    // Convert milliseconds to seconds for the audio player
+    seekTo(startTime / 1000);
+  };
+
   const renderTranscriptContent = () => {
     if (!timestampMapping?.length) {
       return formattedTranscript;
@@ -248,7 +258,8 @@ export default function ScreenC({
           return (
             <div 
               key={`segment-${index}`}
-              className={`py-2 px-4 rounded transition-colors ${
+              onClick={() => handleSegmentClick(segment.start_time)}
+              className={`py-2 px-4 rounded transition-colors cursor-pointer hover:bg-gray-50 ${
                 index === getCurrentSegment()
                   ? 'bg-blue-50 border-l-4 border-blue-500'
                   : ''

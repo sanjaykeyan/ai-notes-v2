@@ -15,7 +15,19 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const { setCurrentTime: setPlaybackCurrentTime } = usePlayback();
+  const { setCurrentTime: setPlaybackCurrentTime, registerSeekCallback } = usePlayback();
+
+  // Separate effect for seek callback registration
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    registerSeekCallback((time: number) => {
+      if (audio) {
+        audio.currentTime = time;
+      }
+    });
+  }, [registerSeekCallback]); // Only re-run if registerSeekCallback changes
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -97,7 +109,7 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
       audio.removeEventListener('progress', handleProgress);
       audio.removeEventListener('canplaythrough', handleCanPlayThrough);
     };
-  }, [audioUrl, setPlaybackCurrentTime]);
+  }, [audioUrl, setPlaybackCurrentTime]); // Remove registerSeekCallback from dependencies
 
   const togglePlay = async () => {
     const audio = audioRef.current;
