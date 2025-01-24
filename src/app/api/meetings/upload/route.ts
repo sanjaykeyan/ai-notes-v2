@@ -15,8 +15,13 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    const title = formData.get("title") as string;
+
+    if (!file || !title) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
     // Upload to S3 first
@@ -49,7 +54,7 @@ export async function POST(req: Request) {
     // Store in database with audioUrl
     const meeting = await prisma.meeting.create({
       data: {
-        title: file.name,
+        title,
         transcript: transcription,
         summary,
         timestampMapping: timestamp_mapping,
