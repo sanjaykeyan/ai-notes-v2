@@ -12,8 +12,13 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    const title = formData.get("title") as string;
+
+    if (!file || !title) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
     // First response to indicate upload complete
@@ -43,7 +48,7 @@ export async function POST(req: Request) {
     // Store in database
     const meeting = await prisma.meeting.create({
       data: {
-        title: file.name,
+        title,
         transcript: transcription,
         summary,
         userId,
