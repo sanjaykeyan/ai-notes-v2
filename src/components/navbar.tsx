@@ -56,7 +56,10 @@ const Navbar = () => {
           >
             Dashboard
           </button>
-          <button className="text-gray-600 hover:text-blue-600 transition-colors">
+          <button
+            className="text-gray-600 hover:text-blue-600 transition-colors"
+            onClick={() => router.push("/meetings")}
+          >
             Meetings
           </button>
           <button className="text-gray-600 hover:text-blue-600 transition-colors">
