@@ -4,26 +4,72 @@ import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: { id: string } }
 ) {
-  const resolvedParams = params instanceof Promise ? await params : params;
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const meeting = await prisma.meeting.findUnique({
-    where: { id: resolvedParams.id },
-    select: {
-      id: true,
-      title: true,
-      transcript: true,
-      summary: true,
-      createdAt: true,
-    },
-  });
+    const meeting = await prisma.meeting.findUnique({
+      where: {
+        id: params.id,
+      },
+      select: {
+        id: true,
+        title: true,
+        transcript: true,
+        summary: true,
+        recordingUrl: true, // Add this field
+        timestampMapping:true,
+        createdAt: true,
+        userId: true,
+      },
+    });
 
-  if (!meeting) {
-    return new NextResponse("Not Found", { status: 404 });
+    // Debug logging
+    console.log("Raw meeting data:", {
+      hasTimestampMapping: Boolean(meeting?.timestampMapping),
+      timestampMappingType: typeof meeting?.timestampMapping,
+      rawTimestampMapping: meeting?.timestampMapping
+    });
+
+    if (!meeting) {
+      return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
+    }
+
+    if (meeting.userId !== userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Parse timestampMapping correctly
+    let parsedTimestampMapping = [];
+    try {
+      if (meeting?.timestampMapping) {
+        parsedTimestampMapping = typeof meeting.timestampMapping === 'string'
+          ? JSON.parse(meeting.timestampMapping)
+          : meeting.timestampMapping;
+      }
+      console.log("Timestamp mapping type:", typeof parsedTimestampMapping);
+      console.log("First item:", parsedTimestampMapping[0]);
+    } catch (e) {
+      console.error('Error parsing timestamp mapping:', e);
+    }
+
+    const parsedMeeting = {
+      ...meeting,
+      timestampMapping: parsedTimestampMapping
+    };
+
+    return NextResponse.json(parsedMeeting);
+  } catch (error) {
+    console.error("Error fetching meeting:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch meeting" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(meeting);
 }
 
 export async function DELETE(

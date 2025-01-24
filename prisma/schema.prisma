@@ -38,6 +38,7 @@ model Meeting {
   team          Team?     @relation(fields: [teamId], references: [id])
   bookmarks     Bookmark[] @relation("MeetingBookmarks")
   speakerMappings SpeakerMapping[] @relation("MeetingSpeakerMappings")
+  timestampMapping Json?   
 }
 
 model Team {

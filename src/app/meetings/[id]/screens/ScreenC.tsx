@@ -2,10 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import { formatTranscript } from "../utils/transcriptFormatter";
 import { MagnifyingGlassIcon, BookmarkIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
+import { usePlayback } from '@/contexts/PlaybackContext';
 
 interface ScreenCProps {
   transcript: string;
   meetingId: string;
+  timestampMapping: Array<{ text: string; start_time: number }>;
   onBookmarkCreate?: () => void;
 }
 
@@ -17,8 +19,10 @@ interface PopoverPosition {
 export default function ScreenC({
   transcript,
   meetingId,
+  timestampMapping = [], // Add default empty array
   onBookmarkCreate,
 }: ScreenCProps) {
+  const { currentTime } = usePlayback();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreatingBookmark, setIsCreatingBookmark] = useState(false);
   const [showPopover, setShowPopover] = useState(false);
@@ -29,6 +33,30 @@ export default function ScreenC({
   const [selectedText, setSelectedText] = useState("");
   const [customNames, setCustomNames] = useState<Record<string, string>>({});
   const popoverRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    console.log("ScreenC received:", {
+      hasTranscript: Boolean(transcript),
+      transcriptLength: transcript?.length,
+      hasTimestampMapping: Boolean(timestampMapping),
+      timestampMappingLength: timestampMapping?.length,
+      timestampMappingSample: timestampMapping?.slice(0, 2)
+    });
+  }, [transcript, timestampMapping]);
+
+  useEffect(() => {
+    // More detailed logging
+    console.log("ScreenC received transcript:", {
+      transcript: transcript,
+      type: typeof transcript,
+      isArray: Array.isArray(transcript)
+    });
+    
+    console.log("ScreenC timestampMapping sample:", {
+      first: timestampMapping?.[0],
+      textType: timestampMapping?.[0]?.text ? typeof timestampMapping[0].text : 'undefined'
+    });
+  }, [transcript, timestampMapping]);
 
   const handleSpeakerUpdate = async (
     originalName: string,
@@ -186,6 +214,54 @@ export default function ScreenC({
     }
   };
 
+  const getCurrentSegment = () => {
+    if (!timestampMapping || timestampMapping.length === 0) return null;
+    
+    const currentTimeMs = currentTime * 1000;
+    console.log("Current time (ms):", currentTimeMs);
+    
+    const currentIndex = timestampMapping.findIndex((segment, index) => {
+      const nextSegment = timestampMapping[index + 1];
+      return segment.start_time <= currentTimeMs && 
+             (!nextSegment || nextSegment.start_time > currentTimeMs);
+    });
+    
+    return currentIndex >= 0 ? currentIndex : null;
+  };
+
+  const renderTranscriptContent = () => {
+    if (!timestampMapping?.length) {
+      return formattedTranscript;
+    }
+  
+    return (
+      <div className="space-y-1">
+        {timestampMapping.map((segment, index) => {
+          const formattedText = formatTranscript(
+            segment.text,
+            searchTerm,
+            meetingId,
+            customNames,
+            handleSpeakerUpdate
+          );
+
+          return (
+            <div 
+              key={`segment-${index}`}
+              className={`py-2 px-4 rounded transition-colors ${
+                index === getCurrentSegment()
+                  ? 'bg-blue-50 border-l-4 border-blue-500'
+                  : ''
+              }`}
+            >
+              {formattedText}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white shadow-sm border border-gray-200 h-full flex flex-col">
       {isCreatingBookmark && (
@@ -231,7 +307,7 @@ export default function ScreenC({
         <div className="absolute inset-0 overflow-y-auto elegant-scrollbar">
           <div className="p-6">
             <div className="space-y-1" onMouseUp={handleTextSelection}>
-              {formattedTranscript}
+              {renderTranscriptContent()}
             </div>
           </div>
         </div>

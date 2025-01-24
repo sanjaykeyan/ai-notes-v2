@@ -49,10 +49,18 @@ def process_audio(audio_path):
     print(f"Transcription time: {transcription_end - transcription_start:.2f} seconds")
     
     result = ""
+    timestamp_mapping = []
     for utterance in transcript.utterances:
-        result += f"Speaker {utterance.speaker}: {utterance.text}\n"
+        # Keep the original text format
+        text = f"Speaker {utterance.speaker}: {utterance.text}"
+        result += f"{text}\n"
+        timestamp_mapping.append({
+            "text": text,
+            "start_time": utterance.start
+        })
     
-   
+    # print("Timestamp mapping:", json.dumps(timestamp_mapping, indent=2))
+    
     result = result[:6000]
     
     prompt = f"""Based on this conversation: {result}
@@ -133,7 +141,8 @@ IMPORTANT:
 
     return {
         'transcription': result,
-        'summary': formatted_summary
+        'summary': formatted_summary,
+        'timestamp_mapping': json.dumps(timestamp_mapping)  # Convert to JSON string
     }
 
 @app.route('/')

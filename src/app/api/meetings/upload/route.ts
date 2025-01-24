@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { uploadToS3 } from "@/lib/s3";
 
 export async function POST(req: Request) {
+  let writer: WritableStreamDefaultWriter | undefined;
+  
   try {
     const { userId } = await auth();
     console.log("Current userId:", userId);
@@ -16,9 +19,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
+    // Upload to S3 first
+    const audioUrl = await uploadToS3(file, userId);
+
     // First response to indicate upload complete
     const uploadStream = new TransformStream();
-    const writer = uploadStream.writable.getWriter();
+    writer = uploadStream.writable.getWriter();
     const encoder = new TextEncoder();
 
     const responseStream = new Response(uploadStream.readable, {
@@ -38,14 +44,16 @@ export async function POST(req: Request) {
       throw new Error(`Flask server error: ${flaskResponse.statusText}`);
     }
 
-    const { transcription, summary } = await flaskResponse.json();
+    const { transcription, summary, timestamp_mapping } = await flaskResponse.json();
 
-    // Store in database
+    // Store in database with audioUrl
     const meeting = await prisma.meeting.create({
       data: {
         title: file.name,
         transcript: transcription,
         summary,
+        timestampMapping: timestamp_mapping,
+        recordingUrl: audioUrl, // Store the S3 URL
         userId,
       },
     });
@@ -61,7 +69,24 @@ export async function POST(req: Request) {
 
     return responseStream;
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Processing failed" }, { status: 500 });
+    // Clean up resources
+    if (writer) {
+      try {
+        await writer.close();
+      } catch (closeError) {
+        console.error("Error closing writer:", closeError);
+      }
+    }
+
+    // Properly format error response
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error("Upload processing error:", errorMessage);
+    
+    return NextResponse.json({
+      error: "Processing failed",
+      details: errorMessage
+    }, { 
+      status: 500 
+    });
   }
 }
