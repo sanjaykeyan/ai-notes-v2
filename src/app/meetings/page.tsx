@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import DeleteMeetingButton from "@/components/DeleteMeetingButton";
 import { EyeIcon } from "@heroicons/react/24/outline";
+import UploadButton from "@/components/upload-button";
 
 export default async function MeetingsPage() {
   const { userId } = await auth();
@@ -21,11 +22,16 @@ export default async function MeetingsPage() {
 
   return (
     <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Your Meetings</h1>
-        <p className="text-gray-600">
-          Manage and access all your meeting notes
-        </p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Your Meetings</h1>
+          <p className="text-gray-600">
+            Manage and access all your meeting notes
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <UploadButton type="meeting" />
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-lg border border-gray-100">
@@ -33,19 +39,19 @@ export default async function MeetingsPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-blue-50">
-                <th className="px-6 py-4 text-left text-sm font-medium text-blue-700">
+                <th className="px-6 py-4 text-left text-base font-medium text-blue-700">
                   Title
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-blue-700">
+                <th className="px-6 py-4 text-left text-base font-medium text-blue-700">
                   Date
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-blue-700">
+                <th className="px-6 py-4 text-left text-base font-medium text-blue-700">
                   Speakers
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-blue-700">
+                <th className="px-6 py-4 text-left text-base font-medium text-blue-700">
                   Duration
                 </th>
-                <th className="px-6 py-4 text-right text-sm font-medium text-blue-700">
+                <th className="px-6 py-4 text-right text-base font-medium text-blue-700">
                   Actions
                 </th>
               </tr>
