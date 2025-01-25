@@ -42,13 +42,13 @@ export default function ScreenA({
       </div>
 
       {/* Content */}
-      <div className="flex-1 bg-white/70 backdrop-blur-sm shadow-xl">
+      <div className="flex-1 bg-white/70 backdrop-blur-sm shadow-xl flex flex-col">
         <div className="px-4 py-3 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">
             {selectedView === "bookmarks" ? "Bookmarks" : "Smart Filters"}
           </h2>
         </div>
-        <div className="p-4">
+        <div className="flex-1 overflow-auto">
           {selectedView === "bookmarks" ? (
             <Bookmarks
               meetingId={meetingId}
