@@ -42,16 +42,30 @@ export async function GET(
         messages: [
           {
             role: "system",
-            content:
-              "Extract dates, metrics, and tasks from this transcript and return as JSON.",
+            content: `Extract information from the transcript and return ONLY a JSON object with this exact structure:
+{
+  "dates": [
+    "string dates only"
+  ],
+  "metrics": [
+    "metric: value pairs as strings"
+  ],
+  "tasks": [
+    "task descriptions as strings"
+  ]
+}
+Important: All array items must be strings, not objects. Format each item as a readable string.
+Example metrics: "Revenue: $500k", "Users: 1.2M"
+Example tasks: "John to review Q4 report", "Schedule follow-up meeting"
+Do not include any explanatory text or descriptions.`,
           },
           {
             role: "user",
             content: meeting.transcript,
           },
         ],
-        model: "llama-3.3-70b-versatile", // Try a different model
-        temperature: 0.3,
+        model: "mixtral-8x7b-32768",
+        temperature: 0,
         max_tokens: 1000,
       })
       .catch((error) => {
