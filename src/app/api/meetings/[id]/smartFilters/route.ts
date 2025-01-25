@@ -58,18 +58,16 @@ export async function GET(
             content: `Extract information from the transcript and return ONLY a JSON object with this exact structure:
 {
   "dates": [
-    "string dates only"
+    "string dates only, display only the instances when a specific date was mentioned in the transcript"
   ],
   "metrics": [
-    "metric: value pairs as strings"
+    "metric: value pairs as strings, return only the instances when a specific metric was mentioned in the transcript"
   ],
   "tasks": [
-    "task descriptions as strings"
+    "task descriptions as strings, return only the instances when a specific task was mentioned in the transcript"
   ]
 }
 Important: All array items must be strings, not objects. Format each item as a readable string.
-Example metrics: "Revenue: $500k", "Users: 1.2M"
-Example tasks: "John to review Q4 report", "Schedule follow-up meeting"
 Do not include any explanatory text or descriptions.`,
           },
           {

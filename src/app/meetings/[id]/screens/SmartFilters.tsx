@@ -34,14 +34,16 @@ export default function SmartFilters({ meetingId }: SmartFiltersProps) {
     fetchData();
   }, [meetingId]);
 
-  if (isLoading) return <div className="p-4">Loading...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (isLoading) return <div className="p-2">Loading...</div>;
+  if (error) return <div className="p-2 text-red-500">{error}</div>;
 
   return (
-    <div className="p-4 h-full overflow-auto">
-      <SmartFilterDisplay
-        data={data || { dates: [], metrics: [], tasks: [] }}
-      />
+    <div className="h-full overflow-y-auto elegant-scrollbar">
+      <div className="p-2">
+        <SmartFilterDisplay
+          data={data || { dates: [], metrics: [], tasks: [] }}
+        />
+      </div>
     </div>
   );
 }

@@ -116,7 +116,7 @@ export function formatTranscript(
               onSpeakerUpdate={onSpeakerUpdate}
             />
           </div>
-          <div className="pl-4 content-text">
+          <div className="pl-4 text-[14px] leading-relaxed text-gray-700">
             {highlightText(text.trim(), searchTerm)}
           </div>
         </div>
