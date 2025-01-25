@@ -11,6 +11,19 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // First check for existing smart filters
+    const existingFilter = await prisma.smartFilter.findUnique({
+      where: { meetingId: params.id },
+    });
+
+    if (existingFilter) {
+      console.log("Returning cached smart filters");
+      return NextResponse.json({
+        content: existingFilter.content,
+        cached: true,
+      });
+    }
+
     // Verify API key is present
     if (!process.env.GROQ_API_KEY) {
       console.error("GROQ_API_KEY is not configured");
@@ -73,9 +86,22 @@ Do not include any explanatory text or descriptions.`,
         throw error;
       });
 
+    const content = completion.choices[0]?.message?.content;
+
+    // Save the generated filters
+    if (content) {
+      await prisma.smartFilter.create({
+        data: {
+          meetingId: params.id,
+          content: content,
+        },
+      });
+    }
+
     console.log("Groq API Response:", completion.choices[0]?.message);
     return NextResponse.json({
-      content: completion.choices[0]?.message?.content,
+      content,
+      cached: false,
     });
   } catch (error: any) {
     console.error("Detailed error:", {
@@ -88,6 +114,24 @@ Do not include any explanatory text or descriptions.`,
         error: "Failed to process transcript",
         details: error.message,
       },
+      { status: 500 }
+    );
+  }
+}
+
+// Add DELETE endpoint to allow clearing cached filters if needed
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await prisma.smartFilter.delete({
+      where: { meetingId: params.id },
+    });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to delete smart filters" },
       { status: 500 }
     );
   }

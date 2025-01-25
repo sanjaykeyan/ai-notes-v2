@@ -39,6 +39,7 @@ model Meeting {
   bookmarks     Bookmark[] @relation("MeetingBookmarks")
   speakerMappings SpeakerMapping[] @relation("MeetingSpeakerMappings")
   timestampMapping Json?   
+  smartFilter   SmartFilter? @relation("MeetingSmartFilter")
 }
 
 model Team {
@@ -58,7 +59,7 @@ model TeamMember {
   user          User      @relation(fields: [userId], references: [id])
   team          Team      @relation(fields: [teamId], references: [id])
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @default(now())
 
   @@unique([userId, teamId])
 }
@@ -82,4 +83,13 @@ model SpeakerMapping {
   updatedAt     DateTime  @default(now())
 
   @@unique([meetingId, originalName])
+}
+
+model SmartFilter {
+  id            String    @id @default(cuid())
+  content       String    @db.Text
+  meetingId     String    @unique
+  meeting       Meeting   @relation("MeetingSmartFilter", fields: [meetingId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
