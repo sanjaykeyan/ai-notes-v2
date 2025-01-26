@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/navbar";
 
 const HomePage = () => {
   const router = useRouter();
@@ -10,6 +11,7 @@ const HomePage = () => {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Navbar />
       {/* Hero Section */}
       <section className="pt-32 pb-20">
         <div className="container mx-auto px-6">

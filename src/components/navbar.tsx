@@ -11,23 +11,16 @@ const Navbar = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
+  useEffect(() => setIsMobileMenuOpen(false), [pathname]);
 
   const AuthenticatedContent = () => {
     useEffect(() => {
       if (isLoaded && isSignedIn && user) {
         console.log("Current user:", {
           id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          fullName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+          name: user.fullName,
           email: user.emailAddresses[0]?.emailAddress,
         });
       }
@@ -35,15 +28,12 @@ const Navbar = () => {
 
     return (
       <>
-        {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
-          {/* Search Bar */}
           <div className="relative">
             <input
               type="text"
               placeholder="Search..."
-              className="w-64 px-4 py-2 rounded-lg bg-gray-100 focus:bg-white border border-transparent
-                         focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
+              className="w-64 px-4 py-2 rounded-lg bg-gray-100 focus:bg-white border border-transparent focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
             />
             <svg
               className="w-5 h-5 text-gray-400 absolute right-3 top-2.5"
@@ -59,8 +49,6 @@ const Navbar = () => {
               />
             </svg>
           </div>
-
-          {/* Desktop Navigation Links */}
           <nav className="flex items-center gap-6">
             <button
               className="text-gray-600 hover:text-blue-600 transition-colors"
@@ -78,8 +66,6 @@ const Navbar = () => {
               Teams
             </button>
           </nav>
-
-          {/* Notification Bell */}
           <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
             <svg
               className="w-6 h-6 text-gray-600"
@@ -96,26 +82,15 @@ const Navbar = () => {
             </svg>
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-
           <UserButton
             afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox: "w-8 h-8",
-              },
-            }}
+            appearance={{ elements: { avatarBox: "w-8 h-8" } }}
           />
         </div>
-
-        {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center gap-4">
           <UserButton
             afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox: "w-8 h-8",
-              },
-            }}
+            appearance={{ elements: { avatarBox: "w-8 h-8" } }}
           />
           <button
             onClick={toggleMobileMenu}
@@ -145,8 +120,6 @@ const Navbar = () => {
             </svg>
           </button>
         </div>
-
-        {/* Mobile Menu Overlay */}
         {createPortal(
           <div
             className={`fixed inset-0 bg-black/50 z-[999] md:hidden transition-opacity duration-300 ${
@@ -161,7 +134,6 @@ const Navbar = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 space-y-4">
-                {/* Close button */}
                 <button
                   onClick={toggleMobileMenu}
                   className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
@@ -180,7 +152,6 @@ const Navbar = () => {
                     />
                   </svg>
                 </button>
-
                 <div className="pt-8 mb-8">
                   <input
                     type="text"
@@ -228,11 +199,9 @@ const Navbar = () => {
             MeetingNotes AI
           </span>
         </button>
-
         <SignedIn>
           <AuthenticatedContent />
         </SignedIn>
-
         <SignedOut>
           <div className="flex items-center gap-4">
             <button className="hidden md:block text-gray-600 hover:text-gray-900">
@@ -243,8 +212,7 @@ const Navbar = () => {
             </button>
             <Link
               href="/auth/sign-in"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 
-                         transition-all duration-200 hover:shadow-lg"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-lg"
             >
               Sign In
             </Link>

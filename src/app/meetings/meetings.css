@@ -26,3 +26,26 @@
 .split > div {
   padding-left: 0 !important;
 }
+
+/* Add smooth transition for tab switching */
+@media (max-width: 1024px) {
+  .screen-transition-enter {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  
+  .screen-transition-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 200ms ease-out, transform 200ms ease-out;
+  }
+  
+  .screen-transition-exit {
+    opacity: 1;
+  }
+  
+  .screen-transition-exit-active {
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+  }
+}

@@ -18,7 +18,7 @@ export default function ScreenA({
   );
 
   return (
-    <div className="h-[calc(100vh-200px)] flex">
+    <div className="h-full flex">
       {" "}
       {/* Adjusted height to account for header (72px) + audio player (~128px) */}
       {/* Sidebar */}

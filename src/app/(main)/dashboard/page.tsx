@@ -24,7 +24,7 @@ export default async function NewUserDashboard() {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-144px)]">
+    <div className="flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-72px)]">
       {/* Left Column */}
       <div className="lg:w-2/3 space-y-6">
         {/* Welcome Section with Upload */}
