@@ -21,37 +21,82 @@ export default async function MeetingsPage() {
   });
 
   return (
-    <div className="p-6">
-      <div className="mb-8 flex justify-between items-center">
+    <div className="p-4 md:p-6">
+      <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Your Meetings</h1>
-          <p className="text-gray-600">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Your Meetings</h1>
+          <p className="text-sm md:text-base text-gray-600">
             Manage and access all your meeting notes
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center">
           <UploadButton type="meeting" />
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg border border-gray-100">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden">
+        {/* Mobile View - Card Layout */}
+        <div className="md:hidden divide-y divide-gray-200">
+          {meetings.map((meeting) => (
+            <div key={meeting.id} className="p-4 hover:bg-gray-50/60">
+              <div className="flex justify-between items-start mb-2">
+                <a
+                  href={`/meetings/${meeting.id}`}
+                  className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                >
+                  {meeting.title || "Untitled Meeting"}
+                </a>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`/meetings/${meeting.id}`}
+                    className="text-gray-600 hover:text-blue-600 transition-colors duration-150"
+                  >
+                    <EyeIcon className="h-5 w-5" />
+                  </a>
+                  <DeleteMeetingButton id={meeting.id} />
+                </div>
+              </div>
+              <div className="space-y-2 text-sm">
+                <p className="text-gray-500">
+                  {new Date(meeting.createdAt).toLocaleDateString()}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {meeting.speakerMappings.map((speaker, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700"
+                    >
+                      {speaker.customName}
+                    </span>
+                  ))}
+                  {meeting.speakerMappings.length === 0 && (
+                    <span className="text-gray-400 text-sm">No speakers</span>
+                  )}
+                </div>
+                <p className="text-gray-500">Duration: {meeting.duration || "N/A"}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View - Table Layout */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-blue-50">
-                <th className="px-6 py-4 text-left text-base font-medium text-blue-700">
+                <th className="px-4 md:px-6 py-3 md:py-4 text-left text-sm md:text-base font-medium text-blue-700">
                   Title
                 </th>
-                <th className="px-6 py-4 text-left text-base font-medium text-blue-700">
+                <th className="px-4 md:px-6 py-3 md:py-4 text-left text-sm md:text-base font-medium text-blue-700">
                   Date
                 </th>
-                <th className="px-6 py-4 text-left text-base font-medium text-blue-700">
+                <th className="px-4 md:px-6 py-3 md:py-4 text-left text-sm md:text-base font-medium text-blue-700">
                   Speakers
                 </th>
-                <th className="px-6 py-4 text-left text-base font-medium text-blue-700">
+                <th className="px-4 md:px-6 py-3 md:py-4 text-left text-sm md:text-base font-medium text-blue-700">
                   Duration
                 </th>
-                <th className="px-6 py-4 text-right text-base font-medium text-blue-700">
+                <th className="px-4 md:px-6 py-3 md:py-4 text-right text-sm md:text-base font-medium text-blue-700">
                   Actions
                 </th>
               </tr>
@@ -110,8 +155,8 @@ export default async function MeetingsPage() {
           </table>
         </div>
         {meetings.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No meetings found</p>
+          <div className="text-center py-8 md:py-12">
+            <p className="text-gray-500 text-sm md:text-base">No meetings found</p>
           </div>
         )}
       </div>
