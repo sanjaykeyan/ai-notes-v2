@@ -22,7 +22,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
 
   return (
     <div className="bg-white shadow-sm border border-gray-200 h-full flex flex-col">
-      <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+      <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center lg:flex hidden">
         <h2 className="text-lg font-semibold text-gray-900">Meeting Summary</h2>
         <div className="flex items-center gap-1 bg-gray-50 rounded-md p-0.5 border border-gray-200">
           <button
