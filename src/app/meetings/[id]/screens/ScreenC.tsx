@@ -252,7 +252,8 @@ export default function ScreenC({
             searchTerm,
             meetingId,
             customNames,
-            handleSpeakerUpdate
+            handleSpeakerUpdate,
+            segment.start_time // Pass the timestamp to the formatter
           );
 
           return (

@@ -83,12 +83,20 @@ function highlightText(text: string, searchTerm: string) {
   );
 }
 
+function formatTime(ms: number): string {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
 export function formatTranscript(
   transcript: string,
   searchTerm: string = "",
   meetingId: string,
   customNames: Record<string, string> = {},
-  onSpeakerUpdate: (original: string, custom: string) => void
+  onSpeakerUpdate: (original: string, custom: string) => void,
+  startTime?: number
 ) {
   if (!transcript) return [];
 
@@ -108,13 +116,20 @@ export function formatTranscript(
 
       return (
         <div key={index} className="mb-6 last:mb-0">
-          <div className="mb-2">
-            <SpeakerLabel
-              speaker={speaker.trim()}
-              meetingId={meetingId}
-              customNames={customNames}
-              onSpeakerUpdate={onSpeakerUpdate}
-            />
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2">
+              <SpeakerLabel
+                speaker={speaker.trim()}
+                meetingId={meetingId}
+                customNames={customNames}
+                onSpeakerUpdate={onSpeakerUpdate}
+              />
+              {startTime !== undefined && (
+                <span className="text-[13px] font-mono text-indigo-600 font-medium opacity-75">
+                  {formatTime(startTime)}
+                </span>
+              )}
+            </div>
           </div>
           <div className="pl-4 text-[14px] leading-relaxed text-gray-700">
             {highlightText(text.trim(), searchTerm)}
