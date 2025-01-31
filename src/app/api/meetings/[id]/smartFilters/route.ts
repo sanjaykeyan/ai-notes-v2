@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Groq } from "groq-sdk";
 
@@ -7,21 +7,33 @@ const groq = new Groq({
 });
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
+    const meetingId = context.params.id;
+    if (!meetingId) {
+      return NextResponse.json({ error: "Missing meeting ID" }, { status: 400 });
+    }
+
     // First check for existing smart filters
     const existingFilter = await prisma.smartFilter.findUnique({
-      where: { meetingId: params.id },
+      where: { meetingId },
     });
 
     if (existingFilter) {
-      console.log("Returning cached smart filters");
-      return NextResponse.json({
-        content: existingFilter.content,
-        cached: true,
-      });
+      try {
+        // Parse and validate the content
+        const parsedContent = JSON.parse(existingFilter.content);
+        return NextResponse.json({
+          content: parsedContent,
+          cached: true,
+        });
+      } catch (parseError) {
+        console.error("Error parsing cached content:", parseError);
+        // If cached content is invalid, delete it and continue to regenerate
+        await prisma.smartFilter.delete({ where: { meetingId } });
+      }
     }
 
     // Verify API key is present
@@ -30,9 +42,9 @@ export async function GET(
       throw new Error("GROQ API key is not configured");
     }
 
-    console.log("Looking for meeting:", params.id);
+    console.log("Looking for meeting:", meetingId);
     const meeting = await prisma.meeting.findUnique({
-      where: { id: params.id },
+      where: { id: meetingId },
       select: { transcript: true },
     });
 
@@ -88,30 +100,34 @@ Do not include any explanatory text or descriptions.`,
 
     // Save the generated filters
     if (content) {
-      await prisma.smartFilter.create({
-        data: {
-          meetingId: params.id,
-          content: content,
-        },
-      });
+      try {
+        // Clean and validate the content before saving
+        const cleanedContent = content.replace(/^[\s\S]*?({[\s\S]*})[\s\S]*$/, '$1');
+        const parsedContent = JSON.parse(cleanedContent);
+        
+        // Save the cleaned content
+        await prisma.smartFilter.create({
+          data: {
+            meetingId,
+            content: JSON.stringify(parsedContent),
+          },
+        });
+
+        return NextResponse.json({
+          content: parsedContent,
+          cached: false,
+        });
+      } catch (parseError) {
+        console.error("Error processing AI response:", parseError);
+        throw new Error("Invalid response format from AI");
+      }
     }
 
-    console.log("Groq API Response:", completion.choices[0]?.message);
-    return NextResponse.json({
-      content,
-      cached: false,
-    });
+    throw new Error("No content received from AI");
   } catch (error: any) {
-    console.error("Detailed error:", {
-      message: error.message,
-      stack: error.stack,
-      details: error,
-    });
+    console.error("SmartFilters Error:", error);
     return NextResponse.json(
-      {
-        error: "Failed to process transcript",
-        details: error.message,
-      },
+      { error: "Failed to process transcript", details: error.message },
       { status: 500 }
     );
   }
