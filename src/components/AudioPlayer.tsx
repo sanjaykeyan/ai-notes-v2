@@ -149,7 +149,7 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t shadow-lg py-3 px-6">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t shadow-lg py-3 px-4 md:px-6">
       <audio 
         ref={audioRef} 
         src={audioUrl}
@@ -161,8 +161,9 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
           {error}
         </div>
       )}
-      <div className="max-w-screen-xl mx-auto flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="max-w-screen-xl mx-auto flex items-center justify-between gap-4">
+        {/* Album art and title - hidden on mobile */}
+        <div className="hidden md:flex items-center space-x-4">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-lg flex items-center justify-center">
             <span className="text-white text-xl">🎵</span>
           </div>
@@ -174,7 +175,13 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
           </div>
         </div>
 
-        <div className="flex items-center space-x-6">
+        {/* Time display on mobile */}
+        <div className="md:hidden text-sm text-gray-500">
+          {formatTime(currentTime)} / {formatTime(duration)}
+        </div>
+
+        {/* Playback controls */}
+        <div className="flex items-center space-x-4 md:space-x-6">
           <button className="text-gray-600 hover:text-gray-900">
             <SkipBack className="w-5 h-5" />
           </button>
@@ -196,7 +203,8 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
           </button>
         </div>
 
-        <div className="w-96">
+        {/* Progress bar */}
+        <div className="flex-1 max-w-[400px] md:w-96">
           <div 
             className="h-1 bg-gray-200 rounded-full cursor-pointer relative"
             onClick={handleSeek}

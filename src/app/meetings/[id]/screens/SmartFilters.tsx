@@ -35,21 +35,24 @@ export default function SmartFilters({ meetingId }: SmartFiltersProps) {
         const result: APIResponse = await response.json();
 
         if (!response.ok) {
-          throw new Error(
-            result.error || `HTTP error! status: ${response.status}`
-          );
+
+          throw new Error(result.error || `HTTP error! status: ${response.status}`);
         }
 
         if (!result.content) {
-          throw new Error("No content received from server");
+          throw new Error('No content received from server');
+
+
         }
 
         setData(result.content);
         setIsCached(result.cached);
         setCachedAt(result.cachedAt || null);
       } catch (err) {
-        console.error("SmartFilters error:", err);
-        setError(err instanceof Error ? err.message : "Failed to load data");
+
+        console.error('SmartFilters error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load data');
+
       } finally {
         setIsLoading(false);
       }
@@ -58,22 +61,20 @@ export default function SmartFilters({ meetingId }: SmartFiltersProps) {
     fetchData();
   }, [meetingId]);
 
-  if (isLoading)
-    return (
-      <div className="p-4 text-gray-600">
-        <div className="animate-pulse">Loading smart filters...</div>
-      </div>
-    );
 
-  if (error)
-    return (
-      <div className="p-4">
-        <div className="text-red-500 font-medium mb-2">
-          Error loading smart filters
-        </div>
-        <div className="text-sm text-gray-600">{error}</div>
-      </div>
-    );
+  if (isLoading) return (
+    <div className="p-4 text-gray-600">
+      <div className="animate-pulse">Loading smart filters...</div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="p-4">
+      <div className="text-red-500 font-medium mb-2">Error loading smart filters</div>
+      <div className="text-sm text-gray-600">{error}</div>
+    </div>
+  );
+
 
   return (
     <div className="h-full overflow-y-auto elegant-scrollbar">

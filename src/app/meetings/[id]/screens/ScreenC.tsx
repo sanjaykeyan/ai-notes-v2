@@ -300,7 +300,7 @@ export default function ScreenC({
         </button>
       )}
 
-      <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+      <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center lg:flex hidden">
         <h2 className="text-lg font-semibold text-gray-900">Transcript</h2>
         <div className="relative w-64">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -315,6 +315,23 @@ export default function ScreenC({
           />
         </div>
       </div>
+      
+      {/* Add a mobile-only search bar */}
+      <div className="lg:hidden px-4 py-2 border-b border-gray-200">
+        <div className="relative w-full">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search transcript..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
       <div className="relative flex-1 overflow-hidden">
         <div className="absolute inset-0 overflow-y-auto elegant-scrollbar">
           <div className="p-6">
