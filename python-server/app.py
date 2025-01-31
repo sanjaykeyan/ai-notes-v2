@@ -10,13 +10,13 @@ import json
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # 70MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 70 * 1024 * 1024  # 70MB max file size
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 
 ALLOWED_EXTENSIONS = {'wav', 'mp3'}
-GROQ_API_KEY = "gsk_gikeMaUcXW3hW3kl1rybWGdyb3FY6B1B    eb0FdDTwNi1URSm0g5VN"
+GROQ_API_KEY = "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"
 ASSEMBLYAI_API_KEY = "a789b7873d09463eae68cedfe9cb5085"
 
 aai.settings.api_key = ASSEMBLYAI_API_KEY
