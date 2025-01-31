@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
@@ -129,27 +129,28 @@ export async function PUT(
 }
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const meetingId = context.params.id;
+    if (!meetingId) {
+      return NextResponse.json({ error: "Missing meeting ID" }, { status: 400 });
     }
 
     const mappings = await prisma.speakerMapping.findMany({
       where: {
-        meetingId: params.id,
+        meetingId,
         meeting: {
           userId: userId,
         },
       },
+      // ...rest of query...
     });
 
     return NextResponse.json(mappings);
   } catch (error) {
-    console.error("Error in GET /api/meetings/[id]/speakers:", error);
+    console.error("Speakers Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch speaker mappings" },
       { status: 500 }
