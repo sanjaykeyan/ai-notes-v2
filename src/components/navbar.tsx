@@ -62,8 +62,11 @@ const Navbar = () => {
             >
               Meetings
             </button>
-            <button className="text-gray-600 hover:text-blue-600 transition-colors">
-              Teams
+            <button
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+              onClick={() => router.push("/pricing")}
+            >
+              Pricing
             </button>
           </nav>
           <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -172,8 +175,11 @@ const Navbar = () => {
                   >
                     Meetings
                   </button>
-                  <button className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                    Teams
+                  <button
+                    className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    onClick={() => router.push("/pricing")}
+                  >
+                    Pricing
                   </button>
                 </nav>
               </div>
