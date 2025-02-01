@@ -1,16 +1,36 @@
-import { NextResponse } from "next/server";
+import { NextResponse,NextRequest } from "next/server";
+import { getAuth, clerkClient } from '@clerk/nextjs/server'
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
 import { uploadToS3 } from "@/lib/s3";
+import { sendProcessingCompleteEmail } from '@/lib/email';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   let writer: WritableStreamDefaultWriter | undefined;
   
   try {
-    const { userId } = await auth();
-    console.log("Current userId:", userId);
+    // Get authenticated user
+    const { userId } = getAuth(req)
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Get user email using separate try-catch
+    let userEmail: string | undefined;
+    try {
+      const client = await clerkClient()
+      const user = await client.users.getUser(userId)
+      const primaryEmail = user.emailAddresses.find(
+        email => email.id === user.primaryEmailAddressId
+      );
+      userEmail = primaryEmail?.emailAddress;
+      console.log("Found user email:", userEmail);
+    } catch (clerkError) {
+      console.error("Clerk error details:", {
+        error: clerkError,
+        userId: userId,
+        stack: clerkError instanceof Error ? clerkError.stack : undefined
+      });
+      // Continue without email - don't block the upload
     }
 
     const formData = await req.formData();
@@ -62,6 +82,25 @@ export async function POST(req: Request) {
         userId,
       },
     });
+
+    // When sending email, add better error handling
+    if (userEmail) {
+      try {
+        console.log("Attempting to send email to:", userEmail);
+        const emailResult = await sendProcessingCompleteEmail(userEmail, title);
+        console.log("Email sent successfully:", emailResult);
+      } catch (emailError) {
+        console.error("Email sending failed:", {
+          error: emailError,
+          email: userEmail,
+          userId,
+          title
+        });
+        // Don't throw here - continue with the process
+      }
+    } else {
+      console.log("No email address found for user:", userId);
+    }
 
     writer.write(
       encoder.encode(
