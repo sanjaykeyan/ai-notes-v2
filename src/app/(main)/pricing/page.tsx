@@ -1,4 +1,9 @@
+"use client";
+import { useRouter } from "next/navigation";
+
 const PricingPage = () => {
+  const router = useRouter();
+
   return (
     <div className="pt-16 pb-12 px-4 min-h-screen bg-gradient-to-b from-white to-blue-50">
       <div className="max-w-7xl mx-auto">
@@ -43,8 +48,47 @@ const PricingPage = () => {
                 <span className="text-gray-600">1GB storage</span>
               </li>
             </ul>
-            <button className="w-full py-3 px-4 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-medium">
+            <button 
+              onClick={() => router.push("/dashboard")}
+              className="w-full py-3 px-4 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-medium"
+            >
               Get Started
+            </button>
+          </div>
+
+          {/* Individual Plan */}
+          <div className="relative bg-white border-2 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div className="absolute -top-4 left-6 bg-purple-100 px-4 py-1 rounded-full text-sm font-medium text-purple-600">
+              Individual
+            </div>
+            <h2 className="text-2xl font-bold mb-4 mt-2">Pay Per Meeting</h2>
+            <p className="text-4xl font-bold mb-6">
+              $1
+              <span className="text-gray-500 text-lg font-normal">/meeting</span>
+            </p>
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6"></div>
+            <ul className="space-y-4 mb-8">
+              <li className="flex items-center">
+                <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-gray-600">Full Pro features</span>
+              </li>
+              <li className="flex items-center">
+                <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-gray-600">Pay as you go</span>
+              </li>
+              <li className="flex items-center">
+                <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-gray-600">No subscription</span>
+              </li>
+            </ul>
+            <button className="w-full py-3 px-4 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-medium">
+              Try Now
             </button>
           </div>
 
@@ -81,42 +125,6 @@ const PricingPage = () => {
             </ul>
             <button className="w-full py-3 px-4 bg-white text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-medium shadow-lg">
               Start Free Trial
-            </button>
-          </div>
-
-          {/* Enterprise Plan */}
-          <div className="relative bg-white border-2 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <div className="absolute -top-4 left-6 bg-purple-100 px-4 py-1 rounded-full text-sm font-medium text-purple-600">
-              Enterprise
-            </div>
-            <h2 className="text-2xl font-bold mb-4 mt-2">Enterprise</h2>
-            <p className="text-4xl font-bold mb-6">
-              Custom
-              <span className="text-gray-500 text-lg font-normal">/month</span>
-            </p>
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6"></div>
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-center">
-                <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-600">Everything in Pro</span>
-              </li>
-              <li className="flex items-center">
-                <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-600">Custom integrations</span>
-              </li>
-              <li className="flex items-center">
-                <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-gray-600">Dedicated support</span>
-              </li>
-            </ul>
-            <button className="w-full py-3 px-4 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-medium">
-              Contact Sales
             </button>
           </div>
         </div>
