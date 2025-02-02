@@ -24,86 +24,100 @@ export default async function NewUserDashboard() {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-72px)]">
-      <div className="lg:w-2/3 space-y-6">
-        {/* Welcome Section with Upload */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+    <>
+      {/* Mobile Layout */}
+      <div className="lg:hidden flex flex-col gap-4">
+        {/* Mobile Welcome Section */}
+        <div className="text-center -mt-2">
+          <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Welcome {firstName}!
           </h1>
-          <p className="text-gray-600 text-base mb-6">
-            Transform your meetings into actionable insights
+          <p className="text-gray-600 text-sm mb-4">
+            Transform your meetings into insights
           </p>
+        </div>
 
-          {/* Upload Button */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-6 py-8">
-            <div className="flex justify-center">
-              <UploadButton />
-            </div>
-            <div className="mt-4">
-              <p className="text-sm text-gray-500">
-                Supported: MP3,WAV (Max:70MB)
-              </p>
-            </div>
+        {/* Mobile Quick Actions */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-4">
+          <div className="flex flex-col items-center">
+            <UploadButton />
+            <p className="text-xs text-gray-500 mt-2">
+              Supported: MP3,WAV (Max:70MB)
+            </p>
           </div>
         </div>
 
-        {/* Tutorial Section */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-6 text-center">
+        {/* Mobile Recent Meetings */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-4">
+          <h2 className="text-lg font-semibold mb-3">Recent Meetings</h2>
+          {recentMeetings.length > 0 ? (
+            <div className="space-y-2">
+              {recentMeetings.map((meeting) => (
+                <div
+                  key={meeting.id}
+                  className="border-b border-gray-100 last:border-0 py-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <a
+                      href={`/meetings/${meeting.id}`}
+                      className="text-blue-600 text-sm font-medium"
+                    >
+                      {meeting.title || "Untitled Meeting"}
+                    </a>
+                    <DeleteMeetingButton id={meeting.id} />
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    {new Date(meeting.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 text-center">
+              No meetings yet. Start by uploading!
+            </p>
+          )}
+        </div>
+
+        {/* Mobile How it works */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-4">
+          <h2 className="text-lg font-semibold mb-3 text-center">
             How it works
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-4">
             {[
               {
                 step: "1",
                 title: "Upload Recording",
-                description:
-                  "Upload your meeting recording in MP3 or MP4 format",
+                description: "Upload your meeting recording",
                 icon: "📤",
                 color: "from-blue-500 to-blue-600",
               },
               {
                 step: "2",
                 title: "AI Processing",
-                description: "Our AI transcribes and summarizes your meeting",
+                description: "AI transcribes and summarizes",
                 icon: "🤖",
                 color: "from-purple-500 to-purple-600",
               },
               {
                 step: "3",
                 title: "Review & Share",
-                description: "Get your meeting notes and share with your team",
+                description: "Get and share your notes",
                 icon: "✨",
                 color: "from-indigo-500 to-indigo-600",
               },
             ].map((item) => (
-              <div
-                key={item.step}
-                className="relative group hover:scale-105 transition-transform duration-300"
-              >
-                <div className="text-center">
-                  <div className="relative">
-                    <div
-                      className={`w-12 h-12 mx-auto mb-4 rounded-xl bg-gradient-to-br ${item.color} 
-                                   flex items-center justify-center transform rotate-6 
-                                   group-hover:rotate-12 transition-transform duration-300`}
-                    >
-                      <span className="text-xl">{item.icon}</span>
-                    </div>
-                    <div
-                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-white 
-                                   border-2 border-gray-100 flex items-center justify-center"
-                    >
-                      <span className="text-xs font-semibold text-gray-600">
-                        {item.step}
-                      </span>
-                    </div>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {item.description}
-                  </p>
+              <div key={item.step} className="flex items-center space-x-3">
+                <div
+                  className={`w-10 h-10 rounded-lg bg-gradient-to-br ${item.color} 
+                    flex items-center justify-center shrink-0`}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold">{item.title}</h3>
+                  <p className="text-xs text-gray-600">{item.description}</p>
                 </div>
               </div>
             ))}
@@ -111,57 +125,148 @@ export default async function NewUserDashboard() {
         </div>
       </div>
 
-      {/* Right Column: Recent Meetings */}
-      <div className="lg:w-1/3 flex flex-col">
-        <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-4 flex-1 flex flex-col sticky top-28">
-          <h2 className="text-xl font-semibold mb-4">Recent Meetings</h2>
-          {recentMeetings.length > 0 ? (
-            <div className="flex-1 overflow-y-auto max-h-[calc(100vh-250px)]">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">
-                      Name
-                    </th>
-                    <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">
-                      Date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentMeetings.map((meeting) => (
-                    <tr
-                      key={meeting.id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="py-3 px-2">
-                        <div className="flex items-center justify-between">
-                          <a
-                            href={`/meetings/${meeting.id}`}
-                            className="text-blue-600 hover:text-blue-800 font-medium"
-                          >
-                            {meeting.title || "Untitled Meeting"}
-                          </a>
-                          <DeleteMeetingButton id={meeting.id} />
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-sm text-gray-600">
-                        {new Date(meeting.createdAt).toLocaleDateString()}
-                      </td>
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex flex-row gap-6 min-h-[calc(100vh-72px)]">
+        <div className="lg:w-2/3 space-y-6">
+          {/* Welcome Section with Upload */}
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Welcome {firstName}!
+            </h1>
+            <p className="text-gray-600 text-base mb-6">
+              Transform your meetings into actionable insights
+            </p>
+
+            {/* Upload Button */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-6 py-8">
+              <div className="flex justify-center">
+                <UploadButton />
+              </div>
+              <div className="mt-4">
+                <p className="text-sm text-gray-500">
+                  Supported: MP3,WAV (Max:70MB)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Tutorial Section */}
+          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-6 text-center">
+              How it works
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  step: "1",
+                  title: "Upload Recording",
+                  description:
+                    "Upload your meeting recording in MP3 or MP4 format",
+                  icon: "📤",
+                  color: "from-blue-500 to-blue-600",
+                },
+                {
+                  step: "2",
+                  title: "AI Processing",
+                  description: "Our AI transcribes and summarizes your meeting",
+                  icon: "🤖",
+                  color: "from-purple-500 to-purple-600",
+                },
+                {
+                  step: "3",
+                  title: "Review & Share",
+                  description: "Get your meeting notes and share with your team",
+                  icon: "✨",
+                  color: "from-indigo-500 to-indigo-600",
+                },
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className="relative group hover:scale-105 transition-transform duration-300"
+                >
+                  <div className="text-center">
+                    <div className="relative">
+                      <div
+                        className={`w-12 h-12 mx-auto mb-4 rounded-xl bg-gradient-to-br ${item.color} 
+                                   flex items-center justify-center transform rotate-6 
+                                   group-hover:rotate-12 transition-transform duration-300`}
+                      >
+                        <span className="text-xl">{item.icon}</span>
+                      </div>
+                      <div
+                        className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-white 
+                                   border-2 border-gray-100 flex items-center justify-center"
+                      >
+                        <span className="text-xs font-semibold text-gray-600">
+                          {item.step}
+                        </span>
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Recent Meetings */}
+        <div className="lg:w-1/3 flex flex-col">
+          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-4 flex-1 flex flex-col sticky top-28">
+            <h2 className="text-xl font-semibold mb-4">Recent Meetings</h2>
+            {recentMeetings.length > 0 ? (
+              <div className="flex-1 overflow-y-auto max-h-[calc(100vh-250px)]">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">
+                        Name
+                      </th>
+                      <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">
+                        Date
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center">
-              <p className="text-center text-gray-500">
-                No meetings yet. Upload a meeting recording to get started!
-              </p>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {recentMeetings.map((meeting) => (
+                      <tr
+                        key={meeting.id}
+                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="py-3 px-2">
+                          <div className="flex items-center justify-between">
+                            <a
+                              href={`/meetings/${meeting.id}`}
+                              className="text-blue-600 hover:text-blue-800 font-medium"
+                            >
+                              {meeting.title || "Untitled Meeting"}
+                            </a>
+                            <DeleteMeetingButton id={meeting.id} />
+                          </div>
+                        </td>
+                        <td className="py-3 px-2 text-sm text-gray-600">
+                          {new Date(meeting.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-center text-gray-500">
+                  No meetings yet. Upload a meeting recording to get started!
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
