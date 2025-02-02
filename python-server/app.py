@@ -26,6 +26,7 @@ def allowed_file(filename):
 
 def create_default_summary():
     return {
+        "keyInsights": ["No key insights available"],
         "overview": "No meeting overview available",
         "keyPoints": ["No key points available"],
         "actionItems": ["No action items available"],
@@ -65,10 +66,16 @@ def process_audio(audio_path):
     
     prompt = f"""Based on this conversation: {result}
 
-Provide a structured summary in VALID JSON format. Include a brief overview paragraph followed by key insights and action points.
+Provide a structured summary in VALID JSON format. Start with 5-10 key insights that capture the most important points of the meeting, followed by a detailed breakdown.
 Format STRICTLY as follows:
 
 {{
+    "keyInsights": [
+        "[clear, impactful point about the meeting]",
+        "[key conclusion from the discussion]",
+        "[important decision or outcome]"
+        // 5-10 bullet points total, direct statements without prefixes
+    ],
     "overview": "Write a 2-3 sentence executive summary of the meeting's main topics and outcomes.",
     "keyPoints": [
         "Important insight: [concise point with context]",
@@ -93,11 +100,13 @@ Format STRICTLY as follows:
 }}
 
 IMPORTANT: 
-1. Overview should be concise but informative
-2. Each bullet point should be specific and actionable
-3. Use professional business language
-4. Include context where relevant
-5. Keep points clear and meaningful"""
+1. Key insights should be direct, clear statements without any prefixes or numbering
+2. Keep key insights between 4-6 points
+3. Overview should be concise but informative
+4. Each bullet point should be specific and actionable
+5. Use professional business language
+6. Include context where relevant
+7. Keep points clear and meaningful"""
 
     # Timing for Groq API call
     groq_start = time()
