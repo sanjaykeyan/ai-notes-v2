@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Groq } from "groq-sdk";
+import { auth } from "@clerk/nextjs/server";
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -11,6 +12,25 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = auth();
+    
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user is pro
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { isPro: true },
+    });
+
+    if (!user?.isPro) {
+      return NextResponse.json(
+        { error: "Pro subscription required" },
+        { status: 403 }
+      );
+    }
+
     // Check for existing smart filters
     const existingFilter = await prisma.smartFilter.findUnique({
       where: { meetingId: params.id },
