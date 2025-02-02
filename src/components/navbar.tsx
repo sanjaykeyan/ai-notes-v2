@@ -17,19 +17,39 @@ const Navbar = () => {
   useEffect(() => setIsMobileMenuOpen(false), [pathname]);
 
   const AuthenticatedContent = () => {
+    const [proStatus, setProStatus] = useState({ isPro: false, proUntil: null });
+
     useEffect(() => {
-      if (isLoaded && isSignedIn && user) {
-        console.log("Current user:", {
-          id: user.id,
-          name: user.fullName,
-          email: user.emailAddresses[0]?.emailAddress,
-        });
+      const fetchProStatus = async () => {
+        try {
+          const response = await fetch('/api/user/pro-status');
+          const data = await response.json();
+          if (response.ok) {
+            setProStatus(data);
+          }
+        } catch (error) {
+          console.error('Failed to fetch pro status:', error);
+        }
+      };
+
+      if (isLoaded && isSignedIn) {
+        fetchProStatus();
       }
     }, [isLoaded, isSignedIn]);
 
     return (
       <>
         <div className="hidden md:flex items-center gap-6">
+          {/* Pro status badge */}
+          <div className="flex items-center">
+            <span className={`px-2 py-1 text-xs rounded-full ${
+              proStatus.isPro 
+                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' 
+                : 'bg-gray-100 text-gray-600'
+            }`}>
+              {proStatus.isPro ? 'PRO' : 'FREE'}
+            </span>
+          </div>
           <div className="relative">
             <input
               type="text"

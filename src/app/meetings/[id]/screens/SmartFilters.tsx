@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import SmartFilterDisplay from "../components/SmartFilterDisplay";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import ProFeatureOverlay from "@/components/ProFeatureOverlay";
 
 interface SmartFiltersData {
   dates: string[];
@@ -26,17 +27,38 @@ export default function SmartFilters({ meetingId }: SmartFiltersProps) {
   const [cachedAt, setCachedAt] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isPro, setIsPro] = useState(false);
+
+  useEffect(() => {
+    const checkProStatus = async () => {
+      try {
+        const response = await fetch('/api/user/pro-status');
+        const data = await response.json();
+        if (response.ok) {
+          setIsPro(data.isPro);
+        }
+      } catch (error) {
+        console.error('Failed to fetch pro status:', error);
+      }
+    };
+
+    checkProStatus();
+  }, []);
 
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/meetings/${meetingId}/smartFilters`);
-      const result: APIResponse = await response.json();
-
+      const response = await fetch(`/api/meetings/${meetingId}/smartFilters`, {
+        credentials: 'include', // Add this to ensure cookies are sent
+      });
+      
       if (!response.ok) {
-        throw new Error(result.error || `HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
+
+      const result: APIResponse = await response.json();
 
       if (!result.content) {
         throw new Error('No content received from server');
@@ -48,14 +70,20 @@ export default function SmartFilters({ meetingId }: SmartFiltersProps) {
     } catch (err) {
       console.error('SmartFilters error:', err);
       setError(err instanceof Error ? err.message : 'Failed to load data');
+      // If unauthorized, try to refresh pro status
+      if (err instanceof Error && err.message.includes('Unauthorized')) {
+        checkProStatus();
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, [meetingId]);
+    if (isPro) {
+      fetchData();
+    }
+  }, [meetingId, isPro]);
 
   if (isLoading) return (
     <div className="p-4 text-gray-600">
@@ -81,16 +109,19 @@ export default function SmartFilters({ meetingId }: SmartFiltersProps) {
   );
 
   return (
-    <div className="h-full overflow-y-auto elegant-scrollbar">
-      {isCached && cachedAt && (
-        <div className="px-2 py-1 mb-2 text-xs text-gray-500 bg-gray-50 rounded-md">
-          Using cached analysis from {new Date(cachedAt).toLocaleDateString()}
+    <div className="h-full overflow-y-auto elegant-scrollbar relative">
+      {!isPro && <ProFeatureOverlay />}
+      <div className={!isPro ? 'filter blur-[2px]' : ''}>
+        {isCached && cachedAt && (
+          <div className="px-2 py-1 mb-2 text-xs text-gray-500 bg-gray-50 rounded-md">
+            Using cached analysis from {new Date(cachedAt).toLocaleDateString()}
+          </div>
+        )}
+        <div className="p-2">
+          <SmartFilterDisplay
+            data={data || { dates: [], metrics: [], tasks: [] }}
+          />
         </div>
-      )}
-      <div className="p-2">
-        <SmartFilterDisplay
-          data={data || { dates: [], metrics: [], tasks: [] }}
-        />
       </div>
     </div>
   );

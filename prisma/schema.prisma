@@ -20,6 +20,8 @@ model User {
   fullName      String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  isPro         Boolean   @default(false)
+  proUntil      DateTime?
   meetings      Meeting[]
   teamMembers   TeamMember[]
 }
@@ -30,6 +32,7 @@ model Meeting {
   transcript    String?   @db.Text
   summary       String?   @db.Text
   recordingUrl  String?
+  duration      Float?    // Duration in seconds
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   userId        String
@@ -46,7 +49,7 @@ model Team {
   id            String    @id @default(cuid())
   name          String
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @default(now())
   meetings      Meeting[]
   members       TeamMember[]
 }

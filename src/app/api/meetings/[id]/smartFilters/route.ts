@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Groq } from "groq-sdk";
+import { auth } from "@clerk/nextjs/server";
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -11,6 +12,47 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { userId } = await auth();  // Make sure to await the auth() call
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Unauthorized - No user ID found" }, 
+        { status: 401 }
+      );
+    }
+
+    // Verify meeting ownership
+    const meeting = await prisma.meeting.findUnique({
+      where: { 
+        id: params.id,
+        userId: userId // Add this to ensure user owns the meeting
+      },
+      select: { 
+        transcript: true,
+        userId: true 
+      },
+    });
+
+    if (!meeting) {
+      return NextResponse.json(
+        { error: "Meeting not found or unauthorized access" }, 
+        { status: 404 }
+      );
+    }
+
+    // Check if user is pro
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { isPro: true },
+    });
+
+    if (!user?.isPro) {
+      return NextResponse.json(
+        { error: "Pro subscription required" },
+        { status: 403 }
+      );
+    }
+
     // Check for existing smart filters
     const existingFilter = await prisma.smartFilter.findUnique({
       where: { meetingId: params.id },
@@ -51,17 +93,17 @@ export async function GET(
     }
 
     console.log("Looking for meeting:", params.id);
-    const meeting = await prisma.meeting.findUnique({
+    const meetingData = await prisma.meeting.findUnique({
       where: { id: params.id },
       select: { transcript: true },
     });
 
-    if (!meeting) {
+    if (!meetingData) {
       console.log("Meeting not found");
       return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
     }
 
-    if (!meeting.transcript) {
+    if (!meetingData.transcript) {
       console.log("Transcript is empty");
       return NextResponse.json(
         { error: "Transcript not found" },
@@ -92,7 +134,7 @@ Rules:
         },
         {
           role: "user",
-          content: meeting.transcript,
+          content: meetingData.transcript,
         },
       ],
       model: "llama-3.3-70b-versatile",
@@ -179,17 +221,13 @@ Rules:
       );
     }
   } catch (error: any) {
-    console.error("Detailed error:", {
-      message: error.message,
-      stack: error.stack,
-      details: error,
-    });
+    console.error("Auth error:", error);
     return NextResponse.json(
       {
-        error: "Failed to process transcript",
+        error: "Authentication failed",
         details: error.message,
       },
-      { status: 500 }
+      { status: 401 }
     );
   }
 }

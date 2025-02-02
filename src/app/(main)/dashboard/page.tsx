@@ -25,31 +25,24 @@ export default async function NewUserDashboard() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 min-h-[calc(100vh-72px)]">
-      {/* Left Column */}
       <div className="lg:w-2/3 space-y-6">
         {/* Welcome Section with Upload */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            {isFirstTimer
-              ? `Welcome ${firstName}!`
-              : `Welcome back, ${firstName}!`}
+            Welcome {firstName}!
           </h1>
           <p className="text-gray-600 text-base mb-6">
-            {isFirstTimer
-              ? "Let's transform your meetings into actionable insights"
-              : "Ready to transform another meeting into insights?"}
+            Transform your meetings into actionable insights
           </p>
 
-          {/* Upload Buttons */}
+          {/* Upload Button */}
           <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-6 py-8">
-            <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <UploadButton type="meeting" isNewUser />
-              <span className="text-gray-500 font-medium mx-2">or</span>
-              <UploadButton type="transcript" isNewUser />
+            <div className="flex justify-center">
+              <UploadButton />
             </div>
             <div className="mt-4">
               <p className="text-sm text-gray-500">
-                Supported: MP3, MP4 (Max: 500MB)
+                Supported: MP3,WAV (Max:70MB)
               </p>
             </div>
           </div>

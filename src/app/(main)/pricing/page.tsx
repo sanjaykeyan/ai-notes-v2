@@ -9,6 +9,10 @@ const PricingPage = () => {
     try {
       const response = await fetch("/api/create-payment", {
         method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
       const data = await response.json();
 
@@ -19,9 +23,38 @@ const PricingPage = () => {
         name: "AI Notes Pro",
         description: "Pro Plan Subscription",
         order_id: data.orderId,
-        handler: function (response: any) {
-          console.log(response);
-          router.push("/dashboard");
+        handler: async function (response: any) {
+          try {
+            // Verify payment and update user status
+            const verificationResponse = await fetch("/api/verify-payment", {
+              method: "POST",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+
+            if (!verificationResponse.ok) {
+              const errorData = await verificationResponse.json();
+              console.error("Payment verification failed:", errorData);
+              throw new Error(errorData.error || "Payment verification failed");
+            }
+
+            const verificationResult = await verificationResponse.json();
+            if (verificationResult.success) {
+              console.log("Payment successful", verificationResult);
+              router.push("/dashboard");
+            } else {
+              console.error("Payment verification failed:", verificationResult);
+            }
+          } catch (error) {
+            console.error("Payment verification error:", error);
+          }
         },
         prefill: {
           email: "",
