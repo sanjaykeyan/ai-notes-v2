@@ -64,6 +64,10 @@ body {
   .heading-text {
     @apply font-semibold text-gray-900 tracking-tight;
   }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+  }
 }
 
 /* Split Pane Styles */
@@ -104,6 +108,15 @@ body {
   to {
     opacity: 1;
     transform: translate(-50%, 0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

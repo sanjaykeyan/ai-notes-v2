@@ -16,6 +16,13 @@ const Navbar = () => {
 
   useEffect(() => setIsMobileMenuOpen(false), [pathname]);
 
+  const getMobilePageTitle = (path: string) => {
+    if (path.includes('/meetings')) return 'Meetings';
+    if (path.includes('/pricing')) return 'Pricing';
+    if (path.includes('/settings')) return 'Settings';
+    return 'Home';
+  };
+
   const AuthenticatedContent = () => {
     const [proStatus, setProStatus] = useState({ isPro: false, proUntil: null });
 
@@ -39,6 +46,7 @@ const Navbar = () => {
 
     return (
       <>
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
           {/* Pro status badge */}
           <div className="flex items-center">
@@ -111,11 +119,16 @@ const Navbar = () => {
             appearance={{ elements: { avatarBox: "w-8 h-8" } }}
           />
         </div>
-        <div className="md:hidden flex items-center gap-4">
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden flex items-center justify-between w-full">
           <UserButton
             afterSignOutUrl="/"
             appearance={{ elements: { avatarBox: "w-8 h-8" } }}
           />
+          <span className="text-gray-600 font-medium text-center flex-1">
+            {getMobilePageTitle(pathname)}
+          </span>
           <button
             onClick={toggleMobileMenu}
             className="p-2 rounded-lg hover:bg-gray-100"
@@ -144,6 +157,8 @@ const Navbar = () => {
             </svg>
           </button>
         </div>
+
+        {/* Mobile Menu Portal */}
         {createPortal(
           <div
             className={`fixed inset-0 bg-black/50 z-[999] md:hidden transition-opacity duration-300 ${
@@ -215,10 +230,8 @@ const Navbar = () => {
   return (
     <nav className="fixed w-full bg-white/80 backdrop-blur-sm border-b z-50">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
-        >
+        {/* Logo - Hidden on Mobile */}
+        <div className="hidden md:flex items-center space-x-2 hover:opacity-80 transition-opacity">
           <Image
             src="/Icon.png"
             alt="Memoria AI Logo"
@@ -227,10 +240,11 @@ const Navbar = () => {
             className="rounded-lg object-contain"
             priority
           />
-          <span className="hidden md:inline font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Memoria AI
           </span>
-        </button>
+        </div>
+        
         <SignedIn>
           <AuthenticatedContent />
         </SignedIn>
