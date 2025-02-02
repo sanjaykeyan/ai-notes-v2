@@ -42,7 +42,7 @@ export default async function NewUserDashboard() {
             </div>
             <div className="mt-4">
               <p className="text-sm text-gray-500">
-                Supported: MP3, MP4 (Max: 500MB)
+                Supported: MP3,WAV (Max:70MB)
               </p>
             </div>
           </div>
