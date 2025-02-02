@@ -4,6 +4,7 @@ import { UserButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -198,11 +199,16 @@ const Navbar = () => {
           onClick={() => router.push("/dashboard")}
           className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
         >
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">M</span>
-          </div>
+          <Image
+            src="/Icon.png"
+            alt="Memoria AI Logo"
+            width={40}
+            height={40}
+            className="rounded-lg object-contain"
+            priority
+          />
           <span className="hidden md:inline font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            MeetingNotes AI
+            Memoria AI
           </span>
         </button>
         <SignedIn>
