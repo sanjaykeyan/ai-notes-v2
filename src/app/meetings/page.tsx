@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import DeleteMeetingButton from "@/components/DeleteMeetingButton";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import UploadButton from "@/components/upload-button";
+import { formatDuration } from "@/lib/utils";
 
 export default async function MeetingsPage() {
   const { userId } = await auth();
@@ -73,7 +74,7 @@ export default async function MeetingsPage() {
                     <span className="text-gray-400 text-sm">No speakers</span>
                   )}
                 </div>
-                <p className="text-gray-500">Duration: {meeting.duration || "N/A"}</p>
+                <p className="text-gray-500">Duration: {formatDuration(meeting.duration)}</p>
               </div>
             </div>
           ))}
@@ -136,7 +137,7 @@ export default async function MeetingsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-500">
-                    {meeting.duration || "N/A"}
+                    {formatDuration(meeting.duration)}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-4">
