@@ -35,7 +35,7 @@ export default async function NewUserDashboard() {
 
       {/* Desktop Layout */}
       <div className="hidden lg:flex flex-row gap-8 h-full"> {/* Increased gap from 4 to 8 */}
-        <div className="lg:w-2/3 flex flex-col gap-6"> {/* Increased gap from 2 to 6 */}
+        <div className="lg:w-[70%] flex flex-col gap-6"> {/* Increased gap from 2 to 6 */}
           {/* Welcome Section - removed box styling */}
           <div className="text-center py-6">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
@@ -120,7 +120,7 @@ export default async function NewUserDashboard() {
         </div>
 
         {/* Right Column */}
-        <div className="lg:w-1/3">
+        <div className="lg:w-[30%]">
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 sticky top-[5rem] h-full">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-800">Recent Meetings</h2>
