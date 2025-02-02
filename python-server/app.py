@@ -145,7 +145,7 @@ IMPORTANT:
     return {
         'transcription': result,
         'summary': formatted_summary,
-        'timestamp_mapping': jso    n.dumps(timestamp_mapping),  # Convert to JSON string
+        'timestamp_mapping': json.dumps(timestamp_mapping),  # Convert to JSON string
         'duration': audio_duration  # Add duration to response
     }
 
