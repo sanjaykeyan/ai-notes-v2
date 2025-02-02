@@ -5,6 +5,7 @@ import { Dialog } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
+import { useNotifications } from '@/contexts/NotificationContext';
 
 interface UploadMeetingModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export default function UploadMeetingModal({
   onProcessingEnd,
 }: UploadMeetingModalProps) {
   const router = useRouter();
+  const { addNotification } = useNotifications();
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
@@ -114,6 +116,9 @@ export default function UploadMeetingModal({
                 window.dispatchEvent(new CustomEvent('meetingProcessed', {
                   detail: data.meeting
                 }));
+                // Add both toast and notification
+                toast.success('Meeting processing complete!');
+                addNotification('Your meeting recording has been processed successfully.');
                 handleClose(); // Close modal after successful processing
               }
             } catch (e) {

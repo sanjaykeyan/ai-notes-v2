@@ -119,3 +119,18 @@ body {
 .Toaster > div > div > div:first-child {
   @apply font-medium;
 }
+
+/* Notification styles */
+.notification-dropdown {
+  @apply bg-white rounded-lg shadow-lg border border-gray-200;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  @apply p-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors;
+}
+
+.notification-item.unread {
+  @apply bg-blue-50 hover:bg-blue-100;
+}
