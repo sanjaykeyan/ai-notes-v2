@@ -49,6 +49,9 @@ def process_audio(audio_path):
     transcription_end = time()
     print(f"Transcription time: {transcription_end - transcription_start:.2f} seconds")
     
+    # Get audio duration in seconds
+    audio_duration = transcript.audio_duration
+    
     result = ""
     timestamp_mapping = []
     for utterance in transcript.utterances:
@@ -151,7 +154,8 @@ IMPORTANT:
     return {
         'transcription': result,
         'summary': formatted_summary,
-        'timestamp_mapping': json.dumps(timestamp_mapping)  # Convert to JSON string
+        'timestamp_mapping': json.dumps(timestamp_mapping),  # Convert to JSON string
+        'duration': audio_duration  # Add duration to response
     }
 
 @app.route('/')

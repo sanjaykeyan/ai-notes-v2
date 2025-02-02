@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       throw new Error(`Flask server error: ${flaskResponse.statusText}`);
     }
 
-    const { transcription, summary, timestamp_mapping } = await flaskResponse.json();
+    const { transcription, summary, timestamp_mapping,duration} = await flaskResponse.json();
 
     // Store in database with audioUrl
     const meeting = await prisma.meeting.create({
@@ -77,6 +77,7 @@ export async function POST(req: NextRequest) {
         title,
         transcript: transcription,
         summary,
+        duration:duration,
         timestampMapping: timestamp_mapping,
         recordingUrl: audioUrl, // Store the S3 URL
         userId,

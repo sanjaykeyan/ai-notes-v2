@@ -32,7 +32,7 @@ model Meeting {
   transcript    String?   @db.Text
   summary       String?   @db.Text
   recordingUrl  String?
-  duration      Float?    // Duration in seconds
+  duration      Float?    // Duration
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   userId        String

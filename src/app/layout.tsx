@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
+import { NotificationProvider } from '@/contexts/NotificationContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,8 +29,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
         <body>
-          {children}
-          <Toaster position="bottom-right" />
+          <NotificationProvider>
+            {children}
+            <Toaster position="bottom-right" />
+          </NotificationProvider>
         </body>
       </html>
     </ClerkProvider>

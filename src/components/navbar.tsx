@@ -5,12 +5,16 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import Image from "next/image";
+import { useNotifications } from '@/contexts/NotificationContext';
 
 const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { isLoaded, isSignedIn, user } = useUser();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const { notifications, markAsRead, deleteNotification } = useNotifications();
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
@@ -103,22 +107,120 @@ const Navbar = () => {
               Pricing
             </button>
           </nav>
-          <button className="relative p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <svg
-              className="w-6 h-6 text-gray-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          <div className="relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-              />
-            </svg>
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+              <svg
+                className="w-6 h-6 text-gray-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
+              </svg>
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg border border-gray-100 max-h-[480px] overflow-y-auto z-50">
+                <div className="p-4 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-800">Notifications</h3>
+                    {notifications.length > 0 && (
+                      <button 
+                        onClick={() => {
+                          notifications.forEach(n => deleteNotification(n.id));
+                        }}
+                        className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        Clear all
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  {notifications.length > 0 ? (
+                    <div className="max-h-[400px] overflow-y-auto">
+                      {notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={`p-4 hover:bg-gray-50 transition-colors relative group ${
+                            notification.read ? 'bg-white' : 'bg-blue-50/40'
+                          }`}
+                        >
+                          <div onClick={() => markAsRead(notification.id)} className="cursor-pointer pr-8">
+                            <p className="text-sm text-gray-800 leading-snug">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                              <span>{new Date(notification.timestamp).toLocaleString()}</span>
+                              {!notification.read && (
+                                <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                                  New
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteNotification(notification.id);
+                            }}
+                            className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                            title="Delete notification"
+                          >
+                            <svg 
+                              className="w-4 h-4 text-gray-400 hover:text-gray-600"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8">
+                      <div className="text-center">
+                        <svg
+                          className="mx-auto h-12 w-12 text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1}
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                          />
+                        </svg>
+                        <p className="mt-4 text-sm text-gray-500">No notifications</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           <UserButton
             afterSignOutUrl="/"
             appearance={{ elements: { avatarBox: "w-8 h-8" } }}
