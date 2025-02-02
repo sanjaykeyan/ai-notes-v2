@@ -34,34 +34,34 @@ export default async function NewUserDashboard() {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:flex flex-row gap-4 h-full">
-        <div className="lg:w-2/3 flex flex-col gap-2"> {/* Further reduced gap */}
-          {/* Welcome Section - More compact */}
-          <div className="text-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+      <div className="hidden lg:flex flex-row gap-8 h-full"> {/* Increased gap from 4 to 8 */}
+        <div className="lg:w-2/3 flex flex-col gap-6"> {/* Increased gap from 2 to 6 */}
+          {/* Welcome Section - removed box styling */}
+          <div className="text-center py-6">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
               Welcome {firstName}!
             </h1>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-lg">
               Transform your meetings into actionable insights
             </p>
           </div>
 
-          {/* Upload Section - More compact */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-3">
-            <div className="flex justify-center">
+          {/* Upload Section */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8"> {/* Increased padding from 3 to 8 */}
+            <div className="flex flex-col items-center gap-3">
               <UploadButton />
+              <p className="text-sm text-gray-500">
+                Supported: MP3, WAV (Max: 70MB)
+              </p>
             </div>
-            <p className="text-xs text-gray-500 text-center mt-1">
-              Supported: MP3,WAV (Max:70MB)
-            </p>
           </div>
 
-          {/* Tutorial Section - More compact */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-3">
-            <h2 className="text-base font-medium mb-3 text-center">
+          {/* Tutorial Section */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8"> {/* Increased padding from 3 to 8 */}
+            <h2 className="text-xl font-semibold mb-6 text-center"> {/* Increased text size and margin */}
               How it works
             </h2>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-8"> {/* Increased gap from 3 to 8 */}
               {[
                 {
                   step: "1",
@@ -119,42 +119,46 @@ export default async function NewUserDashboard() {
           </div>
         </div>
 
-        {/* Right Column - Adjusted height */}
+        {/* Right Column */}
         <div className="lg:w-1/3">
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg p-3 h-full">
-            <h2 className="text-base font-semibold mb-2">Recent Meetings</h2>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 sticky top-[5rem] h-full">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-gray-800">Recent Meetings</h2>
+              <span className="text-sm text-gray-500">{recentMeetings.length} total</span>
+            </div>
+            
             {recentMeetings.length > 0 ? (
-              <div className="flex-1 overflow-y-auto max-h-[calc(100vh-250px)]">
+              <div className="h-[calc(100%-4rem)] overflow-y-auto">
                 <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">
-                        Name
-                      </th>
-                      <th className="text-left py-3 px-2 text-sm font-medium text-gray-600">
-                        Date
-                      </th>
+                  <thead className="text-xs text-gray-500 border-b border-gray-200">
+                    <tr>
+                      <th className="pb-2 font-medium text-left">Meeting Name</th>
+                      <th className="pb-2 font-medium text-left">Date</th>
+                      <th className="pb-2 font-medium text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-gray-100">
                     {recentMeetings.map((meeting) => (
-                      <tr
-                        key={meeting.id}
-                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="py-3 px-2">
-                          <div className="flex items-center justify-between">
-                            <a
-                              href={`/meetings/${meeting.id}`}
-                              className="text-blue-600 hover:text-blue-800 font-medium"
-                            >
-                              {meeting.title || "Untitled Meeting"}
-                            </a>
-                            <DeleteMeetingButton id={meeting.id} />
-                          </div>
+                      <tr key={meeting.id} className="group hover:bg-gray-50/50">
+                        <td className="py-3">
+                          <a
+                            href={`/meetings/${meeting.id}`}
+                            className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                          >
+                            {meeting.title || "Untitled Meeting"}
+                          </a>
                         </td>
-                        <td className="py-3 px-2 text-sm text-gray-600">
-                          {new Date(meeting.createdAt).toLocaleDateString()}
+                        <td className="py-3">
+                          <span className="text-sm text-gray-500">
+                            {new Date(meeting.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </span>
+                        </td>
+                        <td className="py-3 text-right">
+                          <DeleteMeetingButton id={meeting.id} />
                         </td>
                       </tr>
                     ))}
@@ -162,10 +166,14 @@ export default async function NewUserDashboard() {
                 </table>
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <p className="text-center text-gray-500">
-                  No meetings yet. Upload a meeting recording to get started!
-                </p>
+              <div className="h-[calc(100%-4rem)] flex items-center justify-center">
+                <div className="w-12 h-12 mx-auto mb-4 bg-gray-50 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                          d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                </div>
+                <p className="text-gray-500">No meetings yet</p>
               </div>
             )}
           </div>
