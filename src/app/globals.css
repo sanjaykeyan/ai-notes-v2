@@ -123,6 +123,19 @@ body {
   border-radius: 9999px;
 }
 
+/* Add dark mode styles for split pane */
+.dark .gutter {
+  background-color: rgba(203, 213, 225, 0.08);
+}
+
+.dark .gutter:hover {
+  background-color: rgba(203, 213, 225, 0.15);
+}
+
+.dark .gutter.gutter-horizontal::after {
+  background-color: rgba(203, 213, 225, 0.2);
+}
+
 @keyframes fadeInDown {
   from {
     opacity: 0;

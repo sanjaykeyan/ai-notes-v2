@@ -23,6 +23,16 @@
   transition: all 0.3s ease;
   background-color: #f3f4f6;
 }
+
+/* Add dark mode styles for gutter */
+.dark .gutter {
+  background-color: rgba(203, 213, 225, 0.08);
+}
+
+.dark .gutter:hover {
+  background-color: rgba(203, 213, 225, 0.15);
+}
+
 .split > div {
   padding-left: 0 !important;
 }

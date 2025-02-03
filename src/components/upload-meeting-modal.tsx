@@ -165,20 +165,20 @@ export default function UploadMeetingModal({
               leaveFrom="translate-y-0 sm:scale-100 sm:opacity-100"
               leaveTo="translate-y-full sm:translate-y-0 sm:scale-95 sm:opacity-0"
             >
-              <Dialog.Panel className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-xl relative">
+              <Dialog.Panel className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl bg-white dark:bg-gray-800 p-4 sm:p-6 shadow-xl relative">
                 {phase === "processing" ? (
                   // Processing view
                   <div className="space-y-3 py-2 animate-fadeIn">
-                    <Dialog.Title className="text-lg font-semibold">
+                    <Dialog.Title className="text-lg font-semibold dark:text-white">
                       Processing in Background
                     </Dialog.Title>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       Your meeting is being processed. You'll receive a notification when it's ready.
                     </p>
                     <div className="flex justify-end">
                       <button
                         onClick={handleClose}
-                        className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                        className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
                       >
                         Close
                       </button>
@@ -186,34 +186,34 @@ export default function UploadMeetingModal({
                   </div>
                 ) : (
                   <>
-                    <Dialog.Title className="text-lg font-semibold mb-3">
+                    <Dialog.Title className="text-lg font-semibold mb-3 dark:text-white">
                       Upload Meeting
                     </Dialog.Title>
 
                     <form onSubmit={handleSubmit} className="space-y-3">
                       {/* Mobile-optimized form fields */}
                       <div>
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           Meeting Title
                         </label>
                         <input
                           type="text"
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
-                          className="mt-1 w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="mt-1 w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                           required
                         />
                       </div>
 
                       {/* Compact file upload area */}
                       <div className="space-y-1">
-                        <label className="text-sm font-medium text-gray-700">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           Recording File
                         </label>
-                        <div className="flex justify-center px-4 py-3 border-2 border-dashed rounded-lg">
+                        <div className="flex justify-center px-4 py-3 border-2 border-dashed rounded-lg dark:border-gray-600">
                           <div className="space-y-1 text-center">
                             <svg
-                              className="mx-auto h-12 w-12 text-gray-400"
+                              className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500"
                               stroke="currentColor"
                               fill="none"
                               viewBox="0 0 48 48"
@@ -225,8 +225,8 @@ export default function UploadMeetingModal({
                                 strokeLinejoin="round"
                               />
                             </svg>
-                            <div className="flex text-sm text-gray-600">
-                              <label className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500">
+                            <div className="flex text-sm text-gray-600 dark:text-gray-400">
+                              <label className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
                                 <span>Upload a file</span>
                                 <input
                                   type="file"
@@ -237,24 +237,24 @@ export default function UploadMeetingModal({
                               </label>
                               <p className="pl-1">or drag and drop</p>
                             </div>
-                            <p className="text-xs text-gray-500">MP3, MP4 up to 500MB</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">MP3, MP4 up to 500MB</p>
                           </div>
                         </div>
                         {file && (
-                          <p className="text-sm text-gray-500">Selected: {file.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Selected: {file.name}</p>
                         )}
                       </div>
 
                       {/* Progress indicators with animation */}
                       {loading && (
                         <div className="space-y-2 animate-fadeIn">
-                          <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
                             <div
-                              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                              className="bg-blue-600 dark:bg-blue-500 h-2.5 rounded-full transition-all duration-300 ease-out"
                               style={{ width: `${progress}%` }}
                             />
                           </div>
-                          <p className="text-sm text-gray-500 text-center">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
                             {phase === "uploading" ? "Uploading..." : "Processing..."}
                           </p>
                         </div>
@@ -265,14 +265,14 @@ export default function UploadMeetingModal({
                         <button
                           type="button"
                           onClick={handleClose}
-                          className="flex-1 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                          className="flex-1 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
                           disabled={loading || !file || !title}
-                          className="flex-1 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                          className="flex-1 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-500 dark:hover:bg-blue-600"
                         >
                           Upload
                         </button>

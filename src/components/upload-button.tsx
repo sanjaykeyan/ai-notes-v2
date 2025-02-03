@@ -9,8 +9,8 @@ export default function UploadButton() {
 
   const buttonStyle = {
     gradient: isProcessing
-      ? "from-gray-400 to-gray-500"
-      : "from-blue-600 to-purple-600",
+      ? "from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700"
+      : "from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-400 dark:hover:to-purple-400",
     text: isProcessing ? "Processing..." : "Upload Recording",
     icon: (
       <svg
@@ -34,7 +34,10 @@ export default function UploadButton() {
       <button
         onClick={() => setIsModalOpen(true)}
         disabled={isProcessing}
-        className={`group flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white bg-gradient-to-r ${buttonStyle.gradient} transition-all duration-300 hover:shadow-lg disabled:cursor-not-allowed`}
+        className={`group flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white bg-gradient-to-r ${buttonStyle.gradient} 
+        transition-all duration-300 hover:shadow-lg disabled:cursor-not-allowed 
+        hover:scale-[1.02] active:scale-[0.98]
+        dark:shadow-lg dark:shadow-blue-500/20 dark:hover:shadow-blue-500/40`}
       >
         {buttonStyle.icon}
         {buttonStyle.text}
