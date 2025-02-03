@@ -86,16 +86,16 @@ export default function ScreenB({ summary }: ScreenBProps) {
     return formattedSummary?.keyInsights.map((insight, index) => (
       <div key={index} className="space-y-2">
         <li
-          className={`text-gray-700 cursor-pointer hover:text-gray-900 p-2 rounded-md transition-all duration-300 ease-in-out ${
+          className={`text-gray-700 cursor-pointer p-2 rounded-md transition-all duration-300 ease-in-out ${
             expandedInsight?.insightIndex === index
-              ? "bg-gray-50 shadow-sm"
-              : "hover:bg-gray-50"
+              ? "bg-gradient-to-r from-blue-50 to-indigo-50 shadow-md"
+              : "hover:bg-blue-50/30"
           }`}
           onClick={() => handleInsightClick(insight, index)}
         >
           <div className="flex items-center gap-2">
             <span
-              className={`text-gray-400 transition-transform duration-300 ${
+              className={`text-blue-500 transition-all duration-300 ${
                 expandedInsight?.insightIndex === index ? "rotate-90" : ""
               }`}
             >
@@ -106,7 +106,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
         </li>
         {expandedInsight?.insightIndex === index && (
           <div
-            className="ml-6 pl-4 border-l-2 border-gray-200 overflow-hidden transition-all duration-500 ease-in-out"
+            className="ml-6 pl-4 border-l-2 border-blue-200 overflow-hidden transition-all duration-500 ease-in-out"
             style={{
               maxHeight: expandedInsight ? "500px" : "0",
               opacity: expandedInsight ? 1 : 0,
@@ -118,35 +118,41 @@ export default function ScreenB({ summary }: ScreenBProps) {
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="relative h-6 bg-blue-50/50 rounded-md overflow-hidden"
+                      className="relative h-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-md overflow-hidden"
                     >
                       <div
-                        className="absolute inset-0 animate-shimmer bg-gradient-to-r from-blue-50 via-indigo-100 to-blue-50"
+                        className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent"
                         style={{
                           backgroundSize: "200% 100%",
                           animation: "shimmer 2s infinite linear",
                         }}
                       />
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-indigo-400/10" />
                     </div>
                   ))}
                 </div>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-pulse" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-400/60 animate-pulse [animation-delay:0.2s]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-violet-400/60 animate-pulse [animation-delay:0.4s]" />
+                </div>
               </div>
             ) : (
-              <ul className="space-y-1 pt-1">
-                {expandedInsight.points.  map((point, idx) => (
+              <ul className="space-y-1.5 pt-1">
+                {expandedInsight.points.map((point, idx) => (
                   <li
                     key={idx}
-                    className={`text-gray-600 text-sm bg-white rounded-md ${
+                    className={`text-gray-600 text-sm rounded-md transition-all duration-300 ease-out ${
                       idx <= typingIndex
-                        ? "opacity-100 transform translate-y-0"
-                        : "opacity-0 transform -translate-y-1"
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 -translate-y-1"
                     }`}
                     style={{
                       transitionDelay: `${idx * 50}ms`,
                     }}
                   >
-                    <div className="flex items-start gap-2 py-1 px-2">
-                      <span className="text-gray-400 mt-1">•</span>
+                    <div className="flex items-start gap-2 p-2 bg-gradient-to-r from-blue-50/30 to-indigo-50/30 rounded-md">
+                      <span className="text-blue-400 mt-1">•</span>
                       {idx === typingIndex ? (
                         <TypeWriter
                           text={point}
