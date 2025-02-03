@@ -33,6 +33,7 @@ export default function ScreenC({
   const [selectedText, setSelectedText] = useState("");
   const [customNames, setCustomNames] = useState<Record<string, string>>({});
   const popoverRef = useRef<HTMLButtonElement>(null);
+  const transcriptContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     console.log("ScreenC received:", {
@@ -259,12 +260,9 @@ export default function ScreenC({
           return (
             <div 
               key={`segment-${index}`}
+              id={`segment-${index}`}
               onClick={() => handleSegmentClick(segment.start_time)}
-              className={`py-2 px-4 rounded transition-colors cursor-pointer hover:bg-gray-50 ${
-                index === getCurrentSegment()
-                  ? 'bg-blue-50 border-l-4 border-blue-500'
-                  : ''
-              }`}
+              className="transcript-text py-2 px-4 rounded transition-colors cursor-pointer hover:bg-gray-50"
             >
               {formattedText}
             </div>
@@ -273,6 +271,51 @@ export default function ScreenC({
       </div>
     );
   };
+
+  // Add event listener for bookmark clicks
+  useEffect(() => {
+    const handleScrollToBookmark = (event: CustomEvent) => {
+      const { text, timestamp } = event.detail;
+      
+      // If we have a timestamp, scroll to that segment
+      if (timestamp && timestampMapping.length) {
+        const segmentIndex = timestampMapping.findIndex(
+          segment => segment.start_time === timestamp
+        );
+        
+        if (segmentIndex !== -1) {
+          const segmentElement = document.getElementById(`segment-${segmentIndex}`);
+          if (segmentElement) {
+            segmentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            segmentElement.classList.add('bg-yellow-100');
+            setTimeout(() => {
+              segmentElement.classList.remove('bg-yellow-100');
+            }, 2000);
+          }
+        }
+      } else {
+        // If no timestamp, search for text content
+        const allTextNodes = transcriptContainerRef.current?.getElementsByClassName('transcript-text');
+        if (allTextNodes) {
+          for (const node of Array.from(allTextNodes)) {
+            if (node.textContent?.includes(text)) {
+              node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              (node as HTMLElement).classList.add('bg-yellow-100');
+              setTimeout(() => {
+                (node as HTMLElement).classList.remove('bg-yellow-100');
+              }, 2000);
+              break;
+            }
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scrollToBookmark', handleScrollToBookmark as EventListener);
+    return () => {
+      window.removeEventListener('scrollToBookmark', handleScrollToBookmark as EventListener);
+    };
+  }, [timestampMapping]);
 
   return (
     <div className="bg-white shadow-sm border border-gray-200 h-full flex flex-col">
@@ -333,7 +376,7 @@ export default function ScreenC({
       </div>
 
       <div className="relative flex-1 overflow-hidden">
-        <div className="absolute inset-0 overflow-y-auto elegant-scrollbar">
+        <div ref={transcriptContainerRef} className="absolute inset-0 overflow-y-auto elegant-scrollbar">
           <div className="p-6">
             <div className="space-y-1" onMouseUp={handleTextSelection}>
               {renderTranscriptContent()}

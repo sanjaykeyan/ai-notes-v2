@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create bookmark
+    // Create bookmark without timestamp
     const bookmark = await prisma.bookmark.create({
       data: {
         text,
