@@ -292,7 +292,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                       {idx === typingIndex ? (
                         <TypeWriter
                           text={point}
-                          delay={15}
+                          delay={8} // Changed from 15 to 8
                           onComplete={() => {
                             if (idx < expandedInsight.points.length - 1) {
                               setTypingIndex(idx + 1);
@@ -358,7 +358,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                 </div>
 
                 {/* Full Summary Section */}
-                <div className="space-y-6 mt-6">
+                <div className="space-y-0 mt-6">
                   <ParentSectionHeader
                     title="Full Meeting Summary"
                     isExpanded={showFullSummary}
@@ -366,7 +366,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                   />
 
                   {showFullSummary && (
-                    <div className="space-y-6 animate-fadeIn bg-gradient-to-b from-gray-50/50 to-white p-5 rounded-xl border border-gray-100">
+                    <div className="animate-fadeIn bg-gradient-to-b from-gray-50/50 to-white pt-4 px-5 pb-5 rounded-b-xl border border-t-0 border-gray-100 -mt-[1px]">
                       {/* Overview Section */}
                       <div className="space-y-4">
                         <SectionHeader
