@@ -35,20 +35,25 @@ function SectionHeader({ title, isExpanded, onToggle, showHint }: SectionHeaderP
   return (
     <button
       onClick={onToggle}
-      className="w-full group bg-gray-50/80 border border-gray-200 rounded-md hover:bg-gray-100 transition-all duration-200"
+      className="w-full group bg-gradient-to-r from-gray-50 to-gray-50/50 border border-gray-200 rounded-lg hover:from-gray-100 hover:to-gray-50 transition-all duration-200"
     >
-      <div className="flex items-center justify-between px-3 py-2">
-        <div className="flex items-center gap-2">
-          <h3 className="font-medium text-gray-900 text-sm">{title}</h3>
-          {showHint && (
-            <span className="text-xs text-gray-500 bg-white/80 px-1.5 py-0.5 rounded-full border border-gray-200">
-              Click items to expand
-            </span>
-          )}
+      <div className="flex items-center justify-between px-4 py-2.5">
+        <div className="flex items-center gap-3">
+          <div className={`w-1 h-6 rounded-full bg-indigo-500/40 transition-all duration-300 ${
+            isExpanded ? 'h-6' : 'h-4'
+          }`} />
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-gray-900 text-sm">{title}</h3>
+            {showHint && (
+              <span className="text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                Click items to expand
+              </span>
+            )}
+          </div>
         </div>
         <ChevronDownIcon 
-          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
-            isExpanded ? 'transform rotate-180' : ''
+          className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
+            isExpanded ? 'transform rotate-180 text-indigo-500' : ''
           }`}
         />
       </div>
@@ -60,21 +65,26 @@ function ParentSectionHeader({ title, isExpanded, onToggle }: ParentSectionHeade
   return (
     <button
       onClick={onToggle}
-      className="w-full group bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm"
+      className="w-full group bg-white border border-gray-200 rounded-xl hover:bg-gray-50/80 transition-all duration-200 shadow-sm"
     >
-      <div className="flex items-center justify-between px-4 py-2.5">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between px-5 py-3">
+        <div className="flex items-center gap-4">
+          <div className={`w-1.5 h-8 rounded-full bg-indigo-500/40 transition-all duration-300 ${
+            isExpanded ? 'h-8' : 'h-5'
+          }`} />
           <div className="flex flex-col items-start">
-            <h3 className="font-medium text-gray-900 text-sm">{title}</h3>
+            <h3 className="font-semibold text-gray-900">{title}</h3>
             <span className="text-xs text-gray-500">
-              {isExpanded ? "Click to collapse" : "Click to view all sections"}
+              {isExpanded ? "Viewing all sections" : "Click to view detailed summary"}
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-gray-400">
-          <span className="text-xs">{isExpanded ? "Hide" : "Show"}</span>
+        <div className="flex items-center gap-3 text-gray-400">
+          <span className="text-xs font-medium text-indigo-500">
+            {isExpanded ? "Collapse" : "Expand"}
+          </span>
           <ChevronDownIcon 
-            className={`w-4 h-4 transition-transform duration-200 ${
+            className={`w-5 h-5 text-indigo-500 transition-transform duration-300 ${
               isExpanded ? 'transform rotate-180' : ''
             }`}
           />
@@ -168,10 +178,10 @@ export default function ScreenB({ summary }: ScreenBProps) {
     return formattedSummary?.keyInsights.map((insight, index) => (
       <div key={index} className="space-y-2">
         <li
-          className={`text-gray-700 text-sm cursor-pointer p-2 rounded-md transition-all duration-300 ease-in-out ${
+          className={`text-gray-700 text-sm cursor-pointer p-2.5 rounded-lg transition-all duration-300 ease-in-out ${
             expandedInsight?.insightIndex === index
-              ? "bg-gradient-to-r from-blue-50 to-indigo-50 shadow-sm"
-              : "hover:bg-blue-50/30"
+              ? "bg-gradient-to-r from-indigo-50/80 to-blue-50/80 shadow-sm border border-indigo-100/50"
+              : "hover:bg-gray-50"
           }`}
           onClick={() => handleInsightClick(insight, index)}
         >
@@ -312,7 +322,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                   />
                   
                   {showFullSummary && (
-                    <div className="space-y-6 animate-fadeIn bg-gray-50/50 p-4 rounded-lg border border-gray-100">
+                    <div className="space-y-6 animate-fadeIn bg-gradient-to-b from-gray-50/50 to-white p-5 rounded-xl border border-gray-100">
                       {/* Overview Section */}
                       <div className="space-y-4">
                         <SectionHeader 
