@@ -125,17 +125,12 @@ function MeetingContent({
 
   return (
     <>
-      <div className="lg:hidden h-full overflow-hidden">
+      <div className="lg:hidden h-[calc(100vh-13rem)]">
         <ScreenSelector />
-        <div className="h-[calc(100vh-224px)] overflow-hidden">
-          {" "}
-          {/* Adjusted height for mobile */}
-          {mobileContent}
-        </div>
+        <div className="h-[calc(100%-3rem)]">{mobileContent}</div>
       </div>
-      <div className="hidden lg:block h-[calc(100vh-224px)] overflow-hidden">
-        {" "}
-        {/* Adjusted height for desktop */}
+      {/* Code to change if required to adjust the size of scrABC */}
+      <div className="hidden lg:block h-[calc(100vh-12.4rem)]">
         {desktopContent}
       </div>
     </>
@@ -192,24 +187,17 @@ export default function MeetingPage({
   return (
     <PlaybackProvider>
       <ScreenProvider>
-        {/* Added pb-24 to account for the fixed audio player */}
-        <div className="h-screen flex flex-col overflow-hidden relative bg-gray-50 pb-24">
+        <div className="fixed inset-x-0 top-16 bottom-0 flex flex-col bg-white">
+          {" "}
+          {/* Adjust positioning */}
           {/* Desktop Title */}
-          <div className="sticky top-0 z-50 py-4 px-6 flex-shrink-0 bg-white border-b border-gray-200 lg:block hidden">
+          <header className="h-14 flex-none py-4 px-6 bg-white border-b border-gray-200 lg:block hidden">
             <h1 className="text-lg heading-text">
               {meeting?.title || "Untitled Meeting"}
             </h1>
-          </div>
-          {/* Mobile Title */}
-          <h1
-            className="lg:hidden text-base font-medium truncate"
-            id="mobile-title"
-          >
-            {meeting?.title || "Untitled Meeting"}
-          </h1>
-
-          {/* Content container */}
-          <div className="flex-1 relative overflow-hidden">
+          </header>
+          {/* Main content */}
+          <main className="flex-1 min-h-0 overflow-hidden">
             {meeting && (
               <MeetingContent
                 meeting={meeting}
@@ -218,15 +206,14 @@ export default function MeetingPage({
                 isSidebarVisible={isSidebarVisible}
               />
             )}
-          </div>
-
-          {/* Audio player - Keep fixed positioning */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t shadow-lg z-50">
+          </main>
+          {/* Audio player */}
+          <footer className="h-20 flex-none bg-white border-t border-gray-200">
             <AudioPlayer
               audioUrl={meeting?.recordingUrl}
               title={meeting?.title}
             />
-          </div>
+          </footer>
         </div>
       </ScreenProvider>
     </PlaybackProvider>
