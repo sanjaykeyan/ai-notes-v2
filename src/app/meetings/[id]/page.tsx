@@ -68,6 +68,7 @@ function MeetingContent({
   isSidebarVisible: boolean;
 }) {
   const { activeScreen } = useScreen();
+  const [isScreenACollapsed, setIsScreenACollapsed] = useState(false);
 
   // Mobile view (single screen)
   const mobileContent = (
@@ -98,8 +99,8 @@ function MeetingContent({
   const desktopContent = (
     <Split
       className="h-full flex split"
-      sizes={isSidebarVisible ? [20, 50, 30] : [30, 40, 30]}
-      minSize={[150, 300, 300]}
+      sizes={isScreenACollapsed ? [5, 57.5, 37.5] : (isSidebarVisible ? [20, 50, 30] : [30, 40, 30])}
+      minSize={isScreenACollapsed ? [60, 300, 300] : [150, 300, 300]}
       gutterSize={4}
       snapOffset={30}
     >
@@ -107,6 +108,7 @@ function MeetingContent({
         <ScreenA
           meetingId={meeting.id}
           onBookmarksChange={handleBookmarksChange}
+          onCollapse={setIsScreenACollapsed}
         />
       </div>
       <div className="overflow-y-auto h-full">

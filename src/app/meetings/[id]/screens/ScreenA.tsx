@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { MagnifyingGlassIcon, BookmarkIcon } from "@heroicons/react/24/outline";
+import { useState, useEffect } from "react";
+import { MagnifyingGlassIcon, BookmarkIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import Bookmarks from "./Bookmarks";
 import SmartFilters from "./SmartFilters";
@@ -29,16 +29,21 @@ const pageTransition = {
 interface ScreenAProps {
   meetingId: string;
   onBookmarksChange?: () => void;
+  onCollapse?: (collapsed: boolean) => void;
 }
 
 export default function ScreenA({
   meetingId,
   onBookmarksChange,
+  onCollapse,
 }: ScreenAProps) {
-  const [selectedView, setSelectedView] = useState<"search" | "bookmarks">(
-    "search"
-  );
+  const [selectedView, setSelectedView] = useState<"search" | "bookmarks">("search");
   const [[page, direction], setPage] = useState([0, 0]);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    onCollapse?.(isCollapsed);
+  }, [isCollapsed, onCollapse]);
 
   const handleViewChange = (view: "search" | "bookmarks") => {
     const newDirection = view === "bookmarks" ? 1 : -1;
@@ -47,10 +52,20 @@ export default function ScreenA({
   };
 
   return (
-    <div className="h-full flex flex-col sm:flex-row">
-      {/* Navigation - horizontal on mobile, vertical sidebar on desktop */}
+    <div className={`h-full flex flex-col sm:flex-row transition-all duration-300 ${isCollapsed ? 'sm:w-[60px]' : ''}`}>
       <div className="sm:h-full w-full sm:w-[60px] border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
-        <nav className="flex sm:flex-col py-1 px-2 sm:p-2 space-x-1 sm:space-x-0 sm:space-y-2 justify-center sm:justify-start">
+        <nav className="flex sm:flex-col h-full py-1 px-2 sm:p-2 space-x-1 sm:space-x-0 sm:space-y-1">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="hidden sm:flex px-3 py-1.5 sm:p-3 rounded-md items-center justify-center transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 mb-1"
+            title={isCollapsed ? "Expand" : "Collapse"}
+          >
+            {isCollapsed ? (
+              <ChevronRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            ) : (
+              <ChevronLeftIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            )}
+          </button>
           <button
             onClick={() => handleViewChange("search")}
             className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 ${
@@ -75,8 +90,9 @@ export default function ScreenA({
           </button>
         </nav>
       </div>
-      {/* Content */}
-      <div className="flex-1 bg-white dark:bg-gray-800 backdrop-blur-sm shadow-xl flex flex-col min-w-0 relative overflow-hidden">
+      <div className={`flex-1 bg-white dark:bg-gray-800 backdrop-blur-sm shadow-xl flex flex-col min-w-0 relative overflow-hidden ${
+        isCollapsed ? 'sm:hidden' : ''
+      }`}>
         <div className="flex-shrink-0 px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
             {selectedView === "bookmarks" ? "Bookmarks" : "Smart Filters"}
