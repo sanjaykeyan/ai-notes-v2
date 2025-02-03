@@ -1,4 +1,5 @@
 interface FormattedSummary {
+  keyInsights: string[];
   overview: string;
   keyPoints: string[];
   actionItems: string[];
@@ -7,6 +8,7 @@ interface FormattedSummary {
 }
 
 const sectionEmojis = {
+  keyInsights: "🎯",
   overview: "📋",
   keyPoints: "💡",
   actionItems: "✅",
@@ -15,6 +17,7 @@ const sectionEmojis = {
 };
 
 const sectionColors = {
+  keyInsights: "text-rose-800",
   overview: "text-indigo-900",
   keyPoints: "text-blue-800",
   actionItems: "text-emerald-800",
@@ -23,6 +26,7 @@ const sectionColors = {
 };
 
 const sectionBgs = {
+  keyInsights: "bg-rose-50",
   overview: "bg-indigo-50",
   keyPoints: "bg-blue-50",
   actionItems: "bg-emerald-50",
@@ -34,6 +38,7 @@ export const formatSummary = (rawSummary: string): FormattedSummary | null => {
   try {
     const parsed = JSON.parse(rawSummary);
     return {
+      keyInsights: parsed.keyInsights || [],
       overview: parsed.overview || "No overview available",
       keyPoints: parsed.keyPoints || [],
       actionItems: parsed.actionItems || [],

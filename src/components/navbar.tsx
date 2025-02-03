@@ -20,19 +20,29 @@ const Navbar = () => {
 
   useEffect(() => setIsMobileMenuOpen(false), [pathname]);
 
+  const getMobilePageTitle = (path: string) => {
+    if (path.includes("/meetings")) return "Meetings";
+    if (path.includes("/pricing")) return "Pricing";
+    if (path.includes("/settings")) return "Settings";
+    return "Home";
+  };
+
   const AuthenticatedContent = () => {
-    const [proStatus, setProStatus] = useState({ isPro: false, proUntil: null });
+    const [proStatus, setProStatus] = useState({
+      isPro: false,
+      proUntil: null,
+    });
 
     useEffect(() => {
       const fetchProStatus = async () => {
         try {
-          const response = await fetch('/api/user/pro-status');
+          const response = await fetch("/api/user/pro-status");
           const data = await response.json();
           if (response.ok) {
             setProStatus(data);
           }
         } catch (error) {
-          console.error('Failed to fetch pro status:', error);
+          console.error("Failed to fetch pro status:", error);
         }
       };
 
@@ -43,15 +53,18 @@ const Navbar = () => {
 
     return (
       <>
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
           {/* Pro status badge */}
           <div className="flex items-center">
-            <span className={`px-2 py-1 text-xs rounded-full ${
-              proStatus.isPro 
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' 
-                : 'bg-gray-100 text-gray-600'
-            }`}>
-              {proStatus.isPro ? 'PRO' : 'FREE'}
+            <span
+              className={`px-2 py-1 text-xs rounded-full ${
+                proStatus.isPro
+                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {proStatus.isPro ? "PRO" : "FREE"}
             </span>
           </div>
           <div className="relative">
@@ -213,11 +226,16 @@ const Navbar = () => {
             appearance={{ elements: { avatarBox: "w-8 h-8" } }}
           />
         </div>
-        <div className="md:hidden flex items-center gap-4">
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden flex items-center justify-between w-full">
           <UserButton
             afterSignOutUrl="/"
             appearance={{ elements: { avatarBox: "w-8 h-8" } }}
           />
+          <span className="text-gray-600 font-medium text-center flex-1">
+            {getMobilePageTitle(pathname)}
+          </span>
           <button
             onClick={toggleMobileMenu}
             className="p-2 rounded-lg hover:bg-gray-100"
@@ -246,65 +264,181 @@ const Navbar = () => {
             </svg>
           </button>
         </div>
+
+        {/* Mobile Menu Portal */}
         {createPortal(
           <div
-            className={`fixed inset-0 bg-black/50 z-[999] md:hidden transition-opacity duration-300 ${
-              isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
+            className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[999] md:hidden
+              transition-all duration-500 ease-in-out
+              ${
+                isMobileMenuOpen
+                  ? "opacity-100"
+                  : "opacity-0 pointer-events-none"
+              }`}
             onClick={toggleMobileMenu}
           >
             <div
-              className={`fixed right-0 top-0 h-full w-72 bg-white shadow-xl transform transition-transform duration-300 ease-in-out overflow-y-auto ${
-                isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-              }`}
+              className={`fixed right-0 top-0 h-full w-72 bg-white shadow-2xl
+                transform transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+                ${
+                  isMobileMenuOpen
+                    ? "translate-x-0 opacity-100 rotate-0"
+                    : "translate-x-[110%] opacity-60 rotate-1"
+                }`}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 space-y-4">
-                <button
-                  onClick={toggleMobileMenu}
-                  className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
-                >
-                  <svg
-                    className="w-6 h-6 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              {/* Content slides in with a slight delay */}
+              <div
+                className={`h-full transition-all duration-500 delay-100
+                ${
+                  isMobileMenuOpen
+                    ? "opacity-100 translate-x-0"
+                    : "opacity-0 translate-x-4"
+                }`}
+              >
+                {/* User Profile Section */}
+                <div className="p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+                  <button
+                    onClick={toggleMobileMenu}
+                    className="absolute top-5 right-5 p-2 hover:bg-white/50 rounded-full transition-colors"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
+                    <svg
+                      className="w-5 h-5 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                  <div className="flex items-center gap-4 mb-4">
+                    <UserButton
+                      afterSignOutUrl="/"
+                      appearance={{ elements: { avatarBox: "w-12 h-12" } }}
                     />
-                  </svg>
-                </button>
-                <div className="pt-8 mb-8">
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    className="w-full px-4 py-2 rounded-lg bg-gray-100 border border-gray-200"
-                  />
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        {user?.firstName}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {user?.emailAddresses[0].emailAddress}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        proStatus.isPro
+                          ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
+                    >
+                      {proStatus.isPro ? "PRO" : "FREE"}
+                    </span>
+                    {!proStatus.isPro && (
+                      <button
+                        onClick={() => router.push("/pricing")}
+                        className="text-xs text-blue-600 hover:text-blue-700"
+                      >
+                        Upgrade
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <nav className="flex flex-col gap-4">
-                  <button
-                    className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    onClick={() => router.push("/dashboard")}
-                  >
-                    Dashboard
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    onClick={() => router.push("/meetings")}
-                  >
-                    Meetings
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    onClick={() => router.push("/pricing")}
-                  >
-                    Pricing
-                  </button>
+
+                {/* Search Bar */}
+                <div className="p-4 border-b">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search meetings..."
+                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all"
+                    />
+                    <svg
+                      className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Navigation */}
+                <nav className="p-4 space-y-1">
+                  {[
+                    {
+                      title: "Dashboard",
+                      icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+                      href: "/dashboard",
+                    },
+                    {
+                      title: "Meetings",
+                      icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+                      href: "/meetings",
+                    },
+                    {
+                      title: "Settings",
+                      icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z",
+                      href: "/settings",
+                    },
+                    {
+                      title: "Pricing",
+                      icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
+                      href: "/pricing",
+                    },
+                  ].map((item) => (
+                    <button
+                      key={item.title}
+                      onClick={() => {
+                        router.push(item.href);
+                        toggleMobileMenu();
+                      }}
+                      className="flex items-center gap-3 w-full p-3 text-gray-700 hover:bg-gray-50 rounded-xl group transition-colors"
+                    >
+                      <svg
+                        className="w-5 h-5 text-gray-400 group-hover:text-blue-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d={item.icon}
+                        />
+                      </svg>
+                      <span className="font-medium group-hover:text-blue-600">
+                        {item.title}
+                      </span>
+                    </button>
+                  ))}
                 </nav>
+
+                {/* Footer */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>v2.0.0</span>
+                    <button
+                      onClick={() => router.push("/help")}
+                      className="hover:text-gray-900"
+                    >
+                      Help & Support
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>,
@@ -317,10 +451,8 @@ const Navbar = () => {
   return (
     <nav className="fixed w-full bg-white/80 backdrop-blur-sm border-b z-50">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
-        >
+        {/* Logo - Hidden on Mobile */}
+        <div className="hidden md:flex items-center space-x-2 hover:opacity-80 transition-opacity">
           <Image
             src="/Icon.png"
             alt="Memoria AI Logo"
@@ -329,10 +461,11 @@ const Navbar = () => {
             className="rounded-lg object-contain"
             priority
           />
-          <span className="hidden md:inline font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Memoria AI
           </span>
-        </button>
+        </div>
+
         <SignedIn>
           <AuthenticatedContent />
         </SignedIn>

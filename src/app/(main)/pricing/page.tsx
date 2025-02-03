@@ -1,9 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
+import { useState } from "react";
 
 const PricingPage = () => {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'free' | 'individual' | 'pro'>('free');
 
   const handleProPayment = async () => {
     try {
@@ -76,144 +78,174 @@ const PricingPage = () => {
     }
   };
 
+  interface PricingCardProps {
+    type: 'free' | 'individual' | 'pro';
+    title: string;
+    price: string;
+    period: string;
+    features: string[];
+    buttonText: string;
+    buttonAction: () => void;
+    special?: boolean;
+  }
+
+  const PricingCard = ({ type, title, price, period, features, buttonText, buttonAction, special = false }: PricingCardProps) => (
+    <div className={`relative ${special ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white' : 'bg-white'} 
+      border-2 rounded-2xl md:p-8 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}>
+      {/* Show badge only on desktop */}
+      <div className={`absolute -top-4 left-6 md:block hidden ${special ? 'bg-blue-500 text-white' : type === 'free' ? 'bg-gray-100 text-gray-600' : 'bg-purple-100 text-purple-600'} 
+        px-4 py-1 rounded-full text-sm font-medium`}>
+        {type === 'free' ? 'Starter' : type === 'individual' ? 'Individual' : 'Most Popular'}
+      </div>
+      <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 mt-2">{title}</h2>
+      <p className="text-3xl md:text-4xl font-bold mb-4 md:mb-6">
+        {price}
+        <span className={`${special ? 'text-blue-100' : 'text-gray-500'} text-base md:text-lg font-normal`}>{period}</span>
+      </p>
+      <div className={`h-px w-full bg-gradient-to-r from-transparent ${special ? 'via-white/20' : 'via-gray-200'} to-transparent mb-4 md:mb-6`}></div>
+      <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
+        {features.map((feature, index) => (
+          <li key={index} className="flex items-center">
+            <svg className={`w-4 h-4 md:w-5 md:h-5 ${special ? 'text-white' : 'text-blue-500'} mr-2 md:mr-3 flex-shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-sm md:text-base">{feature}</span>
+          </li>
+        ))}
+      </ul>
+      <button 
+        onClick={buttonAction}
+        className={`w-full py-2.5 md:py-3 px-4 ${
+          special 
+            ? 'bg-white text-blue-600 hover:bg-blue-50 shadow-lg' 
+            : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50'
+        } rounded-xl transition-colors font-medium text-sm md:text-base`}
+      >
+        {buttonText}
+      </button>
+    </div>
+  );
+
+  const TabSelector = () => (
+    <div className="flex divide-x divide-gray-200 border-b border-gray-200 bg-gray-50/80">
+      {['free', 'individual', 'pro'].map((tab) => (
+        <button
+          key={tab}
+          onClick={() => setActiveTab(tab as 'free' | 'individual' | 'pro')}
+          className={`flex-1 py-3 px-2 text-sm font-medium transition-all relative
+            ${activeTab === tab 
+              ? 'text-blue-600 bg-white' 
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }
+          `}
+        >
+          {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          {activeTab === tab && (
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"></div>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+
+  const pricingData: Record<'free' | 'individual' | 'pro', PricingCardProps> = {
+    free: {
+      type: 'free',
+      title: 'Free',
+      price: '$0',
+      period: '/month',
+      features: ['5 meetings per month', 'Basic AI summarization', '1GB storage'],
+      buttonText: 'Get Started',
+      buttonAction: () => router.push("/dashboard")
+    },
+    individual: {
+      type: 'individual',
+      title: 'Pay Per Meeting',
+      price: '$1',
+      period: '/meeting',
+      features: ['Full Pro features', 'Pay as you go', 'No subscription'],
+      buttonText: 'Try Now',
+      buttonAction: () => {}
+    },
+    pro: {
+      type: 'pro',
+      title: 'Pro',
+      price: '$19',
+      period: '/month',
+      features: ['Unlimited meetings', 'Advanced AI features', 'Priority support'],
+      buttonText: 'Start Free Trial',
+      buttonAction: handleProPayment,
+      special: true
+    }
+  };
+
   return (
     <>
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
         strategy="lazyOnload"
       />
-      <div className="pt-16 pb-12 px-4 min-h-screen bg-gradient-to-b from-white to-blue-50">
+      <div className="pt-8 md:pt-16 pb-8 md:pb-12 px-4 min-h-screen bg-gradient-to-b from-white to-blue-50">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <div className="text-center mb-8 md:mb-12">
+            <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Choose Your Plan
             </h1>
-            <p className="text-gray-600 text-xl max-w-2xl mx-auto">
+            <p className="text-base md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
               From startups to enterprise companies, find the perfect plan for your team
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Free Plan */}
-            <div className="relative bg-white border-2 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="absolute -top-4 left-6 bg-gray-100 px-4 py-1 rounded-full text-sm font-medium text-gray-600">
-                Starter
+          {/* Mobile View */}
+          <div className="md:hidden">
+            <div className="max-w-sm mx-auto">
+              <div className="bg-white rounded-2xl shadow-sm border-2">
+                <TabSelector />
+                <div className="p-6">
+                  <p className="text-3xl font-bold mb-4">
+                    {pricingData[activeTab].price}
+                    <span className="text-gray-500 text-base font-normal">
+                      {pricingData[activeTab].period}
+                    </span>
+                  </p>
+                  <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6"></div>
+                  <ul className="space-y-3 mb-6">
+                    {pricingData[activeTab].features.map((feature, index) => (
+                      <li key={index} className="flex items-center">
+                        <svg className="w-4 h-4 text-blue-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-sm text-gray-600">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button 
+                    onClick={pricingData[activeTab].buttonAction}
+                    className={`w-full py-2.5 px-4 ${
+                      activeTab === 'pro'
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90'
+                        : 'border-2 border-blue-600 text-blue-600 hover:bg-blue-50'
+                    } rounded-xl transition-all font-medium text-sm`}
+                  >
+                    {pricingData[activeTab].buttonText}
+                  </button>
+                </div>
               </div>
-              <h2 className="text-2xl font-bold mb-4 mt-2">Free</h2>
-              <p className="text-4xl font-bold mb-6">
-                $0
-                <span className="text-gray-500 text-lg font-normal">/month</span>
-              </p>
-              <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6"></div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-600">5 meetings per month</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-600">Basic AI summarization</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-600">1GB storage</span>
-                </li>
-              </ul>
-              <button 
-                onClick={() => router.push("/dashboard")}
-                className="w-full py-3 px-4 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-medium"
-              >
-                Get Started
-              </button>
-            </div>
-
-            {/* Individual Plan */}
-            <div className="relative bg-white border-2 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="absolute -top-4 left-6 bg-purple-100 px-4 py-1 rounded-full text-sm font-medium text-purple-600">
-                Individual
-              </div>
-              <h2 className="text-2xl font-bold mb-4 mt-2">Pay Per Meeting</h2>
-              <p className="text-4xl font-bold mb-6">
-                $1
-                <span className="text-gray-500 text-lg font-normal">/meeting</span>
-              </p>
-              <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-6"></div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-600">Full Pro features</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-600">Pay as you go</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-gray-600">No subscription</span>
-                </li>
-              </ul>
-              <button className="w-full py-3 px-4 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-medium">
-                Try Now
-              </button>
-            </div>
-
-            {/* Pro Plan */}
-            <div className="relative bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-white">
-              <div className="absolute -top-4 left-6 bg-blue-500 px-4 py-1 rounded-full text-sm font-medium text-white">
-                Most Popular
-              </div>
-              <h2 className="text-2xl font-bold mb-4 mt-2">Pro</h2>
-              <p className="text-4xl font-bold mb-6">
-                $19
-                <span className="text-blue-100 text-lg font-normal">/month</span>
-              </p>
-              <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Unlimited meetings</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Advanced AI features</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="w-5 h-5 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Priority support</span>
-                </li>
-              </ul>
-              <button 
-                onClick={handleProPayment}
-                className="w-full py-3 px-4 bg-white text-blue-600 rounded-xl hover:bg-blue-50 transition-colors font-medium shadow-lg"
-              >
-                Start Free Trial
-              </button>
             </div>
           </div>
 
-          <div className="mt-16 text-center">
-            <p className="text-gray-500 mb-4">All plans include:</p>
-            <div className="flex flex-wrap justify-center gap-6 max-w-3xl mx-auto">
+          {/* Desktop View */}
+          <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {Object.values(pricingData).map((plan) => (
+              <PricingCard key={plan.type} {...plan} />
+            ))}
+          </div>
+
+          <div className="mt-12 md:mt-16 text-center">
+            <p className="text-gray-500 mb-4 text-sm md:text-base">All plans include:</p>
+            <div className="flex flex-wrap justify-center gap-3 md:gap-6 max-w-3xl mx-auto">
               {['SSL security', 'API access', '24/7 support', 'Regular updates'].map((feature) => (
-                <span key={feature} className="px-4 py-2 bg-white rounded-full text-sm text-gray-600 shadow-sm">
+                <span key={feature} className="px-3 md:px-4 py-1.5 md:py-2 bg-white rounded-full text-xs md:text-sm text-gray-600 shadow-sm">
                   {feature}
                 </span>
               ))}

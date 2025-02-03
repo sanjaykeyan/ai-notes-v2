@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Dialog } from "@headlessui/react";
+import { useState, useEffect, Fragment } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
@@ -138,134 +138,153 @@ export default function UploadMeetingModal({
   };
 
   return (
-    <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
-      <div
-        className="fixed inset-0 bg-black/30 backdrop-blur-sm"
-        aria-hidden="true"
-      />
+    <Transition show={isOpen} as={Fragment}>
+      <Dialog onClose={handleClose} className="relative z-50">
+        {/* Backdrop */}
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-200"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-150"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />
+        </Transition.Child>
 
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="mx-auto max-w-sm md:max-w-md w-full rounded-2xl bg-white p-6 shadow-xl relative">
-          {/* Close button - always visible */}
-          <button
-            onClick={handleClose}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-          >
-            <XMarkIcon className="h-6 w-6" />
-          </button>
-
-          {phase === "processing" ? (
-            <div className="space-y-4">
-              <Dialog.Title className="text-xl font-semibold">
-                Processing in Background
-              </Dialog.Title>
-              <p className="text-gray-600">
-                Your meeting is being processed. You can safely close this window - 
-                we'll send you an email when processing is complete.
-              </p>
-              <div className="flex justify-end">
-                <button
-                  onClick={handleClose}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-                >
-                  Close Window
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <Dialog.Title className="text-xl font-semibold mb-4">
-                Upload Meeting Recording
-              </Dialog.Title>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Meeting Title
-                  </label>
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Recording File
-                  </label>
-                  <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg">
-                    <div className="space-y-1 text-center">
-                      <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
-                        stroke="currentColor"
-                        fill="none"
-                        viewBox="0 0 48 48"
-                      >
-                        <path
-                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <div className="flex text-sm text-gray-600">
-                        <label className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500">
-                          <span>Upload a file</span>
-                          <input
-                            type="file"
-                            className="sr-only"
-                            accept="audio/*,video/*"
-                            onChange={(e) => setFile(e.target.files?.[0] || null)}
-                          />
-                        </label>
-                        <p className="pl-1">or drag and drop</p>
-                      </div>
-                      <p className="text-xs text-gray-500">MP3, MP4 up to 500MB</p>
-                    </div>
-                  </div>
-                  {file && (
-                    <p className="text-sm text-gray-500">Selected: {file.name}</p>
-                  )}
-                </div>
-
-                {loading && (
-                  <div className="space-y-2">
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div
-                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                    <p className="text-sm text-gray-500 text-center">
-                      {phase === "uploading" ? "Uploading..." : "Processing..."}
+        {/* Modal container - Removed overflow-y-auto to prevent scroll interference */}
+        <div className="fixed inset-0">
+          <div className="flex min-h-full items-end sm:items-center justify-center">
+            <Transition.Child
+              as={Fragment}
+              enter="transform transition ease-out duration-200"
+              enterFrom="translate-y-full sm:translate-y-0 sm:scale-95 sm:opacity-0"
+              enterTo="translate-y-0 sm:scale-100 sm:opacity-100"
+              leave="transform transition ease-in duration-150"
+              leaveFrom="translate-y-0 sm:scale-100 sm:opacity-100"
+              leaveTo="translate-y-full sm:translate-y-0 sm:scale-95 sm:opacity-0"
+            >
+              <Dialog.Panel className="w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-xl relative">
+                {phase === "processing" ? (
+                  // Processing view
+                  <div className="space-y-3 py-2 animate-fadeIn">
+                    <Dialog.Title className="text-lg font-semibold">
+                      Processing in Background
+                    </Dialog.Title>
+                    <p className="text-sm text-gray-600">
+                      Your meeting is being processed. You'll receive a notification when it's ready.
                     </p>
+                    <div className="flex justify-end">
+                      <button
+                        onClick={handleClose}
+                        className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
-                )}
+                ) : (
+                  <>
+                    <Dialog.Title className="text-lg font-semibold mb-3">
+                      Upload Meeting
+                    </Dialog.Title>
 
-                <div className="flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading || !file || !title}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                  >
-                    Upload
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
-        </Dialog.Panel>
-      </div>
-    </Dialog>
+                    <form onSubmit={handleSubmit} className="space-y-3">
+                      {/* Mobile-optimized form fields */}
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">
+                          Meeting Title
+                        </label>
+                        <input
+                          type="text"
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          className="mt-1 w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500"
+                          required
+                        />
+                      </div>
+
+                      {/* Compact file upload area */}
+                      <div className="space-y-1">
+                        <label className="text-sm font-medium text-gray-700">
+                          Recording File
+                        </label>
+                        <div className="flex justify-center px-4 py-3 border-2 border-dashed rounded-lg">
+                          <div className="space-y-1 text-center">
+                            <svg
+                              className="mx-auto h-12 w-12 text-gray-400"
+                              stroke="currentColor"
+                              fill="none"
+                              viewBox="0 0 48 48"
+                            >
+                              <path
+                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                            <div className="flex text-sm text-gray-600">
+                              <label className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500">
+                                <span>Upload a file</span>
+                                <input
+                                  type="file"
+                                  className="sr-only"
+                                  accept="audio/*,video/*"
+                                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                                />
+                              </label>
+                              <p className="pl-1">or drag and drop</p>
+                            </div>
+                            <p className="text-xs text-gray-500">MP3, MP4 up to 500MB</p>
+                          </div>
+                        </div>
+                        {file && (
+                          <p className="text-sm text-gray-500">Selected: {file.name}</p>
+                        )}
+                      </div>
+
+                      {/* Progress indicators with animation */}
+                      {loading && (
+                        <div className="space-y-2 animate-fadeIn">
+                          <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                            <div
+                              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <p className="text-sm text-gray-500 text-center">
+                            {phase === "uploading" ? "Uploading..." : "Processing..."}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Mobile-optimized buttons */}
+                      <div className="flex gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={handleClose}
+                          className="flex-1 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={loading || !file || !title}
+                          className="flex-1 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                        >
+                          Upload
+                        </button>
+                      </div>
+                    </form>
+                  </>
+                )}
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
   );
 }
