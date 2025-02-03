@@ -210,13 +210,18 @@ export default function ScreenB({ summary }: ScreenBProps) {
                 <div className="space-y-8">
                   {/* Key Insights Section */}
                   <div>
-                    <h3
-                      className={`${getSectionColor(
-                        "keyInsights"
-                      )} text-lg font-bold mb-3 flex items-center gap-2`}
-                    >
-                      {getSectionEmoji("keyInsights")} Key Meeting Insights
-                    </h3>
+                    <div className="flex items-center gap-3 mb-4">
+                      <h3 className={`${getSectionColor("keyInsights")} text-lg font-bold flex items-center gap-2`}>
+                        {getSectionEmoji("keyInsights")} Key Meeting Insights
+                      </h3>
+                      <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full text-sm text-gray-600">
+                        <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="hidden sm:inline">Click insights to expand</span>
+                        <span className="sm:hidden">Tap to expand</span>
+                      </div>
+                    </div>
                     <ul className="space-y-3 list-none pl-6">
                       {renderKeyInsights()}
                     </ul>
@@ -228,14 +233,44 @@ export default function ScreenB({ summary }: ScreenBProps) {
                   <div>
                     <button
                       onClick={() => setShowFullSummary(!showFullSummary)}
-                      className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-lg border border-blue-100 transition-all duration-300 group hover:shadow-md"
                     >
-                      <span className="font-medium">Full Meeting Summary</span>
-                      <span>{showFullSummary ? "▼" : "▶"}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-blue-500 text-lg">
+                          {showFullSummary ? "📖" : "📑"}
+                        </span>
+                        <div className="flex flex-col items-start">
+                          <span className="font-medium text-gray-900">
+                            Full Meeting Summary
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            {showFullSummary ? "Hide detailed overview" : "View complete meeting notes"}
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`text-blue-500 transition-transform duration-300 ${
+                        showFullSummary ? "rotate-180" : ""
+                      }`}>
+                        <svg 
+                          width="20" 
+                          height="20" 
+                          viewBox="0 0 24 24" 
+                          fill="none" 
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path 
+                            d="M6 9L12 15L18 9" 
+                            stroke="currentColor" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
                     </button>
 
                     {showFullSummary && (
-                      <div className="mt-6 space-y-8">
+                      <div className="mt-6 space-y-8 animate-fadeIn">
                         {/* Original summary sections */}
                         {/* Overview Section */}
                         <div>
