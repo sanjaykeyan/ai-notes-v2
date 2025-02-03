@@ -31,65 +31,101 @@ interface ParentSectionHeaderProps {
   onToggle: () => void;
 }
 
-function SectionHeader({ title, isExpanded, onToggle, showHint }: SectionHeaderProps) {
+function SectionHeader({
+  title,
+  isExpanded,
+  onToggle,
+  showHint,
+}: SectionHeaderProps) {
   return (
     <button
       onClick={onToggle}
-      className="w-full group bg-gradient-to-r from-gray-50 to-gray-50/50 border border-gray-200 rounded-lg hover:from-gray-100 hover:to-gray-50 transition-all duration-200"
+      className="w-full group bg-gradient-to-r from-white to-gray-50/80 border border-gray-100 rounded-lg hover:shadow-sm transition-all duration-200"
     >
-      <div className="flex items-center justify-between px-4 py-2.5">
+      <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-3">
-          <div className={`w-1 h-6 rounded-full bg-indigo-500/40 transition-all duration-300 ${
-            isExpanded ? 'h-6' : 'h-4'
-          }`} />
-          <div className="flex items-center gap-2">
-            <h3 className="font-medium text-gray-900 text-sm">{title}</h3>
-            {showHint && (
-              <span className="text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
-                Click items to expand
-              </span>
-            )}
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-0.5 h-5 rounded-full bg-gradient-to-b from-indigo-400 to-blue-500 transition-all duration-300 ${
+                isExpanded ? "opacity-100" : "opacity-40"
+              }`}
+            />
+            <div className="flex flex-col items-start">
+              <h3 className="font-medium text-gray-700 text-sm">{title}</h3>
+              {showHint && (
+                <span className="text-[11px] text-indigo-500/80">
+                  Click items below to see AI analysis
+                </span>
+              )}
+            </div>
           </div>
         </div>
-        <ChevronDownIcon 
-          className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
-            isExpanded ? 'transform rotate-180 text-indigo-500' : ''
-          }`}
-        />
-      </div>
-    </button>
-  );
-}
-
-function ParentSectionHeader({ title, isExpanded, onToggle }: ParentSectionHeaderProps) {
-  return (
-    <button
-      onClick={onToggle}
-      className="w-full group bg-white border border-gray-200 rounded-xl hover:bg-gray-50/80 transition-all duration-200 shadow-sm"
-    >
-      <div className="flex items-center justify-between px-5 py-3">
-        <div className="flex items-center gap-4">
-          <div className={`w-1.5 h-8 rounded-full bg-indigo-500/40 transition-all duration-300 ${
-            isExpanded ? 'h-8' : 'h-5'
-          }`} />
-          <div className="flex flex-col items-start">
-            <h3 className="font-semibold text-gray-900">{title}</h3>
-            <span className="text-xs text-gray-500">
-              {isExpanded ? "Viewing all sections" : "Click to view detailed summary"}
+        <div className="flex items-center gap-2">
+          {isExpanded && (
+            <span className="text-xs text-indigo-500/80 font-medium">
+              {showHint ? "Viewing insights" : "Expanded"}
             </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 text-gray-400">
-          <span className="text-xs font-medium text-indigo-500">
-            {isExpanded ? "Collapse" : "Expand"}
-          </span>
-          <ChevronDownIcon 
-            className={`w-5 h-5 text-indigo-500 transition-transform duration-300 ${
-              isExpanded ? 'transform rotate-180' : ''
+          )}
+          <ChevronDownIcon
+            className={`w-4 h-4 text-indigo-500/60 transition-transform duration-300 ${
+              isExpanded ? "transform rotate-180" : ""
             }`}
           />
         </div>
       </div>
+      <div
+        className={`h-0.5 w-full bg-gradient-to-r from-transparent via-gray-200/50 to-transparent transition-opacity duration-300 ${
+          isExpanded ? "opacity-100" : "opacity-0"
+        }`}
+      />
+    </button>
+  );
+}
+
+function ParentSectionHeader({
+  title,
+  isExpanded,
+  onToggle,
+}: ParentSectionHeaderProps) {
+  return (
+    <button
+      onClick={onToggle}
+      className="w-full group bg-gradient-to-r from-white to-gray-50/80 border border-gray-200 rounded-lg hover:shadow-sm transition-all duration-200"
+    >
+      <div className="flex items-center justify-between px-4 py-2">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-0.5 h-5 rounded-full bg-gradient-to-b from-indigo-400 to-blue-500 transition-all duration-300 ${
+                isExpanded ? "opacity-100" : "opacity-40"
+              }`}
+            />
+            <div className="flex flex-col items-start">
+              <h3 className="font-medium text-gray-700 text-sm">{title}</h3>
+              <span className="text-[11px] text-indigo-500/80">
+                {isExpanded ? "View complete meeting details" : "Click to expand full summary"}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {isExpanded && (
+            <span className="text-xs text-indigo-500/80 font-medium">
+              Expanded
+            </span>
+          )}
+          <ChevronDownIcon
+            className={`w-4 h-4 text-indigo-500/60 transition-transform duration-300 ${
+              isExpanded ? "transform rotate-180" : ""
+            }`}
+          />
+        </div>
+      </div>
+      <div
+        className={`h-0.5 w-full bg-gradient-to-r from-transparent via-gray-200/50 to-transparent transition-opacity duration-300 ${
+          isExpanded ? "opacity-100" : "opacity-0"
+        }`}
+      />
     </button>
   );
 }
@@ -107,7 +143,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
     keyPoints: true,
     actionItems: true,
     decisions: true,
-    nextSteps: true
+    nextSteps: true,
   });
 
   useEffect(() => {
@@ -168,32 +204,42 @@ export default function ScreenB({ summary }: ScreenBProps) {
   };
 
   const toggleSection = (section: keyof typeof sectionsState) => {
-    setSectionsState(prev => ({
+    setSectionsState((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
   const renderKeyInsights = () => {
     return formattedSummary?.keyInsights.map((insight, index) => (
-      <div key={index} className="space-y-2">
+      <div key={index} className="group/insight space-y-2">
         <li
-          className={`text-gray-700 text-sm cursor-pointer p-2.5 rounded-lg transition-all duration-300 ease-in-out ${
-            expandedInsight?.insightIndex === index
-              ? "bg-gradient-to-r from-indigo-50/80 to-blue-50/80 shadow-sm border border-indigo-100/50"
-              : "hover:bg-gray-50"
-          }`}
+          className={`text-gray-700 text-sm cursor-pointer rounded-lg transition-all duration-300 ease-in-out 
+            ${
+              expandedInsight?.insightIndex === index
+                ? "bg-gradient-to-r from-indigo-50/90 to-blue-50/80 border border-indigo-100/50 shadow-sm"
+                : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-transparent"
+            }`}
           onClick={() => handleInsightClick(insight, index)}
         >
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-blue-500 transition-all duration-300 ${
-                expandedInsight?.insightIndex === index ? "rotate-90" : ""
-              }`}
-            >
-              ▶
-            </span>
-            {insight}
+          <div className="flex items-start gap-3 p-2.5">
+            <div className="relative flex-shrink-0 mt-1">
+              <div
+                className={`w-4 h-4 rounded-full transition-colors duration-300 ${
+                  expandedInsight?.insightIndex === index
+                    ? "bg-indigo-100"
+                    : "bg-gray-100 group-hover/insight:bg-indigo-50"
+                }`}
+              />
+              <div
+                className={`absolute inset-0 flex items-center justify-center transition-transform duration-300 ${
+                  expandedInsight?.insightIndex === index ? "rotate-90" : ""
+                }`}
+              >
+                <ChevronDownIcon className="w-3 h-3 text-indigo-500" />
+              </div>
+            </div>
+            <span className="flex-1">{insight}</span>
           </div>
         </li>
         {expandedInsight?.insightIndex === index && (
@@ -298,10 +344,10 @@ export default function ScreenB({ summary }: ScreenBProps) {
               <div>
                 {/* Key Insights Section */}
                 <div className="space-y-4">
-                  <SectionHeader 
+                  <SectionHeader
                     title="Key Meeting Insights"
                     isExpanded={sectionsState.keyInsights}
-                    onToggle={() => toggleSection('keyInsights')}
+                    onToggle={() => toggleSection("keyInsights")}
                     showHint={true}
                   />
                   {sectionsState.keyInsights && (
@@ -315,20 +361,20 @@ export default function ScreenB({ summary }: ScreenBProps) {
 
                 {/* Full Summary Section */}
                 <div className="space-y-6 mt-6">
-                  <ParentSectionHeader 
+                  <ParentSectionHeader
                     title="Full Meeting Summary"
                     isExpanded={showFullSummary}
                     onToggle={() => setShowFullSummary(!showFullSummary)}
                   />
-                  
+
                   {showFullSummary && (
                     <div className="space-y-6 animate-fadeIn bg-gradient-to-b from-gray-50/50 to-white p-5 rounded-xl border border-gray-100">
                       {/* Overview Section */}
                       <div className="space-y-4">
-                        <SectionHeader 
+                        <SectionHeader
                           title="Overview"
                           isExpanded={sectionsState.overview}
-                          onToggle={() => toggleSection('overview')}
+                          onToggle={() => toggleSection("overview")}
                         />
                         {sectionsState.overview && (
                           <div className="px-4 animate-fadeIn">
@@ -340,39 +386,66 @@ export default function ScreenB({ summary }: ScreenBProps) {
                       </div>
 
                       {/* Other Sections */}
-                      {Object.entries(formattedSummary).map(([section, items]) => {
-                        if (section === "overview" || section === "keyInsights") return null;
-                        
-                        const title = section
-                          .replace(/([A-Z])/g, " $1")
-                          .trim()
-                          .split(" ")
-                          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                          .join(" ");
+                      {Object.entries(formattedSummary).map(
+                        ([section, items]) => {
+                          if (
+                            section === "overview" ||
+                            section === "keyInsights"
+                          )
+                            return null;
 
-                        return (
-                          <div key={section} className="space-y-4">
-                            <SectionHeader 
-                              title={title}
-                              isExpanded={sectionsState[section as keyof typeof sectionsState]}
-                              onToggle={() => toggleSection(section as keyof typeof sectionsState)}
-                            />
-                            {sectionsState[section as keyof typeof sectionsState] && (
-                              <div className="px-4 animate-fadeIn">
-                                <ul className="space-y-3 list-none">
-                                  {Array.isArray(items) &&
-                                    items.map((item: string, index: number) => (
-                                      <li key={index} className="text-gray-700 text-sm flex items-start gap-2">
-                                        <span className="text-gray-400 mt-1">•</span>
-                                        <span>{item}</span>
-                                      </li>
-                                    ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                          const title = section
+                            .replace(/([A-Z])/g, " $1")
+                            .trim()
+                            .split(" ")
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() +
+                                word.slice(1).toLowerCase()
+                            )
+                            .join(" ");
+
+                          return (
+                            <div key={section} className="space-y-4">
+                              <SectionHeader
+                                title={title}
+                                isExpanded={
+                                  sectionsState[
+                                    section as keyof typeof sectionsState
+                                  ]
+                                }
+                                onToggle={() =>
+                                  toggleSection(
+                                    section as keyof typeof sectionsState
+                                  )
+                                }
+                              />
+                              {sectionsState[
+                                section as keyof typeof sectionsState
+                              ] && (
+                                <div className="px-4 animate-fadeIn">
+                                  <ul className="space-y-3 list-none">
+                                    {Array.isArray(items) &&
+                                      items.map(
+                                        (item: string, index: number) => (
+                                          <li
+                                            key={index}
+                                            className="text-gray-700 text-sm flex items-start gap-2"
+                                          >
+                                            <span className="text-gray-400 mt-1">
+                                              •
+                                            </span>
+                                            <span>{item}</span>
+                                          </li>
+                                        )
+                                      )}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+                      )}
                     </div>
                   )}
                 </div>
