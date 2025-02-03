@@ -192,7 +192,7 @@ export default function MeetingPage({
           {/* Adjust positioning */}
           {/* Desktop Title */}
           <header className="h-14 flex-none py-4 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 lg:block hidden">
-            <h1 className="text-lg heading-text dark:text-gray-100">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {meeting?.title || "Untitled Meeting"}
             </h1>
           </header>

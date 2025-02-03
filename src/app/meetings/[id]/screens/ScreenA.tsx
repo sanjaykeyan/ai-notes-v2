@@ -55,8 +55,8 @@ export default function ScreenA({
             onClick={() => handleViewChange("search")}
             className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 ${
               selectedView === "search"
-                ? "bg-blue-50 text-blue-600"
-                : "hover:bg-gray-50"
+                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
             }`}
           >
             <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -66,8 +66,8 @@ export default function ScreenA({
             onClick={() => handleViewChange("bookmarks")}
             className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 ${
               selectedView === "bookmarks"
-                ? "bg-blue-50 text-blue-600"
-                : "hover:bg-gray-50"
+                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
             }`}
           >
             <BookmarkIcon className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -76,7 +76,7 @@ export default function ScreenA({
         </nav>
       </div>
       {/* Content */}
-      <div className="flex-1 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-xl flex flex-col min-w-0 relative overflow-hidden">
+      <div className="flex-1 bg-white dark:bg-gray-800 backdrop-blur-sm shadow-xl flex flex-col min-w-0 relative overflow-hidden">
         <div className="flex-shrink-0 px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
             {selectedView === "bookmarks" ? "Bookmarks" : "Smart Filters"}

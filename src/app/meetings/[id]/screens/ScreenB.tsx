@@ -367,7 +367,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                   />
 
                   {showFullSummary && (
-                    <div className="animate-fadeIn bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-800/50 dark:to-gray-900 pt-4 px-5 pb-5 rounded-b-xl border border-t-0 border-gray-100 dark:border-gray-700 -mt-[1px]">
+                    <div className="animate-fadeIn bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-800 dark:to-gray-800 pt-4 px-5 pb-5 rounded-b-xl border border-t-0 border-gray-100 dark:border-gray-700 -mt-[1px]">
                       {/* Overview Section */}
                       <div className="space-y-4">
                         <SectionHeader

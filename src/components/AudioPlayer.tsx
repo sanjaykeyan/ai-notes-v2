@@ -149,7 +149,7 @@ const AudioPlayer = ({ audioUrl, title = "Meeting Audio" }: AudioPlayerProps) =>
   };
 
   return (
-    <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm py-3 px-4 md:px-6">
+    <div className="bg-white dark:bg-gray-800 backdrop-blur-sm py-3 px-4 md:px-6">
       <audio 
         ref={audioRef} 
         src={audioUrl}
