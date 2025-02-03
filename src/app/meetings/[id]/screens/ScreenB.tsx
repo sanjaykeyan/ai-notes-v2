@@ -61,9 +61,9 @@ function SectionHeader({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isExpanded && (
+          {isExpanded && showHint && ( // Added showHint condition here
             <span className="text-xs text-indigo-500/80 font-medium">
-              {showHint ? "Viewing insights" : "Expanded"}
+              {showHint ? "Viewing insights" : ""}
             </span>
           )}
           <ChevronDownIcon
