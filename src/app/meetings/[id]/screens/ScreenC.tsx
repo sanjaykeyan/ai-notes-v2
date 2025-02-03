@@ -335,9 +335,9 @@ export default function ScreenC({
               behavior: 'smooth'
             });
 
-            segmentElement.classList.add('bg-yellow-100');
+            segmentElement.classList.add('bg-yellow-100', 'dark:bg-yellow-900/50');
             setTimeout(() => {
-              segmentElement.classList.remove('bg-yellow-100');
+              segmentElement.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/50');
             }, 2000);
           }
         }
@@ -359,9 +359,9 @@ export default function ScreenC({
                 behavior: 'smooth'
               });
 
-              (node as HTMLElement).classList.add('bg-yellow-100');
+              (node as HTMLElement).classList.add('bg-yellow-100', 'dark:bg-yellow-900/50');
               setTimeout(() => {
-                (node as HTMLElement).classList.remove('bg-yellow-100');
+                (node as HTMLElement).classList.remove('bg-yellow-100', 'dark:bg-yellow-900/50');
               }, 2000);
               break;
             }
@@ -511,5 +511,25 @@ export default function ScreenC({
         </div>
       </div>
     </div>
+  );
+}
+
+// Update highlight text function to use dark mode compatible highlight color
+function highlightText(text: string, searchTerm: string) {
+  if (!searchTerm) return text;
+
+  const parts = text.split(new RegExp(`(${searchTerm})`, "gi"));
+  return (
+    <span>
+      {parts.map((part, i) =>
+        part.toLowerCase() === searchTerm.toLowerCase() ? (
+          <span key={i} className="bg-yellow-200 dark:bg-yellow-900/50">
+            {part}
+          </span>
+        ) : (
+          part
+        )
+      )}
+    </span>
   );
 }
