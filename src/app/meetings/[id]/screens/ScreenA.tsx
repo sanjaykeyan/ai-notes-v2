@@ -49,7 +49,7 @@ export default function ScreenA({
   return (
     <div className="h-full flex flex-col sm:flex-row">
       {/* Navigation - horizontal on mobile, vertical sidebar on desktop */}
-      <div className="sm:h-full w-full sm:w-[60px] border-b sm:border-b-0 sm:border-r border-gray-200 bg-white flex-shrink-0">
+      <div className="sm:h-full w-full sm:w-[60px] border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
         <nav className="flex sm:flex-col py-1 px-2 sm:p-2 space-x-1 sm:space-x-0 sm:space-y-2 justify-center sm:justify-start">
           <button
             onClick={() => handleViewChange("search")}
@@ -76,9 +76,9 @@ export default function ScreenA({
         </nav>
       </div>
       {/* Content */}
-      <div className="flex-1 bg-white/70 backdrop-blur-sm shadow-xl flex flex-col min-w-0 relative overflow-hidden">
-        <div className="flex-shrink-0 px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200">
-          <h2 className="text-base sm:text-lg font-semibold text-gray-900">
+      <div className="flex-1 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-xl flex flex-col min-w-0 relative overflow-hidden">
+        <div className="flex-shrink-0 px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
             {selectedView === "bookmarks" ? "Bookmarks" : "Smart Filters"}
           </h2>
         </div>

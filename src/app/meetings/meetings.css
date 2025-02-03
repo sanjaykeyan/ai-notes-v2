@@ -49,3 +49,21 @@
     transition: opacity 200ms ease-in;
   }
 }
+
+/* Dark mode overrides */
+.dark .meetings-container {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.dark .meetings-container button {
+  @apply text-gray-400 hover:text-gray-200;
+}
+
+.dark .meetings-container input {
+  @apply bg-gray-800 border-gray-700 text-gray-200;
+}
+
+.dark .meetings-container input::placeholder {
+  @apply text-gray-500;
+}

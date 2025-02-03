@@ -29,7 +29,7 @@ function ScreenSelector() {
   const { activeScreen, setActiveScreen } = useScreen();
   return (
     <div className="sticky top-0 z-40">
-      <div className="flex p-2 gap-1 bg-white border-b shadow-sm">
+      <div className="flex p-2 gap-1 bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-sm">
         {[
           { id: "filters", label: "Filters" },
           { id: "summary", label: "Summary" },
@@ -43,8 +43,8 @@ function ScreenSelector() {
               transition-all duration-200 ease-in-out
               ${
                 activeScreen === tab.id
-                  ? "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-700/10"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 ring-1 ring-indigo-700/10 dark:ring-indigo-300/10"
+                  : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100"
               }
             `}
           >
@@ -187,12 +187,12 @@ export default function MeetingPage({
   return (
     <PlaybackProvider>
       <ScreenProvider>
-        <div className="fixed inset-x-0 top-16 bottom-0 flex flex-col bg-white">
+        <div className="fixed inset-x-0 top-16 bottom-0 flex flex-col bg-white dark:bg-gray-900">
           {" "}
           {/* Adjust positioning */}
           {/* Desktop Title */}
-          <header className="h-14 flex-none py-4 px-6 bg-white border-b border-gray-200 lg:block hidden">
-            <h1 className="text-lg heading-text">
+          <header className="h-14 flex-none py-4 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 lg:block hidden">
+            <h1 className="text-lg heading-text dark:text-gray-100">
               {meeting?.title || "Untitled Meeting"}
             </h1>
           </header>
@@ -208,7 +208,7 @@ export default function MeetingPage({
             )}
           </main>
           {/* Audio player */}
-          <footer className="h-20 flex-none bg-white border-t border-gray-200">
+          <footer className="h-20 flex-none bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
             <AudioPlayer
               audioUrl={meeting?.recordingUrl}
               title={meeting?.title}

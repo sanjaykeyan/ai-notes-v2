@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -15,6 +16,7 @@ const Navbar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const { notifications, markAsRead, deleteNotification } = useNotifications();
   const unreadCount = notifications.filter(n => !n.read).length;
+  const { theme, toggleTheme } = useTheme();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
@@ -26,6 +28,26 @@ const Navbar = () => {
     if (path.includes("/settings")) return "Settings";
     return "Home";
   };
+
+  const ThemeToggleButton = () => (
+    <button
+      onClick={toggleTheme}
+      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+      aria-label="Toggle theme"
+    >
+      {theme === 'light' ? (
+        <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      ) : (
+        <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+        </svg>
+      )}
+    </button>
+  );
 
   const AuthenticatedContent = () => {
     const [proStatus, setProStatus] = useState({
@@ -221,6 +243,7 @@ const Navbar = () => {
               </div>
             )}
           </div>
+          <ThemeToggleButton />
           <UserButton
             afterSignOutUrl="/"
             appearance={{ elements: { avatarBox: "w-8 h-8" } }}
@@ -449,7 +472,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed w-full bg-white/80 backdrop-blur-sm border-b z-50">
+    <nav className="fixed w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 z-50">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo - Hidden on Mobile */}
         <div className="hidden md:flex items-center space-x-2 hover:opacity-80 transition-opacity">
@@ -471,10 +494,10 @@ const Navbar = () => {
         </SignedIn>
         <SignedOut>
           <div className="flex items-center gap-4">
-            <button className="hidden md:block text-gray-600 hover:text-gray-900">
+            <button className="hidden md:block text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
               About
             </button>
-            <button className="hidden md:block text-gray-600 hover:text-gray-900">
+            <button className="hidden md:block text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
               Pricing
             </button>
             <Link
@@ -483,6 +506,7 @@ const Navbar = () => {
             >
               Sign In
             </Link>
+            <ThemeToggleButton />
           </div>
         </SignedOut>
       </div>

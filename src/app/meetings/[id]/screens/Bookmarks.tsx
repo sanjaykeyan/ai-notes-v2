@@ -18,14 +18,14 @@ interface BookmarksProps {
 function EmptyBookmarksTutorial() {
   return (
     <div className="text-center p-8 max-w-sm mx-auto">
-      <BookmarkIcon className="h-8 w-8 mx-auto mb-4 text-gray-400" />
-      <h3 className="text-base font-medium text-gray-900 mb-2">
+      <BookmarkIcon className="h-8 w-8 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
+      <h3 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-2">
         No bookmarks yet
       </h3>
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
         Save important parts of your meeting notes for quick access:
       </p>
-      <div className="space-y-3 text-sm text-gray-600">
+      <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
         <div className="flex items-center space-x-2">
           <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
             1
@@ -141,17 +141,23 @@ export default function Bookmarks({
           {bookmarks.map((bookmark) => (
             <div
               key={bookmark.id}
-              className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 relative group cursor-pointer hover:bg-gray-50"
+              className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 
+                       relative group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50"
               onClick={(e) => handleBookmarkClick(bookmark, e)}
             >
-              <p className="text-[14px] leading-relaxed text-gray-700 pr-8">{bookmark.text}</p>
-              <p className="text-xs text-gray-400 mt-2">
+              <p className="text-[14px] leading-relaxed text-gray-700 dark:text-gray-300 pr-8">
+                {bookmark.text}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                 {new Date(bookmark.createdAt).toLocaleString()}
               </p>
               <button
                 onClick={() => handleDelete(bookmark.id)}
                 disabled={isDeleting === bookmark.id}
-                className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                className="absolute top-4 right-4 p-1.5 text-gray-400 dark:text-gray-500 
+                         hover:text-red-500 dark:hover:text-red-400 
+                         hover:bg-red-50 dark:hover:bg-red-900/50 rounded-md 
+                         opacity-0 group-hover:opacity-100 transition-opacity duration-200"
               >
                 <TrashIcon className="h-4 w-4" />
               </button>
@@ -159,9 +165,7 @@ export default function Bookmarks({
           ))}
         </div>
       ) : (
-        <div className="text-[14px] text-gray-500 text-center py-8">
-          No bookmarks yet
-        </div>
+        <EmptyBookmarksTutorial />
       )}
     </div>
   );

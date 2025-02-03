@@ -4,9 +4,7 @@ interface LayoutProps {
 
 export default function MeetingLayout({ children }: LayoutProps) {
   return (
-    <div className="h-screen relative mt-16">
-      {" "}
-      {/* Add mt-16 for navbar height */}
+    <div className="h-screen relative mt-16 bg-white dark:bg-gray-900">
       {children}
     </div>
   );

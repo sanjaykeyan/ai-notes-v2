@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect, useRef } from "react";
 import { formatTranscript } from "../utils/transcriptFormatter";
 import { MagnifyingGlassIcon, BookmarkIcon, ArrowsPointingInIcon } from "@heroicons/react/24/outline";
@@ -268,9 +269,9 @@ export default function ScreenC({
               key={`segment-${index}`}
               id={`segment-${index}`}
               onClick={() => handleSegmentClick(segment.start_time)}
-              className={`transcript-text py-2 px-4 rounded transition-all duration-300 cursor-pointer hover:bg-gray-50 ${
-                isCurrentSegment ? 'bg-blue-50 border-l-4 border-blue-500' : ''
-              }`}
+              className={`transcript-text py-2 px-4 rounded transition-all duration-300 cursor-pointer 
+                         hover:bg-gray-50 dark:hover:bg-gray-700/50 
+                         ${isCurrentSegment ? 'bg-blue-50 dark:bg-blue-900/50 border-l-4 border-blue-500 dark:border-blue-400' : ''}`}
             >
               {formattedText}
             </div>
@@ -416,10 +417,10 @@ export default function ScreenC({
   };
 
   return (
-    <div className="bg-white shadow-sm border border-gray-200 h-full flex flex-col">
+    <div className="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col">
       {isCreatingBookmark && (
-        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg">
+        <div className="fixed inset-0 bg-black/20 dark:bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg dark:text-gray-200">
             Creating bookmark...
           </div>
         </div>
@@ -435,40 +436,49 @@ export default function ScreenC({
             top: `${popoverPosition.y}px`,
             transform: "translate(-50%, -100%)",
           }}
-          className="p-2 bg-white rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors z-50"
+          className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 
+                     hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors z-50"
         >
-          <BookmarkIcon className="h-4 w-4 text-gray-600" />
+          <BookmarkIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
         </button>
       )}
 
-      <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center lg:flex hidden">
-        <h2 className="text-lg font-semibold text-gray-900">Transcript</h2>
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Transcript</h2>
         <div className="relative w-64">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+            <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           </div>
           <input
             type="text"
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 
+                     bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                     rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 
+                     focus:border-blue-500 dark:focus:border-blue-400
+                     placeholder-gray-500 dark:placeholder-gray-400"
           />
         </div>
       </div>
       
       {/* Add a mobile-only search bar */}
-      <div className="lg:hidden px-4 py-2 border-b border-gray-200">
+      <div className="lg:hidden px-4 py-2 border-b border-gray-200 dark:border-gray-700">
         <div className="relative w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />
+            <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
           </div>
           <input
             type="text"
             placeholder="Search transcript..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 
+                     bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                     rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 
+                     focus:border-blue-500 dark:focus:border-blue-400
+                     placeholder-gray-500 dark:placeholder-gray-400"
           />
         </div>
       </div>
@@ -478,13 +488,14 @@ export default function ScreenC({
           <div className="absolute bottom-4 right-4 z-10">
             <button
               onClick={handleSyncClick}
-              className="group bg-white text-gray-700 px-3 py-1.5 rounded-md 
-                border border-gray-200 shadow-sm flex items-center gap-1.5
-                hover:bg-gray-50 hover:border-gray-300
-                transition-all duration-150 ease-in-out text-xs"
+              className="group bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 
+                       px-3 py-1.5 rounded-md border border-gray-200 dark:border-gray-700 
+                       shadow-sm flex items-center gap-1.5 hover:bg-gray-50 
+                       dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600
+                       transition-all duration-150 ease-in-out text-xs"
             >
-              <ArrowsPointingInIcon className="h-3.5 w-3.5 text-gray-500 
-                transition-transform group-hover:text-gray-700 
+              <ArrowsPointingInIcon className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 
+                transition-transform group-hover:text-gray-700 dark:group-hover:text-gray-300
                 group-hover:-rotate-90 duration-200" 
               />
               <span className="font-medium">Sync with Audio</span>
@@ -493,7 +504,7 @@ export default function ScreenC({
         )}
         <div ref={transcriptContainerRef} className="absolute inset-0 overflow-y-auto elegant-scrollbar">
           <div className="p-6">
-            <div className="space-y-1" onMouseUp={handleTextSelection}>
+            <div className="space-y-1 text-gray-900 dark:text-gray-100" onMouseUp={handleTextSelection}>
               {renderTranscriptContent()}
             </div>
           </div>
