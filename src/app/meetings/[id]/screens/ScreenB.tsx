@@ -234,7 +234,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
               />
               <div
                 className={`absolute inset-0 flex items-center justify-center transition-transform duration-300 ${
-                  expandedInsight?.insightIndex === index ? "rotate-90" : ""
+                  expandedInsight?.insightIndex === index ? "rotate-180" : ""
                 }`}
               >
                 <ChevronDownIcon className="w-3 h-3 text-indigo-500" />
