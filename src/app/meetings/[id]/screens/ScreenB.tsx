@@ -214,13 +214,14 @@ export default function ScreenB({ summary }: ScreenBProps) {
     return formattedSummary?.keyInsights.map((insight, index) => (
       <div key={index} className="group/insight space-y-2">
         <li
-          className={`text-gray-700 text-sm cursor-pointer rounded-lg transition-all duration-300 ease-in-out 
+          className={`text-gray-700 cursor-pointer rounded-lg transition-all duration-300 ease-in-out 
             ${
               expandedInsight?.insightIndex === index
                 ? "bg-gradient-to-r from-indigo-50/90 to-blue-50/80 border border-indigo-100/50 shadow-sm"
                 : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-transparent"
             }`}
           onClick={() => handleInsightClick(insight, index)}
+          style={{ fontSize: `${fontSize}px` }}
         >
           <div className="flex items-start gap-3 p-2.5">
             <div className="relative flex-shrink-0 mt-1">
@@ -245,10 +246,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
         {expandedInsight?.insightIndex === index && (
           <div
             className="ml-6 pl-4 border-l-2 border-blue-200 overflow-hidden transition-all duration-500 ease-in-out"
-            style={{
-              maxHeight: expandedInsight ? "500px" : "0",
-              opacity: expandedInsight ? 1 : 0,
-            }}
+            style={{ fontSize: `${fontSize}px` }}
           >
             {expandedInsight.isLoading ? (
               <div className="flex flex-col gap-2 py-3 px-4">
@@ -339,7 +337,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
       </div>
       <div className="relative flex-1 overflow-hidden">
         <div className="absolute inset-0 overflow-y-auto elegant-scrollbar">
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6" style={{ fontSize: `${fontSize}px` }}>
             {formattedSummary ? (
               <div>
                 {/* Key Insights Section */}
@@ -378,7 +376,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                         />
                         {sectionsState.overview && (
                           <div className="px-4 animate-fadeIn">
-                            <p className="text-gray-700 text-sm leading-relaxed">
+                            <p className="text-gray-700 leading-relaxed" style={{ fontSize: `${fontSize}px` }}>
                               {formattedSummary.overview}
                             </p>
                           </div>
@@ -430,7 +428,8 @@ export default function ScreenB({ summary }: ScreenBProps) {
                                         (item: string, index: number) => (
                                           <li
                                             key={index}
-                                            className="text-gray-700 text-sm flex items-start gap-2"
+                                            className="text-gray-700 flex items-start gap-2"
+                                            style={{ fontSize: `${fontSize}px` }}
                                           >
                                             <span className="text-gray-400 mt-1">
                                               •
@@ -451,7 +450,9 @@ export default function ScreenB({ summary }: ScreenBProps) {
                 </div>
               </div>
             ) : (
-              <div className="text-gray-500 italic">No summary available</div>
+              <div className="text-gray-500 italic" style={{ fontSize: `${fontSize}px` }}>
+                No summary available
+              </div>
             )}
           </div>
         </div>
