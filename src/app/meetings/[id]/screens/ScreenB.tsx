@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { TypeWriter } from "@/app/components/TypeWriter";
 import {
   formatSummary,
   getSectionEmoji,
@@ -26,20 +27,9 @@ export default function ScreenB({ summary }: ScreenBProps) {
 
   useEffect(() => {
     if (expandedInsight?.points.length && expandedInsight.isTyping) {
-      const timeout = setTimeout(() => {
-        setTypingIndex((prev) => {
-          if (prev < expandedInsight.points.length - 1) {
-            return prev + 1;
-          }
-          setExpandedInsight((current) =>
-            current ? { ...current, isTyping: false } : null
-          );
-          return prev;
-        });
-      }, 500);
-      return () => clearTimeout(timeout);
+      setTypingIndex(0);
     }
-  }, [typingIndex, expandedInsight]);
+  }, [expandedInsight?.points, expandedInsight?.isTyping]);
 
   const adjustFontSize = (increment: boolean) => {
     setFontSize((prev) => {
@@ -123,36 +113,53 @@ export default function ScreenB({ summary }: ScreenBProps) {
             }}
           >
             {expandedInsight.isLoading ? (
-              <div className="flex flex-col items-center gap-3 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="animate-bounce h-2 w-2 bg-gray-500 rounded-full" />
-                  <div
-                    className="animate-bounce h-2 w-2 bg-gray-500 rounded-full"
-                    style={{ animationDelay: "0.2s" }}
-                  />
-                  <div
-                    className="animate-bounce h-2 w-2 bg-gray-500 rounded-full"
-                    style={{ animationDelay: "0.4s" }}
-                  />
+              <div className="flex flex-col gap-2 py-3 px-4">
+                <div className="space-y-2">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="relative h-6 bg-blue-50/50 rounded-md overflow-hidden"
+                    >
+                      <div
+                        className="absolute inset-0 animate-shimmer bg-gradient-to-r from-blue-50 via-indigo-100 to-blue-50"
+                        style={{
+                          backgroundSize: "200% 100%",
+                          animation: "shimmer 2s infinite linear",
+                        }}
+                      />
+                    </div>
+                  ))}
                 </div>
-                <span className="text-sm text-gray-500 animate-pulse">
-                  AI is analyzing the context...
-                </span>
               </div>
             ) : (
-              <ul className="space-y-3">
-                {expandedInsight.points.map((point, idx) => (
+              <ul className="space-y-1 pt-1">
+                {expandedInsight.points.  map((point, idx) => (
                   <li
                     key={idx}
-                    className={`text-gray-600 text-sm transition-all duration-500 ease-in-out ${
+                    className={`text-gray-600 text-sm bg-white rounded-md ${
                       idx <= typingIndex
                         ? "opacity-100 transform translate-y-0"
-                        : "opacity-0 transform translate-y-4"
+                        : "opacity-0 transform -translate-y-1"
                     }`}
+                    style={{
+                      transitionDelay: `${idx * 50}ms`,
+                    }}
                   >
-                    <div className="flex items-start gap-2">
-                      <span className="text-rose-500 mt-1">•</span>
-                      <span>{point}</span>
+                    <div className="flex items-start gap-2 py-1 px-2">
+                      <span className="text-gray-400 mt-1">•</span>
+                      {idx === typingIndex ? (
+                        <TypeWriter
+                          text={point}
+                          delay={15}
+                          onComplete={() => {
+                            if (idx < expandedInsight.points.length - 1) {
+                              setTypingIndex(idx + 1);
+                            }
+                          }}
+                        />
+                      ) : idx < typingIndex ? (
+                        <span>{point}</span>
+                      ) : null}
                     </div>
                   </li>
                 ))}
