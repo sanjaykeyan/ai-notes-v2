@@ -7,6 +7,7 @@ interface Bookmark {
   id: string;
   text: string;
   createdAt: string;
+  timestamp?: number | null;
 }
 
 interface BookmarksProps {
@@ -119,6 +120,20 @@ export default function Bookmarks({
     }
   };
 
+  const handleBookmarkClick = (bookmark: Bookmark, e: React.MouseEvent) => {
+    // Prevent event propagation
+    e.preventDefault();
+    e.stopPropagation();
+
+    const customEvent = new CustomEvent('scrollToBookmark', {
+      detail: { 
+        text: bookmark.text,
+        timestamp: bookmark.timestamp 
+      }
+    });
+    window.dispatchEvent(customEvent);
+  };
+
   return (
     <div className="h-full flex flex-col">
       {bookmarks.length > 0 ? (
@@ -126,7 +141,8 @@ export default function Bookmarks({
           {bookmarks.map((bookmark) => (
             <div
               key={bookmark.id}
-              className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 relative group"
+              className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 relative group cursor-pointer hover:bg-gray-50"
+              onClick={(e) => handleBookmarkClick(bookmark, e)}
             >
               <p className="text-[14px] leading-relaxed text-gray-700 pr-8">{bookmark.text}</p>
               <p className="text-xs text-gray-400 mt-2">

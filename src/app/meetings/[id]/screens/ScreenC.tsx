@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { formatTranscript } from "../utils/transcriptFormatter";
-import { MagnifyingGlassIcon, BookmarkIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon, BookmarkIcon, ArrowsPointingInIcon } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 import { usePlayback } from '@/contexts/PlaybackContext';
 
@@ -32,7 +32,10 @@ export default function ScreenC({
   });
   const [selectedText, setSelectedText] = useState("");
   const [customNames, setCustomNames] = useState<Record<string, string>>({});
+  const [autoScroll, setAutoScroll] = useState(true);
   const popoverRef = useRef<HTMLButtonElement>(null);
+  const transcriptContainerRef = useRef<HTMLDivElement>(null);
+  const userScrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     console.log("ScreenC received:", {
@@ -244,6 +247,8 @@ export default function ScreenC({
       return formattedTranscript;
     }
   
+    const currentSegmentIndex = getCurrentSegment();
+  
     return (
       <div className="space-y-1">
         {timestampMapping.map((segment, index) => {
@@ -256,14 +261,15 @@ export default function ScreenC({
             segment.start_time // Pass the timestamp to the formatter
           );
 
+          const isCurrentSegment = index === currentSegmentIndex;
+
           return (
             <div 
               key={`segment-${index}`}
+              id={`segment-${index}`}
               onClick={() => handleSegmentClick(segment.start_time)}
-              className={`py-2 px-4 rounded transition-colors cursor-pointer hover:bg-gray-50 ${
-                index === getCurrentSegment()
-                  ? 'bg-blue-50 border-l-4 border-blue-500'
-                  : ''
+              className={`transcript-text py-2 px-4 rounded transition-all duration-300 cursor-pointer hover:bg-gray-50 ${
+                isCurrentSegment ? 'bg-blue-50 border-l-4 border-blue-500' : ''
               }`}
             >
               {formattedText}
@@ -272,6 +278,141 @@ export default function ScreenC({
         })}
       </div>
     );
+  };
+
+  // Add effect to scroll to current segment as audio plays
+  useEffect(() => {
+    if (!autoScroll) return;
+
+    const currentSegmentIndex = getCurrentSegment();
+    if (currentSegmentIndex !== null && transcriptContainerRef.current) {
+      const segmentElement = document.getElementById(`segment-${currentSegmentIndex}`);
+      const container = transcriptContainerRef.current;
+      
+      if (segmentElement) {
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = segmentElement.getBoundingClientRect();
+        
+        // Only scroll if the element is not already in view
+        if (elementRect.top < containerRect.top || elementRect.bottom > containerRect.bottom) {
+          const relativeTop = elementRect.top - containerRect.top;
+          const centerOffset = (containerRect.height - elementRect.height) / 2;
+          
+          container.scrollTo({
+            top: container.scrollTop + relativeTop - centerOffset,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+  }, [currentTime, autoScroll]);
+
+  // Add event listener for bookmark clicks
+  useEffect(() => {
+    const handleScrollToBookmark = (event: CustomEvent) => {
+      const { text, timestamp } = event.detail;
+      
+      // If we have a timestamp, scroll to that segment
+      if (timestamp && timestampMapping.length) {
+        const segmentIndex = timestampMapping.findIndex(
+          segment => segment.start_time === timestamp
+        );
+        
+        if (segmentIndex !== -1 && transcriptContainerRef.current) {
+          const segmentElement = document.getElementById(`segment-${segmentIndex}`);
+          const container = transcriptContainerRef.current;
+          
+          if (segmentElement) {
+            // Calculate scroll position within the container
+            const containerRect = container.getBoundingClientRect();
+            const elementRect = segmentElement.getBoundingClientRect();
+            const relativeTop = elementRect.top - containerRect.top;
+            const centerOffset = (containerRect.height - elementRect.height) / 2;
+
+            container.scrollTo({
+              top: container.scrollTop + relativeTop - centerOffset,
+              behavior: 'smooth'
+            });
+
+            segmentElement.classList.add('bg-yellow-100');
+            setTimeout(() => {
+              segmentElement.classList.remove('bg-yellow-100');
+            }, 2000);
+          }
+        }
+      } else {
+        // If no timestamp, search for text content
+        const container = transcriptContainerRef.current;
+        const allTextNodes = container?.getElementsByClassName('transcript-text');
+        
+        if (allTextNodes && container) {
+          for (const node of Array.from(allTextNodes)) {
+            if (node.textContent?.includes(text)) {
+              const elementRect = node.getBoundingClientRect();
+              const containerRect = container.getBoundingClientRect();
+              const relativeTop = elementRect.top - containerRect.top;
+              const centerOffset = (containerRect.height - elementRect.height) / 2;
+
+              container.scrollTo({
+                top: container.scrollTop + relativeTop - centerOffset,
+                behavior: 'smooth'
+              });
+
+              (node as HTMLElement).classList.add('bg-yellow-100');
+              setTimeout(() => {
+                (node as HTMLElement).classList.remove('bg-yellow-100');
+              }, 2000);
+              break;
+            }
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scrollToBookmark', handleScrollToBookmark as EventListener);
+    return () => {
+      window.removeEventListener('scrollToBookmark', handleScrollToBookmark as EventListener);
+    };
+  }, [timestampMapping]);
+
+  // Add scroll handler to detect user scroll
+  useEffect(() => {
+    const container = transcriptContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      setAutoScroll(false);
+      
+      // Clear existing timeout
+      if (userScrollTimeout.current) {
+        clearTimeout(userScrollTimeout.current);
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleSyncClick = () => {
+    setAutoScroll(true);
+    const currentSegmentIndex = getCurrentSegment();
+    if (currentSegmentIndex !== null && transcriptContainerRef.current) {
+      const segmentElement = document.getElementById(`segment-${currentSegmentIndex}`);
+      const container = transcriptContainerRef.current;
+      
+      if (segmentElement) {
+        // Calculate scroll position within the container instead of using scrollIntoView
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = segmentElement.getBoundingClientRect();
+        const relativeTop = elementRect.top - containerRect.top;
+        const centerOffset = (containerRect.height - elementRect.height) / 2;
+        
+        container.scrollTo({
+          top: container.scrollTop + relativeTop - centerOffset,
+          behavior: 'smooth'
+        });
+      }
+    }
   };
 
   return (
@@ -333,7 +474,24 @@ export default function ScreenC({
       </div>
 
       <div className="relative flex-1 overflow-hidden">
-        <div className="absolute inset-0 overflow-y-auto elegant-scrollbar">
+        {!autoScroll && (
+          <div className="absolute bottom-4 right-4 z-10">
+            <button
+              onClick={handleSyncClick}
+              className="group bg-white text-gray-700 px-3 py-1.5 rounded-md 
+                border border-gray-200 shadow-sm flex items-center gap-1.5
+                hover:bg-gray-50 hover:border-gray-300
+                transition-all duration-150 ease-in-out text-xs"
+            >
+              <ArrowsPointingInIcon className="h-3.5 w-3.5 text-gray-500 
+                transition-transform group-hover:text-gray-700 
+                group-hover:-rotate-90 duration-200" 
+              />
+              <span className="font-medium">Sync with Audio</span>
+            </button>
+          </div>
+        )}
+        <div ref={transcriptContainerRef} className="absolute inset-0 overflow-y-auto elegant-scrollbar">
           <div className="p-6">
             <div className="space-y-1" onMouseUp={handleTextSelection}>
               {renderTranscriptContent()}
