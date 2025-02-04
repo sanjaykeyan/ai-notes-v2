@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { TypeWriter } from "@/app/components/TypeWriter";
 import {
@@ -40,7 +41,7 @@ function SectionHeader({
   return (
     <button
       onClick={onToggle}
-      className="w-full group bg-gradient-to-r from-white to-gray-50/80 border border-gray-100 rounded-lg hover:shadow-sm transition-all duration-200"
+      className="w-full group bg-gradient-to-r from-white to-gray-50/80 dark:from-gray-800 dark:to-gray-800/90 border border-gray-100 dark:border-gray-700 rounded-lg hover:shadow-sm transition-all duration-200"
     >
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-3">
@@ -51,9 +52,9 @@ function SectionHeader({
               }`}
             />
             <div className="flex flex-col items-start">
-              <h3 className="font-medium text-gray-700 text-sm">{title}</h3>
+              <h3 className="font-medium text-gray-700 dark:text-gray-200 text-sm">{title}</h3>
               {showHint && (
-                <span className="text-[11px] text-indigo-500/80">
+                <span className="text-[11px] text-indigo-500/80 dark:text-indigo-400/80">
                   Click items below to see AI analysis
                 </span>
               )}
@@ -61,20 +62,20 @@ function SectionHeader({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isExpanded && showHint && ( // Added showHint condition here
-            <span className="text-xs text-indigo-500/80 font-medium">
+          {isExpanded && showHint && (
+            <span className="text-xs text-indigo-500/80 dark:text-indigo-400/80 font-medium">
               {showHint ? "Viewing insights" : ""}
             </span>
           )}
           <ChevronDownIcon
-            className={`w-4 h-4 text-indigo-500/60 transition-transform duration-300 ${
+            className={`w-4 h-4 text-indigo-500/60 dark:text-indigo-400/60 transition-transform duration-300 ${
               isExpanded ? "transform rotate-180" : ""
             }`}
           />
         </div>
       </div>
       <div
-        className={`h-0.5 w-full bg-gradient-to-r from-transparent via-gray-200/50 to-transparent transition-opacity duration-300 ${
+        className={`h-0.5 w-full bg-gradient-to-r from-transparent via-gray-200/50 dark:via-gray-600/50 to-transparent transition-opacity duration-300 ${
           isExpanded ? "opacity-100" : "opacity-0"
         }`}
       />
@@ -90,7 +91,7 @@ function ParentSectionHeader({
   return (
     <button
       onClick={onToggle}
-      className="w-full group bg-gradient-to-r from-white to-gray-50/80 border border-gray-200 rounded-lg hover:shadow-sm transition-all duration-200"
+      className="w-full group bg-gradient-to-r from-white to-gray-50/80 dark:from-gray-800 dark:to-gray-800/90 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-sm transition-all duration-200"
     >
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-3">
@@ -101,8 +102,8 @@ function ParentSectionHeader({
               }`}
             />
             <div className="flex flex-col items-start">
-              <h3 className="font-medium text-gray-700 text-sm">{title}</h3>
-              <span className="text-[11px] text-indigo-500/80">
+              <h3 className="font-medium text-gray-700 dark:text-gray-200 text-sm">{title}</h3>
+              <span className="text-[11px] text-indigo-500/80 dark:text-indigo-400/80">
                 {isExpanded ? "View complete meeting details" : "Click to expand full summary"}
               </span>
             </div>
@@ -110,19 +111,19 @@ function ParentSectionHeader({
         </div>
         <div className="flex items-center gap-2">
           {isExpanded && (
-            <span className="text-xs text-indigo-500/80 font-medium">
+            <span className="text-xs text-indigo-500/80 dark:text-indigo-400/80 font-medium">
               Expanded
             </span>
           )}
           <ChevronDownIcon
-            className={`w-4 h-4 text-indigo-500/60 transition-transform duration-300 ${
+            className={`w-4 h-4 text-indigo-500/60 dark:text-indigo-400/60 transition-transform duration-300 ${
               isExpanded ? "transform rotate-180" : ""
             }`}
           />
         </div>
       </div>
       <div
-        className={`h-0.5 w-full bg-gradient-to-r from-transparent via-gray-200/50 to-transparent transition-opacity duration-300 ${
+        className={`h-0.5 w-full bg-gradient-to-r from-transparent via-gray-200/50 dark:via-gray-600/50 to-transparent transition-opacity duration-300 ${
           isExpanded ? "opacity-100" : "opacity-0"
         }`}
       />
@@ -214,11 +215,11 @@ export default function ScreenB({ summary }: ScreenBProps) {
     return formattedSummary?.keyInsights.map((insight, index) => (
       <div key={index} className="group/insight space-y-2">
         <li
-          className={`text-gray-700 cursor-pointer rounded-lg transition-all duration-300 ease-in-out 
+          className={`text-gray-700 dark:text-gray-300 cursor-pointer rounded-lg transition-all duration-300 ease-in-out 
             ${
               expandedInsight?.insightIndex === index
-                ? "bg-gradient-to-r from-indigo-50/90 to-blue-50/80 border border-indigo-100/50 shadow-sm"
-                : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-transparent"
+                ? "bg-gradient-to-r from-indigo-50/90 to-blue-50/80 dark:from-indigo-900/20 dark:to-blue-900/20 border border-indigo-100/50 dark:border-indigo-800/50 shadow-sm"
+                : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-transparent dark:hover:from-gray-800 dark:hover:to-transparent"
             }`}
           onClick={() => handleInsightClick(insight, index)}
           style={{ fontSize: `${fontSize}px` }}
@@ -228,8 +229,8 @@ export default function ScreenB({ summary }: ScreenBProps) {
               <div
                 className={`w-4 h-4 rounded-full transition-colors duration-300 ${
                   expandedInsight?.insightIndex === index
-                    ? "bg-indigo-100"
-                    : "bg-gray-100 group-hover/insight:bg-indigo-50"
+                    ? "bg-indigo-100 dark:bg-indigo-900/40"
+                    : "bg-gray-100 dark:bg-gray-800 group-hover/insight:bg-indigo-50 dark:group-hover/insight:bg-indigo-900/30"
                 }`}
               />
               <div
@@ -237,7 +238,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                   expandedInsight?.insightIndex === index ? "rotate-180" : ""
                 }`}
               >
-                <ChevronDownIcon className="w-3 h-3 text-indigo-500" />
+                <ChevronDownIcon className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
               </div>
             </div>
             <span className="flex-1">{insight}</span>
@@ -245,7 +246,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
         </li>
         {expandedInsight?.insightIndex === index && (
           <div
-            className="ml-6 pl-4 border-l-2 border-blue-200 overflow-hidden transition-all duration-500 ease-in-out"
+            className="ml-6 pl-4 border-l-2 border-blue-200 dark:border-blue-800 overflow-hidden transition-all duration-500 ease-in-out"
             style={{ fontSize: `${fontSize}px` }}
           >
             {expandedInsight.isLoading ? (
@@ -254,23 +255,23 @@ export default function ScreenB({ summary }: ScreenBProps) {
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="relative h-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-md overflow-hidden"
+                      className="relative h-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-md overflow-hidden"
                     >
                       <div
-                        className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                        className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/40 dark:via-white/10 to-transparent"
                         style={{
                           backgroundSize: "200% 100%",
                           animation: "shimmer 2s infinite linear",
                         }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-indigo-400/10" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-indigo-400/10 dark:from-blue-500/5 dark:to-indigo-500/5" />
                     </div>
                   ))}
                 </div>
                 <div className="flex items-center justify-center gap-2 mt-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400/60 animate-pulse" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-400/60 animate-pulse [animation-delay:0.2s]" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-violet-400/60 animate-pulse [animation-delay:0.4s]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400/60 dark:bg-blue-500/60 animate-pulse" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-400/60 dark:bg-indigo-500/60 animate-pulse [animation-delay:0.2s]" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-violet-400/60 dark:bg-violet-500/60 animate-pulse [animation-delay:0.4s]" />
                 </div>
               </div>
             ) : (
@@ -278,7 +279,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                 {expandedInsight.points.map((point, idx) => (
                   <li
                     key={idx}
-                    className={`text-gray-600 text-sm rounded-md transition-all duration-300 ease-out ${
+                    className={`text-gray-600 dark:text-gray-400 text-sm rounded-md transition-all duration-300 ease-out ${
                       idx <= typingIndex
                         ? "opacity-100 translate-y-0"
                         : "opacity-0 -translate-y-1"
@@ -287,8 +288,8 @@ export default function ScreenB({ summary }: ScreenBProps) {
                       transitionDelay: `${idx * 50}ms`,
                     }}
                   >
-                    <div className="flex items-start gap-2 p-2 bg-gradient-to-r from-blue-50/30 to-indigo-50/30 rounded-md">
-                      <span className="text-blue-400 mt-1">•</span>
+                    <div className="flex items-start gap-2 p-2 bg-gradient-to-r from-blue-50/30 to-indigo-50/30 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-md">
+                      <span className="text-blue-400 dark:text-blue-500 mt-1">•</span>
                       {idx === typingIndex ? (
                         <TypeWriter
                           text={point}
@@ -314,21 +315,21 @@ export default function ScreenB({ summary }: ScreenBProps) {
   };
 
   return (
-    <div className="bg-white shadow-sm border border-gray-200 h-full flex flex-col">
-      <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center lg:flex hidden">
-        <h2 className="text-lg font-semibold text-gray-900">Meeting Summary</h2>
-        <div className="flex items-center gap-1 bg-gray-50 rounded-md p-0.5 border border-gray-200">
+    <div className="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Meeting Summary</h2>
+        <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-700 rounded-md p-0.5 border border-gray-200 dark:border-gray-600">
           <button
             onClick={() => adjustFontSize(false)}
-            className="px-1 py-0.5 rounded text-gray-600 text-xs font-medium hover:bg-white hover:shadow-sm transition-all duration-150"
+            className="px-1 py-0.5 rounded text-gray-600 dark:text-gray-300 text-xs font-medium hover:bg-white dark:hover:bg-gray-600 hover:shadow-sm transition-all duration-150"
             aria-label="Decrease font size"
           >
             Aa
           </button>
-          <div className="w-px h-3 bg-gray-200 mx-0.5" />
+          <div className="w-px h-3 bg-gray-200 dark:bg-gray-600 mx-0.5" />
           <button
             onClick={() => adjustFontSize(true)}
-            className="px-1 py-0.5 rounded text-gray-600 text-xs font-medium hover:bg-white hover:shadow-sm transition-all duration-150"
+            className="px-1 py-0.5 rounded text-gray-600 dark:text-gray-300 text-xs font-medium hover:bg-white dark:hover:bg-gray-600 hover:shadow-sm transition-all duration-150"
             aria-label="Increase font size"
           >
             AA
@@ -366,7 +367,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                   />
 
                   {showFullSummary && (
-                    <div className="animate-fadeIn bg-gradient-to-b from-gray-50/50 to-white pt-4 px-5 pb-5 rounded-b-xl border border-t-0 border-gray-100 -mt-[1px]">
+                    <div className="animate-fadeIn bg-gradient-to-b from-gray-50/50 to-white dark:from-gray-800 dark:to-gray-800 pt-4 px-5 pb-5 rounded-b-xl border border-t-0 border-gray-100 dark:border-gray-700 -mt-[1px]">
                       {/* Overview Section */}
                       <div className="space-y-4">
                         <SectionHeader
@@ -376,7 +377,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                         />
                         {sectionsState.overview && (
                           <div className="px-4 animate-fadeIn">
-                            <p className="text-gray-700 leading-relaxed" style={{ fontSize: `${fontSize}px` }}>
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed" style={{ fontSize: `${fontSize}px` }}>
                               {formattedSummary.overview}
                             </p>
                           </div>
@@ -428,10 +429,10 @@ export default function ScreenB({ summary }: ScreenBProps) {
                                         (item: string, index: number) => (
                                           <li
                                             key={index}
-                                            className="text-gray-700 flex items-start gap-2"
+                                            className="text-gray-700 dark:text-gray-300 flex items-start gap-2"
                                             style={{ fontSize: `${fontSize}px` }}
                                           >
-                                            <span className="text-gray-400 mt-1">
+                                            <span className="text-gray-400 dark:text-gray-500 mt-1">
                                               •
                                             </span>
                                             <span>{item}</span>
@@ -450,7 +451,7 @@ export default function ScreenB({ summary }: ScreenBProps) {
                 </div>
               </div>
             ) : (
-              <div className="text-gray-500 italic" style={{ fontSize: `${fontSize}px` }}>
+              <div className="text-gray-500 dark:text-gray-400 italic" style={{ fontSize: `${fontSize}px` }}>
                 No summary available
               </div>
             )}

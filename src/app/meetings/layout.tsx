@@ -14,7 +14,7 @@ export default function MeetingsLayout({
   const isSpecificMeeting = pathname.match(/^\/meetings\/[^/]+$/);
 
   return (
-    <div className="h-screen overflow-hidden bg-white meetings-container">
+    <div className="h-screen overflow-hidden bg-white dark:bg-gray-900 meetings-container">
       {isSpecificMeeting ? (
         <>
           {/* Show Back Button on mobile, Navbar on desktop */}

@@ -113,7 +113,7 @@ export default function SmartFilters({ meetingId }: SmartFiltersProps) {
       {!isPro && <ProFeatureOverlay />}
       <div className={!isPro ? 'filter blur-[2px]' : ''}>
         {isCached && cachedAt && (
-          <div className="px-2 py-1 mb-2 text-xs text-gray-500 bg-gray-50 rounded-md">
+          <div className="px-2 py-1 mb-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 rounded-md">
             Using cached analysis from {new Date(cachedAt).toLocaleDateString()}
           </div>
         )}

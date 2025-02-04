@@ -23,6 +23,16 @@
   transition: all 0.3s ease;
   background-color: #f3f4f6;
 }
+
+/* Add dark mode styles for gutter */
+.dark .gutter {
+  background-color: rgba(203, 213, 225, 0.08);
+}
+
+.dark .gutter:hover {
+  background-color: rgba(203, 213, 225, 0.15);
+}
+
 .split > div {
   padding-left: 0 !important;
 }
@@ -48,4 +58,22 @@
     opacity: 0;
     transition: opacity 200ms ease-in;
   }
+}
+
+/* Dark mode overrides */
+.dark .meetings-container {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.dark .meetings-container button {
+  @apply text-gray-400 hover:text-gray-200;
+}
+
+.dark .meetings-container input {
+  @apply bg-gray-800 border-gray-700 text-gray-200;
+}
+
+.dark .meetings-container input::placeholder {
+  @apply text-gray-500;
 }

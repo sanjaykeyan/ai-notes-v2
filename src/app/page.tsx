@@ -10,20 +10,20 @@ const HomePage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <Navbar />
       {/* Hero Section */}
       <section className="pt-32 pb-20">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto text-center space-y-8">
-            <h1 className="text-5xl md:text-7xl font-bold">
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-gray-100">
               Transform Meetings into
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 {" "}
                 Actionable Notes
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Let AI transform your meeting recordings into comprehensive,
               searchable notes instantly.
             </p>
@@ -48,7 +48,7 @@ const HomePage = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 bg-white/50">
+      <section className="py-20 bg-white/50 dark:bg-gray-800/50">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -70,8 +70,9 @@ const HomePage = () => {
             ].map((feature, index) => (
               <div
                 key={index}
-                className="group p-8 rounded-2xl bg-white shadow-sm hover:shadow-xl
-                            transition-all duration-300 hover:-translate-y-1"
+                className="group p-8 rounded-2xl bg-white dark:bg-gray-800 
+                         shadow-sm hover:shadow-xl dark:shadow-gray-900/50
+                         transition-all duration-300 hover:-translate-y-1"
               >
                 <div
                   className="text-4xl mb-4 transform transition-transform 
@@ -79,8 +80,8 @@ const HomePage = () => {
                 >
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -88,12 +89,12 @@ const HomePage = () => {
       </section>
 
       {/* Social Proof */}
-      <section className="py-20">
+      <section className="py-20 dark:bg-gray-900">
         <div className="container mx-auto px-6 text-center">
-          <p className="text-gray-500 mb-8">Trusted by teams at</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">Trusted by teams at</p>
           <div className="flex justify-center items-center gap-12 opacity-50">
             {["Google", "Microsoft", "Slack", "Twitter"].map((company) => (
-              <span key={company} className="text-xl font-bold">
+              <span key={company} className="text-xl font-bold dark:text-gray-300">
                 {company}
               </span>
             ))}

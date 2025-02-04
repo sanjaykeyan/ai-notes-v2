@@ -7,7 +7,7 @@ interface AudioPlayerProps {
   title?: string;
 }
 
-export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: AudioPlayerProps) {
+const AudioPlayer = ({ audioUrl, title = "Meeting Audio" }: AudioPlayerProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -149,7 +149,7 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
   };
 
   return (
-    <div className="bg-white/95 backdrop-blur-sm py-3 px-4 md:px-6">
+    <div className="bg-white dark:bg-gray-800 backdrop-blur-sm py-3 px-4 md:px-6">
       <audio 
         ref={audioRef} 
         src={audioUrl}
@@ -157,38 +157,34 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
         crossOrigin="anonymous" // Add this line for CORS
       />
       {error && (
-        <div className="text-red-500 text-sm mb-2 text-center">
+        <div className="text-red-500 dark:text-red-400 text-sm mb-2 text-center">
           {error}
         </div>
       )}
       <div className="max-w-screen-xl mx-auto flex items-center justify-between gap-4">
-        {/* Album art and title - hidden on mobile */}
+        {/* Album art and title */}
         <div className="hidden md:flex items-center space-x-4">
           <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-lg flex items-center justify-center">
             <span className="text-white text-xl">🎵</span>
           </div>
           <div>
-            <h3 className="font-medium">{title}</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="font-medium text-gray-900 dark:text-gray-100">{title}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {formatTime(currentTime)} / {formatTime(duration)}
             </p>
           </div>
         </div>
 
-        {/* Time display on mobile */}
-        <div className="md:hidden text-sm text-gray-500">
-          {formatTime(currentTime)} / {formatTime(duration)}
-        </div>
-
         {/* Playback controls */}
         <div className="flex items-center space-x-4 md:space-x-6">
-          <button className="text-gray-600 hover:text-gray-900">
+          <button className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200">
             <SkipBack className="w-5 h-5" />
           </button>
           <button 
             onClick={togglePlay}
             disabled={isLoading}
-            className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 disabled:opacity-50"
+            className="w-10 h-10 rounded-full bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center 
+                     hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 transition-colors"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -198,7 +194,7 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
               <Play className="w-5 h-5" />
             )}
           </button>
-          <button className="text-gray-600 hover:text-gray-900">
+          <button className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
             <SkipForward className="w-5 h-5" />
           </button>
         </div>
@@ -206,22 +202,22 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
         {/* Progress bar */}
         <div className="flex-1 max-w-[400px] md:w-96">
           <div 
-            className="h-1 bg-gray-200 rounded-full cursor-pointer relative"
+            className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full cursor-pointer relative"
             onClick={handleSeek}
           >
             <div 
-              className="h-full bg-blue-600 rounded-full transition-all"
+              className="h-full bg-blue-600 dark:bg-blue-500 rounded-full transition-all"
               style={{ width: `${(currentTime / duration) * 100}%` }}
             />
             {isLoading && (
               <div 
-                className="h-full bg-blue-300 rounded-full absolute top-0"
+                className="h-full bg-blue-300 dark:bg-blue-400/30 rounded-full absolute top-0"
                 style={{ width: `${loadingProgress}%` }}
               />
             )}
           </div>
           {isLoading && (
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Loading... {Math.round(loadingProgress)}%
             </div>
           )}
@@ -229,4 +225,6 @@ export default function AudioPlayer({ audioUrl, title = "Meeting Audio" }: Audio
       </div>
     </div>
   );
-}
+};
+
+export default AudioPlayer;

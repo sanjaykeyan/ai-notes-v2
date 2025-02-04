@@ -90,10 +90,19 @@ const PricingPage = () => {
   }
 
   const PricingCard = ({ type, title, price, period, features, buttonText, buttonAction, special = false }: PricingCardProps) => (
-    <div className={`relative ${special ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white' : 'bg-white'} 
-      border-2 rounded-2xl md:p-8 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}>
+    <div className={`relative ${
+      special 
+        ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white' 
+        : 'bg-white dark:bg-gray-800 dark:text-gray-100'
+      } border-2 dark:border-gray-700 rounded-2xl md:p-8 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}>
       {/* Show badge only on desktop */}
-      <div className={`absolute -top-4 left-6 md:block hidden ${special ? 'bg-blue-500 text-white' : type === 'free' ? 'bg-gray-100 text-gray-600' : 'bg-purple-100 text-purple-600'} 
+      <div className={`absolute -top-4 left-6 md:block hidden ${
+        special 
+          ? 'bg-blue-500 text-white' 
+          : type === 'free' 
+            ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' 
+            : 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300'
+        } 
         px-4 py-1 rounded-full text-sm font-medium`}>
         {type === 'free' ? 'Starter' : type === 'individual' ? 'Individual' : 'Most Popular'}
       </div>
@@ -102,11 +111,11 @@ const PricingPage = () => {
         {price}
         <span className={`${special ? 'text-blue-100' : 'text-gray-500'} text-base md:text-lg font-normal`}>{period}</span>
       </p>
-      <div className={`h-px w-full bg-gradient-to-r from-transparent ${special ? 'via-white/20' : 'via-gray-200'} to-transparent mb-4 md:mb-6`}></div>
+      <div className={`h-px w-full bg-gradient-to-r from-transparent ${special ? 'via-white/20' : 'via-gray-200 dark:via-gray-700'} to-transparent mb-4 md:mb-6`}></div>
       <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
         {features.map((feature, index) => (
           <li key={index} className="flex items-center">
-            <svg className={`w-4 h-4 md:w-5 md:h-5 ${special ? 'text-white' : 'text-blue-500'} mr-2 md:mr-3 flex-shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={`w-4 h-4 md:w-5 md:h-5 ${special ? 'text-white' : 'text-blue-500 dark:text-blue-400'} mr-2 md:mr-3 flex-shrink-0`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
             </svg>
             <span className="text-sm md:text-base">{feature}</span>
@@ -127,21 +136,21 @@ const PricingPage = () => {
   );
 
   const TabSelector = () => (
-    <div className="flex divide-x divide-gray-200 border-b border-gray-200 bg-gray-50/80">
+    <div className="flex divide-x divide-gray-200 dark:divide-gray-700 border-b border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/80">
       {['free', 'individual', 'pro'].map((tab) => (
         <button
           key={tab}
           onClick={() => setActiveTab(tab as 'free' | 'individual' | 'pro')}
           className={`flex-1 py-3 px-2 text-sm font-medium transition-all relative
             ${activeTab === tab 
-              ? 'text-blue-600 bg-white' 
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              ? 'text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-900' 
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
             }
           `}
         >
           {tab.charAt(0).toUpperCase() + tab.slice(1)}
           {activeTab === tab && (
-            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"></div>
+            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 dark:bg-blue-400"></div>
           )}
         </button>
       ))}
@@ -185,13 +194,13 @@ const PricingPage = () => {
         src="https://checkout.razorpay.com/v1/checkout.js"
         strategy="lazyOnload"
       />
-      <div className="pt-8 md:pt-16 pb-8 md:pb-12 px-4 min-h-screen bg-gradient-to-b from-white to-blue-50">
+      <div className="pt-8 md:pt-16 pb-8 md:pb-12 px-4 min-h-screen bg-gradient-to-b from-white dark:from-gray-900 to-blue-50 dark:to-gray-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 md:mb-12">
             <h1 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Choose Your Plan
             </h1>
-            <p className="text-base md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+            <p className="text-base md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
               From startups to enterprise companies, find the perfect plan for your team
             </p>
           </div>
@@ -199,7 +208,7 @@ const PricingPage = () => {
           {/* Mobile View */}
           <div className="md:hidden">
             <div className="max-w-sm mx-auto">
-              <div className="bg-white rounded-2xl shadow-sm border-2">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border-2 dark:border-gray-700">
                 <TabSelector />
                 <div className="p-6">
                   <p className="text-3xl font-bold mb-4">
@@ -242,10 +251,13 @@ const PricingPage = () => {
           </div>
 
           <div className="mt-12 md:mt-16 text-center">
-            <p className="text-gray-500 mb-4 text-sm md:text-base">All plans include:</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-4 text-sm md:text-base">All plans include:</p>
             <div className="flex flex-wrap justify-center gap-3 md:gap-6 max-w-3xl mx-auto">
               {['SSL security', 'API access', '24/7 support', 'Regular updates'].map((feature) => (
-                <span key={feature} className="px-3 md:px-4 py-1.5 md:py-2 bg-white rounded-full text-xs md:text-sm text-gray-600 shadow-sm">
+                <span key={feature} 
+                      className="px-3 md:px-4 py-1.5 md:py-2 bg-white dark:bg-gray-800 rounded-full 
+                               text-xs md:text-sm text-gray-600 dark:text-gray-400 shadow-sm 
+                               border border-gray-100 dark:border-gray-700">
                   {feature}
                 </span>
               ))}

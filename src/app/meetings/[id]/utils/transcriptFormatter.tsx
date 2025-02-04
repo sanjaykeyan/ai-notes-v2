@@ -9,12 +9,12 @@ interface SpeakerLabelProps {
 
 const speakerColors: { [key: string]: string } = {};
 const colorPalette = [
-  "bg-blue-100 text-blue-800",
-  "bg-purple-100 text-purple-800",
-  "bg-green-100 text-green-800",
-  "bg-amber-100 text-amber-800",
-  "bg-rose-100 text-rose-800",
-  "bg-cyan-100 text-cyan-800",
+  "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100",
+  "bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100",
+  "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100",
+  "bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-100",
+  "bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-100",
+  "bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-100",
 ];
 
 const SpeakerLabel: React.FC<SpeakerLabelProps> = ({
@@ -125,13 +125,13 @@ export function formatTranscript(
                 onSpeakerUpdate={onSpeakerUpdate}
               />
               {startTime !== undefined && (
-                <span className="text-[13px] font-mono text-indigo-600 font-medium opacity-75">
+                <span className="text-[13px] font-mono text-indigo-600 dark:text-indigo-400 font-medium opacity-75">
                   {formatTime(startTime)}
                 </span>
               )}
             </div>
           </div>
-          <div className="pl-4 text-[14px] leading-relaxed text-gray-700">
+          <div className="pl-4 text-[14px] leading-relaxed text-gray-700 dark:text-gray-300">
             {highlightText(text.trim(), searchTerm)}
           </div>
         </div>
