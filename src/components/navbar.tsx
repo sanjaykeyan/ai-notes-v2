@@ -5,8 +5,8 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { useNotifications } from '@/contexts/NotificationContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useNotifications } from "@/contexts/NotificationContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -15,12 +15,11 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const { notifications, markAsRead, deleteNotification } = useNotifications();
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const { theme, toggleTheme } = useTheme();
 
   const notificationRef = useRef<HTMLDivElement>(null);
-
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
@@ -36,9 +35,9 @@ const Navbar = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -46,6 +45,7 @@ const Navbar = () => {
     if (path.includes("/meetings")) return "Meetings";
     if (path.includes("/pricing")) return "Pricing";
     if (path.includes("/settings")) return "Settings";
+    if (path.includes("/online-meets")) return "Online Meets";
     return "Home";
   };
 
@@ -55,15 +55,33 @@ const Navbar = () => {
       className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
       aria-label="Toggle theme"
     >
-      {theme === 'light' ? (
-        <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+      {theme === "light" ? (
+        <svg
+          className="w-5 h-5 text-gray-600 dark:text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+          />
         </svg>
       ) : (
-        <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+        <svg
+          className="w-5 h-5 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"
+          />
         </svg>
       )}
     </button>
@@ -138,6 +156,12 @@ const Navbar = () => {
             </button>
             <button
               className="text-gray-600 hover:text-blue-600 transition-colors"
+              onClick={() => router.push("/online-meets")}
+            >
+              Online Meets
+            </button>
+            <button
+              className="text-gray-600 hover:text-blue-600 transition-colors"
               onClick={() => router.push("/meetings")}
             >
               Meetings
@@ -150,7 +174,7 @@ const Navbar = () => {
             </button>
           </nav>
           <div className="relative" ref={notificationRef}>
-            <button 
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowNotifications(!showNotifications);
@@ -181,11 +205,15 @@ const Navbar = () => {
               <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg border border-gray-100 max-h-[480px] overflow-y-auto z-50">
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-800">Notifications</h3>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Notifications
+                    </h3>
                     {notifications.length > 0 && (
-                      <button 
+                      <button
                         onClick={() => {
-                          notifications.forEach(n => deleteNotification(n.id));
+                          notifications.forEach((n) =>
+                            deleteNotification(n.id)
+                          );
                         }}
                         className="text-xs text-gray-500 hover:text-gray-700 transition-colors"
                       >
@@ -201,15 +229,22 @@ const Navbar = () => {
                         <div
                           key={notification.id}
                           className={`p-4 hover:bg-gray-50 transition-colors relative group ${
-                            notification.read ? 'bg-white' : 'bg-blue-50/40'
+                            notification.read ? "bg-white" : "bg-blue-50/40"
                           }`}
                         >
-                          <div onClick={() => markAsRead(notification.id)} className="cursor-pointer pr-8">
+                          <div
+                            onClick={() => markAsRead(notification.id)}
+                            className="cursor-pointer pr-8"
+                          >
                             <p className="text-sm text-gray-800 leading-snug">
                               {notification.message}
                             </p>
                             <p className="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                              <span>{new Date(notification.timestamp).toLocaleString()}</span>
+                              <span>
+                                {new Date(
+                                  notification.timestamp
+                                ).toLocaleString()}
+                              </span>
                               {!notification.read && (
                                 <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
                                   New
@@ -225,7 +260,7 @@ const Navbar = () => {
                             className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-200 opacity-0 group-hover:opacity-100 transition-all duration-200"
                             title="Delete notification"
                           >
-                            <svg 
+                            <svg
                               className="w-4 h-4 text-gray-400 hover:text-gray-600"
                               fill="none"
                               viewBox="0 0 24 24"
@@ -258,7 +293,9 @@ const Navbar = () => {
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
                           />
                         </svg>
-                        <p className="mt-4 text-sm text-gray-500">No notifications</p>
+                        <p className="mt-4 text-sm text-gray-500">
+                          No notifications
+                        </p>
                       </div>
                     </div>
                   )}
@@ -428,6 +465,11 @@ const Navbar = () => {
                       title: "Dashboard",
                       icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
                       href: "/dashboard",
+                    },
+                    {
+                      title: "Online Meets",
+                      icon: "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z",
+                      href: "/online-meets",
                     },
                     {
                       title: "Meetings",
