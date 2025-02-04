@@ -1,7 +1,7 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
 import { UserButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import Image from "next/image";
@@ -16,11 +16,31 @@ const Navbar = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const { notifications, markAsRead, deleteNotification } = useNotifications();
   const unreadCount = notifications.filter(n => !n.read).length;
+
   const { theme, toggleTheme } = useTheme();
+
+  const notificationRef = useRef<HTMLDivElement>(null);
+
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   useEffect(() => setIsMobileMenuOpen(false), [pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const getMobilePageTitle = (path: string) => {
     if (path.includes("/meetings")) return "Meetings";
@@ -129,9 +149,12 @@ const Navbar = () => {
               Pricing
             </button>
           </nav>
-          <div className="relative">
+          <div className="relative" ref={notificationRef}>
             <button 
-              onClick={() => setShowNotifications(!showNotifications)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowNotifications(!showNotifications);
+              }}
               className="relative p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
               <svg
