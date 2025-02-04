@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-    const audioFile = formData.get("audio") as File;
+    const audioFile = formData.get("file") as File; // Changed from "audio" to "file"
     const title = formData.get("title") as string;
 
     if (!audioFile) {
@@ -20,11 +20,26 @@ export async function POST(req: Request) {
       );
     }
 
+    // Convert File to ArrayBuffer and then to Buffer for Python server
+    const arrayBuffer = await audioFile.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Create a new File object from the buffer
+    const newFile = new File([buffer], "recorded-audio.webm", {
+      type: "audio/webm",
+    });
+
     // Upload to python server for processing
     const pythonServerUrl =
       process.env.PYTHON_SERVER_URL || "http://localhost:5000";
     const uploadFormData = new FormData();
-    uploadFormData.append("file", audioFile);
+    uploadFormData.append("file", newFile);
+
+    console.log("Sending to Python server:", {
+      fileSize: newFile.size,
+      fileType: newFile.type,
+      fileName: newFile.name,
+    });
 
     const response = await fetch(`${pythonServerUrl}/upload`, {
       method: "POST",
@@ -32,7 +47,9 @@ export async function POST(req: Request) {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to process audio file");
+      const errorText = await response.text();
+      console.error("Python server error:", errorText);
+      throw new Error(`Failed to process audio file: ${errorText}`);
     }
 
     const { transcription, summary, timestamp_mapping, duration } =

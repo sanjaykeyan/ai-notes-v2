@@ -24,7 +24,6 @@ model User {
   proUntil      DateTime?
   meetings      Meeting[]
   teamMembers   TeamMember[]
-  onlineMeetings OnlineMeeting[]
 }
 
 model Meeting {
@@ -53,8 +52,6 @@ model Team {
   updatedAt     DateTime  @default(now())
   meetings      Meeting[]
   members       TeamMember[]
-
-  OnlineMeeting OnlineMeeting[]
 }
 
 model TeamMember {
@@ -75,8 +72,6 @@ model Bookmark {
   text          String    @db.Text
   meetingId     String
   meeting       Meeting   @relation("MeetingBookmarks", fields: [meetingId], references: [id], onDelete: Cascade)
-  onlineMeetingId String?
-  onlineMeeting OnlineMeeting? @relation("OnlineMeetingBookmarks", fields: [onlineMeetingId], references: [id], onDelete: Cascade)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now())
 }
@@ -87,8 +82,6 @@ model SpeakerMapping {
   customName      String
   meetingId       String
   meeting         Meeting   @relation("MeetingSpeakerMappings", fields: [meetingId], references: [id], onDelete: Cascade)
-  onlineMeetingId String?
-  onlineMeeting   OnlineMeeting? @relation("OnlineMeetingSpeakerMappings", fields: [onlineMeetingId], references: [id], onDelete: Cascade)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @default(now())
 
@@ -100,26 +93,6 @@ model SmartFilter {
   content       String    @db.Text
   meetingId     String    @unique
   meeting       Meeting   @relation("MeetingSmartFilter", fields: [meetingId], references: [id], onDelete: Cascade)
-  onlineMeetingId String? @unique
-  onlineMeeting OnlineMeeting? @relation("OnlineMeetingSmartFilter", fields: [onlineMeetingId], references: [id], onDelete: Cascade)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-}
-
-model OnlineMeeting {
-  id            String    @id @default(cuid())
-  title         String
-  transcript    String?   @db.Text
-  summary       String?   @db.Text
-  duration      Float?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  userId        String
-  user          User      @relation(fields: [userId], references: [id])
-  teamId        String?
-  team          Team?     @relation(fields: [teamId], references: [id])
-  bookmarks     Bookmark[] @relation("OnlineMeetingBookmarks")
-  speakerMappings SpeakerMapping[] @relation("OnlineMeetingSpeakerMappings")
-  timestampMapping Json?   
-  smartFilter   SmartFilter? @relation("OnlineMeetingSmartFilter")
 }

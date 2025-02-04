@@ -74,6 +74,13 @@ const ScreenRecorder = ({ onRecordingComplete }: ScreenRecorderProps) => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+
+      // Stop all tracks
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
+
+      // Note: The onstop event in startRecording will handle calling onRecordingComplete
     }
   };
 

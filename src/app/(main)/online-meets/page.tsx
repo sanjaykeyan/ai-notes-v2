@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import ScreenRecorder from "@/components/ScreenRecorder";
+import RecordingModal from "@/components/recording-modal";
 import { format } from "date-fns";
 
 interface OnlineMeeting {
@@ -11,9 +12,10 @@ interface OnlineMeeting {
 }
 
 const OnlineMeetsPage = () => {
-  const [activeTab, setActiveTab] = useState("upcoming");
   const [meetings, setMeetings] = useState<OnlineMeeting[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [recordedAudio, setRecordedAudio] = useState<Blob | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     fetchMeetings();
@@ -31,26 +33,14 @@ const OnlineMeetsPage = () => {
     }
   };
 
-  const handleRecordingComplete = async (audioBlob: Blob) => {
-    try {
-      setIsUploading(true);
-      const formData = new FormData();
-      formData.append("audio", audioBlob);
-      formData.append("title", `Meeting ${new Date().toLocaleString()}`);
+  const handleRecordingComplete = (audioBlob: Blob) => {
+    setRecordedAudio(audioBlob);
+    setIsModalOpen(true);
+  };
 
-      const response = await fetch("/api/online-meetings", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        await fetchMeetings();
-      }
-    } catch (error) {
-      console.error("Error uploading recording:", error);
-    } finally {
-      setIsUploading(false);
-    }
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setRecordedAudio(null);
   };
 
   return (
@@ -61,7 +51,7 @@ const OnlineMeetsPage = () => {
         {/* Recording Section */}
         <div className="mb-8">
           <ScreenRecorder onRecordingComplete={handleRecordingComplete} />
-          {isUploading && (
+          {isProcessing && (
             <p className="text-blue-600 mt-2">Processing recording...</p>
           )}
         </div>
@@ -93,6 +83,18 @@ const OnlineMeetsPage = () => {
             </div>
           )}
         </div>
+
+        {/* Recording Modal */}
+        <RecordingModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          recordedAudio={recordedAudio}
+          onProcessingStart={() => setIsProcessing(true)}
+          onProcessingEnd={() => {
+            setIsProcessing(false);
+            fetchMeetings();
+          }}
+        />
       </div>
     </div>
   );
