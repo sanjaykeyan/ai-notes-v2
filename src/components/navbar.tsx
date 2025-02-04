@@ -93,7 +93,7 @@ const Navbar = () => {
             <input
               type="text"
               placeholder="Search..."
-              className="w-64 px-4 py-2 rounded-lg bg-gray-100 focus:bg-white border border-transparent focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
+              className="w-64 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-gray-200 focus:bg-white dark:focus:bg-gray-700 border border-transparent focus:border-blue-300 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-800 transition-all duration-200"
             />
             <svg
               className="w-5 h-5 text-gray-400 absolute right-3 top-2.5"
@@ -380,7 +380,7 @@ const Navbar = () => {
                     <input
                       type="text"
                       placeholder="Search meetings..."
-                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all"
+                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 dark:text-gray-200 border-transparent focus:bg-white dark:focus:bg-gray-700 focus:border-blue-300 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-800 transition-all"
                     />
                     <svg
                       className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
