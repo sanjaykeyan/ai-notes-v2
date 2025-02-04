@@ -4,6 +4,12 @@ import ScreenRecorder from "@/components/ScreenRecorder";
 import RecordingModal from "@/components/recording-modal";
 import { format } from "date-fns";
 
+const formatDuration = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.round(seconds % 60);
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
+
 interface OnlineMeeting {
   id: string;
   title: string;
@@ -71,7 +77,7 @@ const OnlineMeetsPage = () => {
                   </p>
                 </div>
                 <span className="text-gray-500 text-sm">
-                  {Math.round(meeting.duration / 60)} mins
+                  {formatDuration(meeting.duration)}
                 </span>
               </div>
             </div>

@@ -1,8 +1,8 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface ScreenRecorderProps {
-  onRecordingComplete: (audioBlob: Blob) => void;
+  onRecordingComplete: (audioBlob: Blob, duration: number) => void;
 }
 
 const ScreenRecorder = ({ onRecordingComplete }: ScreenRecorderProps) => {
@@ -12,6 +12,8 @@ const ScreenRecorder = ({ onRecordingComplete }: ScreenRecorderProps) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const [recordingDuration, setRecordingDuration] = useState<number>(0);
 
   const startRecording = async () => {
     try {
@@ -49,17 +51,8 @@ const ScreenRecorder = ({ onRecordingComplete }: ScreenRecorderProps) => {
         }
       };
 
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
-        const url = URL.createObjectURL(audioBlob);
-        setAudioUrl(url);
-        onRecordingComplete(audioBlob);
-
-        // Stop all tracks
-        stream.getTracks().forEach((track) => track.stop());
-      };
-
-      mediaRecorder.start(1000); // Collect data every second
+      mediaRecorder.start(1000);
+      startTimeRef.current = Date.now();
       setIsRecording(true);
       setError(null);
     } catch (err) {
@@ -72,17 +65,45 @@ const ScreenRecorder = ({ onRecordingComplete }: ScreenRecorderProps) => {
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
+      const endTime = Date.now();
+      const duration = startTimeRef.current
+        ? (endTime - startTimeRef.current) / 1000
+        : 0;
+      setRecordingDuration(duration);
+
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const url = URL.createObjectURL(audioBlob);
+        setAudioUrl(url);
+        onRecordingComplete(audioBlob, duration);
+      };
+
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-
-      // Stop all tracks
       mediaRecorderRef.current.stream
         .getTracks()
         .forEach((track) => track.stop());
-
-      // Note: The onstop event in startRecording will handle calling onRecordingComplete
     }
   };
+
+  // Format duration for display
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
+  // Update recording duration in real-time
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRecording && startTimeRef.current) {
+      interval = setInterval(() => {
+        const duration = (Date.now() - startTimeRef.current!) / 1000;
+        setRecordingDuration(duration);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isRecording]);
 
   // Clean up function
   const cleanup = () => {
@@ -128,32 +149,34 @@ const ScreenRecorder = ({ onRecordingComplete }: ScreenRecorderProps) => {
           Start Recording
         </button>
       ) : (
-        <button
-          onClick={stopRecording}
-          className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 
-                   transition-all duration-200 flex items-center gap-2 animate-pulse"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        <div className="space-y-2">
+          <button
+            onClick={stopRecording}
+            className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 
+                     transition-all duration-200 flex items-center gap-2 animate-pulse"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
-            />
-          </svg>
-          Stop Recording
-        </button>
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
+              />
+            </svg>
+            Stop Recording ({formatDuration(recordingDuration)})
+          </button>
+        </div>
       )}
 
       {/* Audio Player */}
