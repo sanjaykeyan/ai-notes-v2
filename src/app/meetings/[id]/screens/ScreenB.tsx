@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { TypeWriter } from "@/app/components/TypeWriter";
 import { ShareButton } from "@/app/components/ShareButton";
+import type { ShareMethod } from "@/app/components/ShareButton";
 import {
   formatSummary,
   getSectionEmoji,
@@ -237,43 +238,53 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
     }));
   };
 
-  const handleShare = async (method: 'whatsapp' | 'email' | 'download') => {
+  const handleShare = async (method: ShareMethod) => {
     try {
-      const response = await fetch(`/api/generate-pdf`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          summary: formattedSummary,
-          meetingDetails: {
-            title: meetingDetails?.title || 'Untitled_Meeting',
-            duration: meetingDetails?.duration || 'N/A',
-            date: new Date(meetingDetails?.createdAt || Date.now()).toLocaleString(),
-            generatedAt: new Date().toLocaleString(),
-          }
-        }),
-      });
-  
-      if (!response.ok) throw new Error('Failed to generate PDF');
-  
-      const blob = await response.blob();
-      const pdfUrl = URL.createObjectURL(blob);
+      const meetingUrl = window.location.href;
+      const title = meetingDetails?.title || 'Meeting Summary';
   
       switch (method) {
         case 'whatsapp':
-          window.open(`https://wa.me/?text=Meeting Summary: ${window.location.href}`, '_blank');
+          window.open(`https://wa.me/?text=${encodeURIComponent(`${title}: ${meetingUrl}`)}`, '_blank');
           break;
         case 'email':
-          window.location.href = `mailto:?subject=Meeting Summary&body=Please find the meeting summary at: ${window.location.href}`;
+          window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`Please find the meeting summary at: ${meetingUrl}`)}`;
+          break;
+        case 'linkedin':
+          window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(meetingUrl)}`, '_blank');
+          break;
+        case 'teams':
+          window.open(`https://teams.microsoft.com/share?url=${encodeURIComponent(meetingUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+          break;
+        case 'slack':
+          window.open(`https://slack.com/share?url=${encodeURIComponent(meetingUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+          break;
+        case 'telegram':
+          window.open(`https://t.me/share/url?url=${encodeURIComponent(meetingUrl)}&text=${encodeURIComponent(title)}`, '_blank');
           break;
         case 'download':
+          const response = await fetch(`/api/generate-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              summary: formattedSummary,
+              meetingDetails: {
+                title: meetingDetails?.title || 'Untitled_Meeting',
+                duration: meetingDetails?.duration || 'N/A',
+                date: new Date(meetingDetails?.createdAt || Date.now()).toLocaleString(),
+                generatedAt: new Date().toLocaleString(),
+              }
+            }),
+          });
+  
+          if (!response.ok) throw new Error('Failed to generate PDF');
+          const blob = await response.blob();
+          const pdfUrl = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = pdfUrl;
-          // Get filename from Content-Disposition header if present
           const contentDisposition = response.headers.get('Content-Disposition');
           const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-          a.download = filenameMatch ? filenameMatch[1] : `${meetingDetails?.title || 'meeting'}_summary.pdf`;
+          a.download = filenameMatch ? filenameMatch[1] : `${title}_summary.pdf`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);

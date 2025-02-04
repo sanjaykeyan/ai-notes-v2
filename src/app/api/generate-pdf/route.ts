@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import jsPDF from 'jspdf';
 import path from 'path';
 import fs from 'fs/promises';
+import { formatDuration } from '@/lib/utils'; // Add this import
 
 function sanitizeFilename(name: string): string {
   return name.replace(/[/\\?%*:|"<>]/g, '_').trim();
@@ -16,6 +17,9 @@ async function getBase64Image(imagePath: string): Promise<string> {
 export async function POST(request: Request) {
   try {
     const { summary, meetingDetails } = await request.json();
+    
+    // Format duration using the same utility as Screen B
+    const formattedDuration = formatDuration(meetingDetails.duration);
     
     // Create PDF document
     const doc = new jsPDF();
@@ -57,7 +61,7 @@ export async function POST(request: Request) {
     doc.setTextColor(71, 85, 105); // slate-600
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Meeting Duration: ${meetingDetails.duration}`, 30, yOffset + 22);
+    doc.text(`Meeting Duration: ${formattedDuration}`, 30, yOffset + 22);
     doc.text(`Date: ${meetingDetails.date}`, pageWidth - 30, yOffset + 22, { align: 'right' });
     
     yOffset += 50;

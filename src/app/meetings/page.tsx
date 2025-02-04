@@ -5,6 +5,7 @@ import DeleteMeetingButton from "@/components/DeleteMeetingButton";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import UploadButton from "@/components/upload-button";
 import { formatDuration } from "@/lib/utils";
+import { ShareMeetingButton } from "@/components/ShareMeetingButton";
 
 export default async function MeetingsPage() {
   const { userId } = await auth();
@@ -16,10 +17,28 @@ export default async function MeetingsPage() {
   const meetings = await prisma.meeting.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-    include: {
-      speakerMappings: true,
-    },
+    select: {
+      id: true,
+      title: true,
+      createdAt: true,
+      duration: true,
+      summary: true, // Changed from nested select
+      speakerMappings: {
+        select: {
+          customName: true,
+          id: true // Added id for key prop in mapping
+        }
+      }
+    }
   });
+
+  // Add this debug log to see the summary structure
+  console.log('Meeting summaries:', meetings.map(m => ({
+    id: m.id,
+    hasSummary: !!m.summary,
+    summaryContent: m.summary,
+    summaryType: m.summary ? typeof m.summary : null
+  })));
 
   return (
     <div className="h-[calc(100vh-64px)] overflow-auto bg-gray-50 dark:bg-gray-900">
@@ -43,6 +62,14 @@ export default async function MeetingsPage() {
                       {meeting.title || "Untitled Meeting"}
                     </a>
                     <div className="flex items-center gap-2">
+                      <ShareMeetingButton
+                        meetingId={meeting.id}
+                        meetingTitle={meeting.title || "Untitled Meeting"}
+                        createdAt={meeting.createdAt}
+                        duration={meeting.duration}
+                        summary={meeting.summary} // Changed: pass the entire summary object
+                        iconOnly
+                      />
                       <a
                         href={`/meetings/${meeting.id}`}
                         className="text-gray-600 hover:text-blue-600 transition-colors duration-150"
@@ -136,6 +163,14 @@ export default async function MeetingsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-4">
+                          <ShareMeetingButton
+                            meetingId={meeting.id}
+                            meetingTitle={meeting.title || "Untitled Meeting"}
+                            createdAt={meeting.createdAt}
+                            duration={meeting.duration}
+                            summary={meeting.summary} // Changed: pass the entire summary object
+                            iconOnly
+                          />
                           <a
                             href={`/meetings/${meeting.id}`}
                             className="text-gray-600 hover:text-blue-600 transition-colors duration-150"
