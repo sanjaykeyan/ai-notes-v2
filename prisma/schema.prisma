@@ -33,6 +33,7 @@ model Meeting {
   summary       String?   @db.Text
   recordingUrl  String?
   duration      Float?    // Duration
+  isLiveRecorded Boolean  @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   userId        String

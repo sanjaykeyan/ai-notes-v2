@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const title = formData.get("title") as string;
+    const isLiveRecorded = formData.get("isLiveRecorded") === "true";
 
     // Add debug logging to track file information
     console.log("Received file:", {
@@ -89,6 +90,7 @@ export async function POST(req: NextRequest) {
         timestampMapping: timestamp_mapping,
         recordingUrl: audioUrl, // Store the S3 URL
         userId,
+        isLiveRecorded: isLiveRecorded || false, // Ensure it's explicitly set
       },
     });
 

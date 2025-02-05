@@ -11,6 +11,7 @@ interface RecordingModalProps {
   recordedAudio: Blob | null;
   onProcessingStart: () => void;
   onProcessingEnd: () => void;
+  // Remove isLiveRecorded prop as it's not needed anymore
 }
 
 const RecordingModal = ({
@@ -48,6 +49,7 @@ const RecordingModal = ({
       const formData = new FormData();
       formData.append("file", newAudioBlob, "recorded-audio.mp3");
       formData.append("title", title);
+      formData.append("isLiveRecorded", "true"); // Always set to true
 
       console.log("Sending file:", {
         size: newAudioBlob.size,
