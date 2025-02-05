@@ -5,6 +5,7 @@ import { isNewUser } from "@/lib/user-utils";
 import UploadButton from "@/components/upload-button";
 import DeleteMeetingButton from "@/components/DeleteMeetingButton";
 import MobileDashboardWrapper from "@/components/MobileDashboardWrapper";
+// Remove MeetingShareButton import
 
 export default async function NewUserDashboard() {
   const { userId } = await auth();
@@ -146,7 +147,9 @@ export default async function NewUserDashboard() {
                           </span>
                         </td>
                         <td className="py-3 text-right">
-                          <DeleteMeetingButton id={meeting.id} />
+                          <div className="flex items-center justify-end">
+                            <DeleteMeetingButton id={meeting.id} />
+                          </div>
                         </td>
                       </tr>
                     ))}
