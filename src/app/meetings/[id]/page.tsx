@@ -81,7 +81,7 @@ function MeetingContent({
           />
         )}
         {activeScreen === "summary" && (
-          <ScreenB summary={meeting.summary ?? ""} />
+          <ScreenB summary={meeting.summary ?? ""} meetingId={meeting.id} />
         )}
         {activeScreen === "transcript" && (
           <ScreenC
@@ -112,7 +112,7 @@ function MeetingContent({
         />
       </div>
       <div className="overflow-y-auto h-full">
-        <ScreenB summary={meeting.summary ?? ""} />
+        <ScreenB summary={meeting.summary ?? ""} meetingId={meeting.id} />
       </div>
       <div className="overflow-y-auto h-full">
         <ScreenC

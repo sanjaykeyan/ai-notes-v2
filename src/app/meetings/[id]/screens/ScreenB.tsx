@@ -1,15 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
 import { TypeWriter } from "@/app/components/TypeWriter";
+import { ShareButton } from "@/app/components/ShareButton";
+import type { ShareMethod } from "@/app/components/ShareButton";
 import {
   formatSummary,
-  getSectionEmoji,
-  getSectionColor,
+
 } from "../utils/notesFormatter";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
 interface ScreenBProps {
   summary: string;
+  meetingId: string;
 }
 
 interface ExpandedInsight {
@@ -30,6 +32,12 @@ interface ParentSectionHeaderProps {
   title: string;
   isExpanded: boolean;
   onToggle: () => void;
+}
+
+interface MeetingDetails {
+  title: string;
+  duration: string;
+  createdAt: string;
 }
 
 function SectionHeader({
@@ -131,7 +139,7 @@ function ParentSectionHeader({
   );
 }
 
-export default function ScreenB({ summary }: ScreenBProps) {
+export default function ScreenB({ summary, meetingId }: ScreenBProps) {
   const formattedSummary = formatSummary(summary);
   const [fontSize, setFontSize] = useState(14);
   const [showFullSummary, setShowFullSummary] = useState(false);
@@ -146,12 +154,30 @@ export default function ScreenB({ summary }: ScreenBProps) {
     decisions: true,
     nextSteps: true,
   });
+  const [meetingDetails, setMeetingDetails] = useState<MeetingDetails | null>(null);
 
   useEffect(() => {
     if (expandedInsight?.points.length && expandedInsight.isTyping) {
       setTypingIndex(0);
     }
   }, [expandedInsight?.points, expandedInsight?.isTyping]);
+
+  useEffect(() => {
+    const fetchMeetingDetails = async () => {
+      try {
+        const response = await fetch(`/api/meeting/${meetingId}`);
+        if (!response.ok) throw new Error('Failed to fetch meeting details');
+        const data = await response.json();
+        setMeetingDetails(data);
+      } catch (error) {
+        console.error('Error fetching meeting details:', error);
+      }
+    };
+
+    if (meetingId) {
+      fetchMeetingDetails();
+    }
+  }, [meetingId]);
 
   const adjustFontSize = (increment: boolean) => {
     setFontSize((prev) => {
@@ -209,6 +235,64 @@ export default function ScreenB({ summary }: ScreenBProps) {
       ...prev,
       [section]: !prev[section],
     }));
+  };
+
+  const handleShare = async (method: ShareMethod) => {
+    try {
+      const meetingUrl = window.location.href;
+      const title = meetingDetails?.title || 'Meeting Summary';
+  
+      switch (method) {
+        case 'whatsapp':
+          window.open(`https://wa.me/?text=${encodeURIComponent(`${title}: ${meetingUrl}`)}`, '_blank');
+          break;
+        case 'email':
+          window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`Please find the meeting summary at: ${meetingUrl}`)}`;
+          break;
+        case 'linkedin':
+          window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(meetingUrl)}`, '_blank');
+          break;
+        case 'teams':
+          window.open(`https://teams.microsoft.com/share?url=${encodeURIComponent(meetingUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+          break;
+        case 'slack':
+          window.open(`https://slack.com/share?url=${encodeURIComponent(meetingUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+          break;
+        case 'telegram':
+          window.open(`https://t.me/share/url?url=${encodeURIComponent(meetingUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+          break;
+        case 'download':
+          const response = await fetch(`/api/generate-pdf`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              summary: formattedSummary,
+              meetingDetails: {
+                title: meetingDetails?.title || 'Untitled_Meeting',
+                duration: Number(meetingDetails?.duration),
+                date: new Date(meetingDetails?.createdAt || Date.now()).toLocaleString(),
+                generatedAt: new Date().toLocaleString(),
+              }
+            }),
+          });
+  
+          if (!response.ok) throw new Error('Failed to generate PDF');
+          const blob = await response.blob();
+          const pdfUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = pdfUrl;
+          const contentDisposition = response.headers.get('Content-Disposition');
+          const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+          a.download = filenameMatch ? filenameMatch[1] : `${title}_summary.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(pdfUrl);
+          break;
+      }
+    } catch (error) {
+      console.error('Error sharing summary:', error);
+    }
   };
 
   const renderKeyInsights = () => {
@@ -318,22 +402,25 @@ export default function ScreenB({ summary }: ScreenBProps) {
     <div className="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col">
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Meeting Summary</h2>
-        <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-700 rounded-md p-0.5 border border-gray-200 dark:border-gray-600">
-          <button
-            onClick={() => adjustFontSize(false)}
-            className="px-1 py-0.5 rounded text-gray-600 dark:text-gray-300 text-xs font-medium hover:bg-white dark:hover:bg-gray-600 hover:shadow-sm transition-all duration-150"
-            aria-label="Decrease font size"
-          >
-            Aa
-          </button>
-          <div className="w-px h-3 bg-gray-200 dark:bg-gray-600 mx-0.5" />
-          <button
-            onClick={() => adjustFontSize(true)}
-            className="px-1 py-0.5 rounded text-gray-600 dark:text-gray-300 text-xs font-medium hover:bg-white dark:hover:bg-gray-600 hover:shadow-sm transition-all duration-150"
-            aria-label="Increase font size"
-          >
-            AA
-          </button>
+        <div className="flex items-center gap-4">
+          <ShareButton onShare={handleShare} />
+          <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-700 rounded-md p-0.5 border border-gray-200 dark:border-gray-600">
+            <button
+              onClick={() => adjustFontSize(false)}
+              className="px-1 py-0.5 rounded text-gray-600 dark:text-gray-300 text-xs font-medium hover:bg-white dark:hover:bg-gray-600 hover:shadow-sm transition-all duration-150"
+              aria-label="Decrease font size"
+            >
+              Aa
+            </button>
+            <div className="w-px h-3 bg-gray-200 dark:bg-gray-600 mx-0.5" />
+            <button
+              onClick={() => adjustFontSize(true)}
+              className="px-1 py-0.5 rounded text-gray-600 dark:text-gray-300 text-xs font-medium hover:bg-white dark:hover:bg-gray-600 hover:shadow-sm transition-all duration-150"
+              aria-label="Increase font size"
+            >
+              AA
+            </button>
+          </div>
         </div>
       </div>
       <div className="relative flex-1 overflow-hidden">
