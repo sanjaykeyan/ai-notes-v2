@@ -12,6 +12,7 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const audioFile = formData.get("file") as File; // Changed from "audio" to "file"
     const title = formData.get("title") as string;
+    const isLiveRecorded = formData.get("isLiveRecorded") === "true"; // Add this line
 
     if (!audioFile) {
       return NextResponse.json(
@@ -64,6 +65,7 @@ export async function POST(req: Request) {
         duration,
         timestampMapping: timestamp_mapping,
         userId,
+        isLiveRecorded, // Add this line
       },
     });
 
