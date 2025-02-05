@@ -21,6 +21,12 @@ export default async function NewUserDashboard() {
   const recentMeetings = await prisma.meeting.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      createdAt: true,
+      isLiveRecorded: true, // Add this field
+    },
     take: 5,
   });
 
@@ -175,12 +181,19 @@ export default async function NewUserDashboard() {
                         className="group hover:bg-gray-50/50 dark:hover:bg-gray-700/50"
                       >
                         <td className="py-3">
-                          <a
-                            href={`/meetings/${meeting.id}`}
-                            className="text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                          >
-                            {meeting.title || "Untitled Meeting"}
-                          </a>
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={`/meetings/${meeting.id}`}
+                              className="text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            >
+                              {meeting.title || "Untitled Meeting"}
+                            </a>
+                            {meeting.isLiveRecorded && (
+                              <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 rounded-full">
+                                Live Recording
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="py-3">
                           <span className="text-sm text-gray-500 dark:text-gray-400">
