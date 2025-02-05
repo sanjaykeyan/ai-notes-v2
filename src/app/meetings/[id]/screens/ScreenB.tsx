@@ -5,8 +5,7 @@ import { ShareButton } from "@/app/components/ShareButton";
 import type { ShareMethod } from "@/app/components/ShareButton";
 import {
   formatSummary,
-  getSectionEmoji,
-  getSectionColor,
+
 } from "../utils/notesFormatter";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
@@ -270,7 +269,7 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
               summary: formattedSummary,
               meetingDetails: {
                 title: meetingDetails?.title || 'Untitled_Meeting',
-                duration: meetingDetails?.duration || 'N/A',
+                duration: Number(meetingDetails?.duration),
                 date: new Date(meetingDetails?.createdAt || Date.now()).toLocaleString(),
                 generatedAt: new Date().toLocaleString(),
               }

@@ -18,8 +18,13 @@ export async function POST(request: Request) {
   try {
     const { summary, meetingDetails } = await request.json();
     
-    // Format duration using the same utility as Screen B
-    const formattedDuration = formatDuration(meetingDetails.duration);
+    const durationInSeconds = typeof meetingDetails.duration === 'string' ? 
+      parseInt(meetingDetails.duration.replace(/[^\d]/g, '')) : 
+      Number(meetingDetails.duration);
+
+    const formattedDuration = !isNaN(durationInSeconds) ? 
+      formatDuration(durationInSeconds) : 
+      'N/A';
     
     // Create PDF document
     const doc = new jsPDF();
@@ -118,7 +123,7 @@ export async function POST(request: Request) {
           yOffset += 4;
         });
       } else {
-        const lines = doc.splitTextToSize(content, pageWidth - 60);
+        const lines = doc.splitTextToSize(content as string, pageWidth - 60);
         lines.forEach((line: string) => {
           if (yOffset > pageHeight - 20) {
             doc.addPage();

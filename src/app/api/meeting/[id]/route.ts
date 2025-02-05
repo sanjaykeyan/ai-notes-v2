@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { formatDuration } from '@/lib/utils';
+
 
 export async function GET(
   request: Request,
@@ -23,24 +23,12 @@ export async function GET(
       return NextResponse.json({ error: 'Meeting not found' }, { status: 404 });
     }
 
-    // Parse duration and ensure it's a number
-    let durationInSeconds: number;
-    
-    // Check if duration is a string that might be storing milliseconds
-    if (typeof meeting.duration === 'string') {
-      // Convert potential milliseconds to seconds
-      durationInSeconds = Math.floor(Number(meeting.duration) / 1000);
-    } else {
-      durationInSeconds = Number(meeting.duration);
-    }
-
-    // Format the duration before sending the response
-    const formattedMeeting = {
-      ...meeting,
-      duration: formatDuration(durationInSeconds)
-    };
-
-    return NextResponse.json(formattedMeeting);
+    return NextResponse.json({
+      id: meeting.id,
+      title: meeting.title,
+      duration: meeting.duration,
+      createdAt: meeting.createdAt
+    });
   } catch (error) {
     console.error('Error fetching meeting:', error);
     return NextResponse.json({ error: 'Failed to fetch meeting' }, { status: 500 });
