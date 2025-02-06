@@ -136,7 +136,7 @@ export default function OnlineMeetsClient({ initialMeetings }: Props) {
                 {meetings.map((meeting) => (
                   <Link
                     key={meeting.id}
-                    href={`/meetings/${meeting.meetingId}`}
+                    href={`/meetings/${meeting.id}`}
                     className="block group"
                   >
                     <div className="relative p-4 rounded-xl bg-gray-50 hover:bg-white transition-all duration-200 border border-gray-200 hover:shadow-lg hover:-translate-y-0.5">
