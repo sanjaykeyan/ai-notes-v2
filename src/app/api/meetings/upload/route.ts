@@ -1,15 +1,15 @@
-import { NextResponse,NextRequest } from "next/server";
-import { getAuth, clerkClient } from '@clerk/nextjs/server'
+import { NextResponse, NextRequest } from "next/server";
+import { getAuth, clerkClient } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { uploadToS3 } from "@/lib/s3";
-import { sendProcessingCompleteEmail } from '@/lib/email';
+import { sendProcessingCompleteEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   let writer: WritableStreamDefaultWriter | undefined;
-  
+
   try {
     // Get authenticated user
-    const { userId } = getAuth(req)
+    const { userId } = getAuth(req);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -17,10 +17,10 @@ export async function POST(req: NextRequest) {
     // Get user email using separate try-catch
     let userEmail: string | undefined;
     try {
-      const client = await clerkClient()
-      const user = await client.users.getUser(userId)
+      const client = await clerkClient();
+      const user = await client.users.getUser(userId);
       const primaryEmail = user.emailAddresses.find(
-        email => email.id === user.primaryEmailAddressId
+        (email) => email.id === user.primaryEmailAddressId
       );
       userEmail = primaryEmail?.emailAddress;
       console.log("Found user email:", userEmail);
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       console.error("Clerk error details:", {
         error: clerkError,
         userId: userId,
-        stack: clerkError instanceof Error ? clerkError.stack : undefined
+        stack: clerkError instanceof Error ? clerkError.stack : undefined,
       });
       // Continue without email - don't block the upload
     }
@@ -36,6 +36,14 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const title = formData.get("title") as string;
+    const isLiveRecorded = formData.get("isLiveRecorded") === "true";
+
+    // Add debug logging to track file information
+    console.log("Received file:", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
 
     if (!file || !title) {
       return NextResponse.json(
@@ -69,7 +77,8 @@ export async function POST(req: NextRequest) {
       throw new Error(`Flask server error: ${flaskResponse.statusText}`);
     }
 
-    const { transcription, summary, timestamp_mapping,duration} = await flaskResponse.json();
+    const { transcription, summary, timestamp_mapping, duration } =
+      await flaskResponse.json();
 
     // Store in database with audioUrl
     const meeting = await prisma.meeting.create({
@@ -77,10 +86,11 @@ export async function POST(req: NextRequest) {
         title,
         transcript: transcription,
         summary,
-        duration:duration,
+        duration: duration,
         timestampMapping: timestamp_mapping,
         recordingUrl: audioUrl, // Store the S3 URL
         userId,
+        isLiveRecorded: isLiveRecorded || false, // Ensure it's explicitly set
       },
     });
 
@@ -95,7 +105,7 @@ export async function POST(req: NextRequest) {
           error: emailError,
           email: userEmail,
           userId,
-          title
+          title,
         });
         // Don't throw here - continue with the process
       }
@@ -124,14 +134,18 @@ export async function POST(req: NextRequest) {
     }
 
     // Properly format error response
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
     console.error("Upload processing error:", errorMessage);
-    
-    return NextResponse.json({
-      error: "Processing failed",
-      details: errorMessage
-    }, { 
-      status: 500 
-    });
+
+    return NextResponse.json(
+      {
+        error: "Processing failed",
+        details: errorMessage,
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }

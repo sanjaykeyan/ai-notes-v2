@@ -33,6 +33,7 @@ model Meeting {
   summary       String?   @db.Text
   recordingUrl  String?
   duration      Float?    // Duration
+  isLiveRecorded Boolean  @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   userId        String
@@ -77,13 +78,13 @@ model Bookmark {
 }
 
 model SpeakerMapping {
-  id            String    @id @default(cuid())
-  originalName  String
-  customName    String
-  meetingId     String
-  meeting       Meeting   @relation("MeetingSpeakerMappings", fields: [meetingId], references: [id], onDelete: Cascade)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now())
+  id              String    @id @default(cuid())
+  originalName    String
+  customName      String
+  meetingId       String
+  meeting         Meeting   @relation("MeetingSpeakerMappings", fields: [meetingId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now())
 
   @@unique([meetingId, originalName])
 }
