@@ -31,7 +31,7 @@ export default async function NewUserDashboard() {
         createdAt: true,
         isLiveRecorded: true,
       },
-      take: 5,
+      take: 7,
     }),
     prisma.meeting.count({
       where: { userId },
