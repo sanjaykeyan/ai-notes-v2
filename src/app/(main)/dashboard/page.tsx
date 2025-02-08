@@ -47,6 +47,14 @@ export default async function NewUserDashboard() {
         keyTakeaways: true,
         actionItems: true,
         isLiveRecorded: true,
+        duration: true,
+        speakerMappings: {
+          select: {
+            customName: true,
+            originalName: true,
+          },
+        },
+        timestampMapping: true,
       },
     }),
   ]);
@@ -54,7 +62,7 @@ export default async function NewUserDashboard() {
   return (
     <>
       {/* Mobile Layout */}
-      <div className="lg:hidden h-full dark:bg-gray-900">
+      <div className="lg:hidden min-h-screen dark:bg-gray-900">
         <MobileDashboardWrapper
           firstName={firstName}
           recentMeetings={JSON.parse(JSON.stringify(recentMeetings))}
@@ -62,9 +70,9 @@ export default async function NewUserDashboard() {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:flex gap-8 h-full relative">
+      <div className="hidden lg:flex gap-8 relative pb-8">
         {/* Main Content */}
-        <div className="flex-1 flex flex-col gap-8 py-8 pr-8 border-r border-gray-200/30 dark:border-gray-700/30">
+        <div className="flex-1 flex flex-col gap-8">
           {/* Header with Actions */}
           <div className="flex items-center justify-between">
             <div>
@@ -189,7 +197,7 @@ export default async function NewUserDashboard() {
 
         {/* Recent Meetings Sidebar - Fixed Width */}
         <div className="w-[400px]">
-          <div className="sticky top-[5rem] bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-200/30 dark:border-gray-700/30 p-6 max-h-[calc(100vh-8rem)] overflow-hidden">
+          <div className="sticky top-[5rem] bg-white/30 dark:bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-200/30 dark:border-gray-700/30 p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
