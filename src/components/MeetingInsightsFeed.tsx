@@ -16,19 +16,15 @@ export default function MeetingInsightsFeed({
 }) {
   if (!meeting) {
     return (
-      <div className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
-        <div className="text-center text-gray-500 dark:text-gray-400">
-          <p>No meetings recorded yet.</p>
-          <p className="mt-2">
-            Upload your first meeting to see insights here!
-          </p>
-        </div>
+      <div className="text-center text-gray-500 dark:text-gray-400">
+        <p>No meetings recorded yet.</p>
+        <p className="mt-2">Upload your first meeting to see insights here!</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
+    <>
       <div className="flex justify-between items-start mb-6">
         <div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -94,6 +90,6 @@ export default function MeetingInsightsFeed({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
