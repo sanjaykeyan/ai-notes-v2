@@ -8,7 +8,6 @@ import MobileDashboardWrapper from "@/components/MobileDashboardWrapper";
 
 import Link from "next/link";
 
-
 export default async function NewUserDashboard() {
   const { userId } = await auth();
   const user = await currentUser();
@@ -20,17 +19,22 @@ export default async function NewUserDashboard() {
   const firstName = user?.firstName || "there";
   const isFirstTimer = await isNewUser(userId);
 
-  const recentMeetings = await prisma.meeting.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      createdAt: true,
-      isLiveRecorded: true, // Add this field
-    },
-    take: 5,
-  });
+  const [recentMeetings, totalMeetings] = await Promise.all([
+    prisma.meeting.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        isLiveRecorded: true,
+      },
+      take: 5,
+    }),
+    prisma.meeting.count({
+      where: { userId },
+    }),
+  ]);
 
   return (
     <>
@@ -160,7 +164,7 @@ export default async function NewUserDashboard() {
                 Recent Meetings
               </h2>
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                {recentMeetings.length} total
+                {totalMeetings} total
               </span>
             </div>
 
@@ -211,6 +215,29 @@ export default async function NewUserDashboard() {
                     ))}
                   </tbody>
                 </table>
+                {totalMeetings > 5 && (
+                  <div className="mt-4 text-center">
+                    <Link
+                      href="/meetings"
+                      className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                    >
+                      Show All Meetings
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </Link>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="h-[calc(100%-4rem)] flex items-center justify-center">
