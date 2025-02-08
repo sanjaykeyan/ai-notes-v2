@@ -232,27 +232,32 @@ export default async function NewUserDashboard() {
               {recentMeetings.length > 0 ? (
                 <div className="space-y-3">
                   {recentMeetings.map((meeting) => (
-                    <Link
+                    <div
                       key={meeting.id}
-                      href={`/meetings/${meeting.id}`}
-                      className="block p-3 rounded-lg hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group"
+                      className="block p-3 rounded-lg hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group relative"
                     >
                       <div className="flex items-start justify-between gap-4">
-                        <div>
+                        <Link
+                          href={`/meetings/${meeting.id}`}
+                          className="flex-1"
+                        >
                           <p className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             {meeting.title || "Untitled Meeting"}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                             {new Date(meeting.createdAt).toLocaleDateString()}
                           </p>
+                        </Link>
+                        <div className="flex items-center gap-2">
+                          {meeting.isLiveRecorded && (
+                            <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 rounded-full">
+                              Live
+                            </span>
+                          )}
+                          <DeleteMeetingButton id={meeting.id} />
                         </div>
-                        {meeting.isLiveRecorded && (
-                          <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 rounded-full">
-                            Live
-                          </span>
-                        )}
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               ) : (
