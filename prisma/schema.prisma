@@ -31,6 +31,8 @@ model Meeting {
   title         String
   transcript    String?   @db.Text
   summary       String?   @db.Text
+  keyTakeaways  String[]  @default([])
+  actionItems   String[]  @default([])
   recordingUrl  String?
   duration      Float?    // Duration
   isLiveRecorded Boolean  @default(false)

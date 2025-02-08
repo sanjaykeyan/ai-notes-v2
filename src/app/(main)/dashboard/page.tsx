@@ -5,6 +5,8 @@ import { isNewUser } from "@/lib/user-utils";
 import UploadButton from "@/components/upload-button";
 import DeleteMeetingButton from "@/components/DeleteMeetingButton";
 import MobileDashboardWrapper from "@/components/MobileDashboardWrapper";
+import MeetingInsightsFeed from "@/components/MeetingInsightsFeed";
+import HelpDialog from "@/components/HelpDialog";
 
 import Link from "next/link";
 
@@ -19,7 +21,7 @@ export default async function NewUserDashboard() {
   const firstName = user?.firstName || "there";
   const isFirstTimer = await isNewUser(userId);
 
-  const [recentMeetings, totalMeetings] = await Promise.all([
+  const [recentMeetings, totalMeetings, latestMeeting] = await Promise.all([
     prisma.meeting.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -33,6 +35,19 @@ export default async function NewUserDashboard() {
     }),
     prisma.meeting.count({
       where: { userId },
+    }),
+    prisma.meeting.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        summary: true,
+        keyTakeaways: true,
+        actionItems: true,
+        isLiveRecorded: true,
+      },
     }),
   ]);
 
@@ -49,18 +64,8 @@ export default async function NewUserDashboard() {
       {/* Desktop Layout */}
       <div className="hidden lg:flex flex-row gap-8 h-full dark:bg-gray-900">
         <div className="lg:w-[70%] flex flex-col gap-6">
-          {/* Welcome Section */}
-          <div className="text-center py-6">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
-              Welcome {firstName}!
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
-              Transform your meetings into actionable insights
-            </p>
-          </div>
-
           {/* Upload Section */}
-          <div className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
+          <div className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
             <div className="flex flex-col items-center gap-3">
               <div className="flex gap-4">
                 <UploadButton />
@@ -90,70 +95,8 @@ export default async function NewUserDashboard() {
             </div>
           </div>
 
-          {/* Tutorial Section */}
-          <div className="bg-white/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
-            <h2 className="text-xl font-semibold mb-6 text-center text-gray-900 dark:text-gray-100">
-              How it works
-            </h2>
-            <div className="grid grid-cols-3 gap-8">
-              {[
-                {
-                  step: "1",
-                  title: "Upload Recording",
-                  description:
-                    "Upload your meeting recording in MP3 or MP4 format",
-                  icon: "📤",
-                  color: "from-blue-500 to-blue-600",
-                },
-                {
-                  step: "2",
-                  title: "AI Processing",
-                  description: "Our AI transcribes and summarizes your meeting",
-                  icon: "🤖",
-                  color: "from-purple-500 to-purple-600",
-                },
-                {
-                  step: "3",
-                  title: "Review & Share",
-                  description:
-                    "Get your meeting notes and share with your team",
-                  icon: "✨",
-                  color: "from-indigo-500 to-indigo-600",
-                },
-              ].map((item) => (
-                <div
-                  key={item.step}
-                  className="relative group hover:scale-105 transition-transform duration-300"
-                >
-                  <div className="text-center">
-                    <div className="relative">
-                      <div
-                        className={`w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br ${item.color} 
-                                   flex items-center justify-center transform rotate-6 
-                                   group-hover:rotate-12 transition-transform duration-300`}
-                      >
-                        <span className="text-lg">{item.icon}</span>
-                      </div>
-                      <div
-                        className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white dark:bg-gray-800 
-                                   border-2 border-gray-100 dark:border-gray-700 flex items-center justify-center"
-                      >
-                        <span className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">
-                          {item.step}
-                        </span>
-                      </div>
-                    </div>
-                    <h3 className="text-sm font-semibold mb-1 text-gray-900 dark:text-gray-100">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Meeting Insights Feed */}
+          <MeetingInsightsFeed meeting={latestMeeting} />
         </div>
 
         {/* Right Column */}
@@ -266,6 +209,9 @@ export default async function NewUserDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Help Dialog */}
+      <HelpDialog />
     </>
   );
 }
