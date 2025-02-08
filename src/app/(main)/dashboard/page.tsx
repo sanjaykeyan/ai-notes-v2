@@ -70,7 +70,7 @@ export default async function NewUserDashboard() {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:flex gap-6 relative pb-6">
+      <div className="hidden lg:flex gap-6 relative pb-6 pt-2">
         {/* Main Content */}
         <div className="flex-1">
           <div className="flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
