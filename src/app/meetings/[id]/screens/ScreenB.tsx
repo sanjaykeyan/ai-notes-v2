@@ -3,10 +3,7 @@ import { useState, useEffect } from "react";
 import { TypeWriter } from "@/app/components/TypeWriter";
 import { ShareButton } from "@/app/components/ShareButton";
 import type { ShareMethod } from "@/app/components/ShareButton";
-import {
-  formatSummary,
-
-} from "../utils/notesFormatter";
+import { formatSummary } from "../utils/notesFormatter";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
 interface ScreenBProps {
@@ -60,7 +57,9 @@ function SectionHeader({
               }`}
             />
             <div className="flex flex-col items-start">
-              <h3 className="font-medium text-gray-700 dark:text-gray-200 text-sm">{title}</h3>
+              <h3 className="font-medium text-gray-700 dark:text-gray-200 text-sm">
+                {title}
+              </h3>
               {showHint && (
                 <span className="text-[11px] text-indigo-500/80 dark:text-indigo-400/80">
                   Click items below to see AI analysis
@@ -110,9 +109,13 @@ function ParentSectionHeader({
               }`}
             />
             <div className="flex flex-col items-start">
-              <h3 className="font-medium text-gray-700 dark:text-gray-200 text-sm">{title}</h3>
+              <h3 className="font-medium text-gray-700 dark:text-gray-200 text-sm">
+                {title}
+              </h3>
               <span className="text-[11px] text-indigo-500/80 dark:text-indigo-400/80">
-                {isExpanded ? "View complete meeting details" : "Click to expand full summary"}
+                {isExpanded
+                  ? "View complete meeting details"
+                  : "Click to expand full summary"}
               </span>
             </div>
           </div>
@@ -141,7 +144,6 @@ function ParentSectionHeader({
 
 export default function ScreenB({ summary, meetingId }: ScreenBProps) {
   const formattedSummary = formatSummary(summary);
-  const [fontSize, setFontSize] = useState(14);
   const [showFullSummary, setShowFullSummary] = useState(false);
   const [expandedInsight, setExpandedInsight] =
     useState<ExpandedInsight | null>(null);
@@ -154,7 +156,9 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
     decisions: true,
     nextSteps: true,
   });
-  const [meetingDetails, setMeetingDetails] = useState<MeetingDetails | null>(null);
+  const [meetingDetails, setMeetingDetails] = useState<MeetingDetails | null>(
+    null
+  );
 
   useEffect(() => {
     if (expandedInsight?.points.length && expandedInsight.isTyping) {
@@ -166,11 +170,11 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
     const fetchMeetingDetails = async () => {
       try {
         const response = await fetch(`/api/meeting/${meetingId}`);
-        if (!response.ok) throw new Error('Failed to fetch meeting details');
+        if (!response.ok) throw new Error("Failed to fetch meeting details");
         const data = await response.json();
         setMeetingDetails(data);
       } catch (error) {
-        console.error('Error fetching meeting details:', error);
+        console.error("Error fetching meeting details:", error);
       }
     };
 
@@ -178,13 +182,6 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
       fetchMeetingDetails();
     }
   }, [meetingId]);
-
-  const adjustFontSize = (increment: boolean) => {
-    setFontSize((prev) => {
-      const newSize = increment ? prev + 1 : prev - 1;
-      return Math.min(Math.max(newSize, 12), 24);
-    });
-  };
 
   const handleInsightClick = async (insight: string, index: number) => {
     if (expandedInsight?.insightIndex === index) {
@@ -240,50 +237,85 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
   const handleShare = async (method: ShareMethod) => {
     try {
       const meetingUrl = window.location.href;
-      const title = meetingDetails?.title || 'Meeting Summary';
-  
+      const title = meetingDetails?.title || "Meeting Summary";
+
       switch (method) {
-        case 'whatsapp':
-          window.open(`https://wa.me/?text=${encodeURIComponent(`${title}: ${meetingUrl}`)}`, '_blank');
+        case "whatsapp":
+          window.open(
+            `https://wa.me/?text=${encodeURIComponent(
+              `${title}: ${meetingUrl}`
+            )}`,
+            "_blank"
+          );
           break;
-        case 'email':
-          window.location.href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`Please find the meeting summary at: ${meetingUrl}`)}`;
+        case "email":
+          window.location.href = `mailto:?subject=${encodeURIComponent(
+            title
+          )}&body=${encodeURIComponent(
+            `Please find the meeting summary at: ${meetingUrl}`
+          )}`;
           break;
-        case 'linkedin':
-          window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(meetingUrl)}`, '_blank');
+        case "linkedin":
+          window.open(
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+              meetingUrl
+            )}`,
+            "_blank"
+          );
           break;
-        case 'teams':
-          window.open(`https://teams.microsoft.com/share?url=${encodeURIComponent(meetingUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+        case "teams":
+          window.open(
+            `https://teams.microsoft.com/share?url=${encodeURIComponent(
+              meetingUrl
+            )}&text=${encodeURIComponent(title)}`,
+            "_blank"
+          );
           break;
-        case 'slack':
-          window.open(`https://slack.com/share?url=${encodeURIComponent(meetingUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+        case "slack":
+          window.open(
+            `https://slack.com/share?url=${encodeURIComponent(
+              meetingUrl
+            )}&text=${encodeURIComponent(title)}`,
+            "_blank"
+          );
           break;
-        case 'telegram':
-          window.open(`https://t.me/share/url?url=${encodeURIComponent(meetingUrl)}&text=${encodeURIComponent(title)}`, '_blank');
+        case "telegram":
+          window.open(
+            `https://t.me/share/url?url=${encodeURIComponent(
+              meetingUrl
+            )}&text=${encodeURIComponent(title)}`,
+            "_blank"
+          );
           break;
-        case 'download':
+        case "download":
           const response = await fetch(`/api/generate-pdf`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               summary: formattedSummary,
               meetingDetails: {
-                title: meetingDetails?.title || 'Untitled_Meeting',
+                title: meetingDetails?.title || "Untitled_Meeting",
                 duration: Number(meetingDetails?.duration),
-                date: new Date(meetingDetails?.createdAt || Date.now()).toLocaleString(),
+                date: new Date(
+                  meetingDetails?.createdAt || Date.now()
+                ).toLocaleString(),
                 generatedAt: new Date().toLocaleString(),
-              }
+              },
             }),
           });
-  
-          if (!response.ok) throw new Error('Failed to generate PDF');
+
+          if (!response.ok) throw new Error("Failed to generate PDF");
           const blob = await response.blob();
           const pdfUrl = URL.createObjectURL(blob);
-          const a = document.createElement('a');
+          const a = document.createElement("a");
           a.href = pdfUrl;
-          const contentDisposition = response.headers.get('Content-Disposition');
+          const contentDisposition = response.headers.get(
+            "Content-Disposition"
+          );
           const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-          a.download = filenameMatch ? filenameMatch[1] : `${title}_summary.pdf`;
+          a.download = filenameMatch
+            ? filenameMatch[1]
+            : `${title}_summary.pdf`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -291,7 +323,7 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
           break;
       }
     } catch (error) {
-      console.error('Error sharing summary:', error);
+      console.error("Error sharing summary:", error);
     }
   };
 
@@ -299,14 +331,13 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
     return formattedSummary?.keyInsights.map((insight, index) => (
       <div key={index} className="group/insight space-y-2">
         <li
-          className={`text-gray-700 dark:text-gray-300 cursor-pointer rounded-lg transition-all duration-300 ease-in-out 
+          className={`text-13 text-gray-700 dark:text-gray-300 cursor-pointer rounded-lg transition-all duration-300 ease-in-out 
             ${
               expandedInsight?.insightIndex === index
                 ? "bg-gradient-to-r from-indigo-50/90 to-blue-50/80 dark:from-indigo-900/20 dark:to-blue-900/20 border border-indigo-100/50 dark:border-indigo-800/50 shadow-sm"
                 : "hover:bg-gradient-to-r hover:from-gray-50 hover:to-transparent dark:hover:from-gray-800 dark:hover:to-transparent"
             }`}
           onClick={() => handleInsightClick(insight, index)}
-          style={{ fontSize: `${fontSize}px` }}
         >
           <div className="flex items-start gap-3 p-2.5">
             <div className="relative flex-shrink-0 mt-1">
@@ -329,10 +360,7 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
           </div>
         </li>
         {expandedInsight?.insightIndex === index && (
-          <div
-            className="ml-6 pl-4 border-l-2 border-blue-200 dark:border-blue-800 overflow-hidden transition-all duration-500 ease-in-out"
-            style={{ fontSize: `${fontSize}px` }}
-          >
+          <div className="ml-6 pl-4 border-l-2 border-blue-200 dark:border-blue-800 overflow-hidden transition-all duration-500 ease-in-out">
             {expandedInsight.isLoading ? (
               <div className="flex flex-col gap-2 py-3 px-4">
                 <div className="space-y-2">
@@ -363,7 +391,7 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
                 {expandedInsight.points.map((point, idx) => (
                   <li
                     key={idx}
-                    className={`text-gray-600 dark:text-gray-400 text-sm rounded-md transition-all duration-300 ease-out ${
+                    className={`text-13 text-gray-600 dark:text-gray-400 rounded-md transition-all duration-300 ease-out ${
                       idx <= typingIndex
                         ? "opacity-100 translate-y-0"
                         : "opacity-0 -translate-y-1"
@@ -373,7 +401,9 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
                     }}
                   >
                     <div className="flex items-start gap-2 p-2 bg-gradient-to-r from-blue-50/30 to-indigo-50/30 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-md">
-                      <span className="text-blue-400 dark:text-blue-500 mt-1">•</span>
+                      <span className="text-blue-400 dark:text-blue-500 mt-1">
+                        •
+                      </span>
                       {idx === typingIndex ? (
                         <TypeWriter
                           text={point}
@@ -400,32 +430,17 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col">
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Meeting Summary</h2>
+      <div className="px-4 py-3 h-14 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Meeting Summary
+        </h2>
         <div className="flex items-center gap-4">
           <ShareButton onShare={handleShare} />
-          <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-700 rounded-md p-0.5 border border-gray-200 dark:border-gray-600">
-            <button
-              onClick={() => adjustFontSize(false)}
-              className="px-1 py-0.5 rounded text-gray-600 dark:text-gray-300 text-xs font-medium hover:bg-white dark:hover:bg-gray-600 hover:shadow-sm transition-all duration-150"
-              aria-label="Decrease font size"
-            >
-              Aa
-            </button>
-            <div className="w-px h-3 bg-gray-200 dark:bg-gray-600 mx-0.5" />
-            <button
-              onClick={() => adjustFontSize(true)}
-              className="px-1 py-0.5 rounded text-gray-600 dark:text-gray-300 text-xs font-medium hover:bg-white dark:hover:bg-gray-600 hover:shadow-sm transition-all duration-150"
-              aria-label="Increase font size"
-            >
-              AA
-            </button>
-          </div>
         </div>
       </div>
       <div className="relative flex-1 overflow-hidden">
         <div className="absolute inset-0 overflow-y-auto elegant-scrollbar">
-          <div className="p-6 space-y-6" style={{ fontSize: `${fontSize}px` }}>
+          <div className="p-6 space-y-6">
             {formattedSummary ? (
               <div>
                 {/* Key Insights Section */}
@@ -464,7 +479,7 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
                         />
                         {sectionsState.overview && (
                           <div className="px-4 animate-fadeIn">
-                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed" style={{ fontSize: `${fontSize}px` }}>
+                            <p className="text-13 text-gray-700 dark:text-gray-300 leading-relaxed">
                               {formattedSummary.overview}
                             </p>
                           </div>
@@ -516,8 +531,7 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
                                         (item: string, index: number) => (
                                           <li
                                             key={index}
-                                            className="text-gray-700 dark:text-gray-300 flex items-start gap-2"
-                                            style={{ fontSize: `${fontSize}px` }}
+                                            className="text-13 text-gray-700 dark:text-gray-300 flex items-start gap-2"
                                           >
                                             <span className="text-gray-400 dark:text-gray-500 mt-1">
                                               •
@@ -538,7 +552,7 @@ export default function ScreenB({ summary, meetingId }: ScreenBProps) {
                 </div>
               </div>
             ) : (
-              <div className="text-gray-500 dark:text-gray-400 italic" style={{ fontSize: `${fontSize}px` }}>
+              <div className="text-gray-500 dark:text-gray-400 italic">
                 No summary available
               </div>
             )}

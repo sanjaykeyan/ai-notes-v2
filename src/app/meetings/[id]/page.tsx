@@ -99,7 +99,13 @@ function MeetingContent({
   const desktopContent = (
     <Split
       className="h-full flex split"
-      sizes={isScreenACollapsed ? [2, 58, 40] : (isSidebarVisible ? [20, 50, 30] : [30, 40, 30])}
+      sizes={
+        isScreenACollapsed
+          ? [2, 49, 49] // Changed from [2, 58, 40]
+          : isSidebarVisible
+          ? [20, 40, 40] // Changed from [20, 50, 30]
+          : [30, 35, 35] // Changed from [30, 40, 30]
+      }
       minSize={isScreenACollapsed ? [60, 200, 200] : [150, 300, 300]}
       gutterSize={4}
       snapOffset={30}
@@ -127,7 +133,7 @@ function MeetingContent({
 
   return (
     <>
-      <div className="lg:hidden h-[calc(100vh-13rem)]">
+      <div className="lg:hidden h-[calc(100vh-15rem)]">
         <ScreenSelector />
         <div className="h-[calc(100%-3rem)]">{mobileContent}</div>
       </div>

@@ -1,23 +1,30 @@
 "use client";
 import { useState, useEffect } from "react";
-import { MagnifyingGlassIcon, BookmarkIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import {
+  BookmarkIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MagnifyingGlassIcon,
+  FaceSmileIcon,
+} from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import Bookmarks from "./Bookmarks";
 import SmartFilters from "./SmartFilters";
+import Sentiment from "./Sentiment";
 
 const pageVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? 1000 : -1000,
-    opacity: 0
+    opacity: 0,
   }),
   center: {
     x: 0,
-    opacity: 1
+    opacity: 1,
   },
   exit: (direction: number) => ({
     x: direction < 0 ? 1000 : -1000,
-    opacity: 0
-  })
+    opacity: 0,
+  }),
 };
 
 const pageTransition = {
@@ -37,7 +44,9 @@ export default function ScreenA({
   onBookmarksChange,
   onCollapse,
 }: ScreenAProps) {
-  const [selectedView, setSelectedView] = useState<"search" | "bookmarks">("search");
+  const [selectedView, setSelectedView] = useState<
+    "search" | "bookmarks" | "sentiment"
+  >("bookmarks");
   const [[page, direction], setPage] = useState([0, 0]);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -45,15 +54,19 @@ export default function ScreenA({
     onCollapse?.(isCollapsed);
   }, [isCollapsed, onCollapse]);
 
-  const handleViewChange = (view: "search" | "bookmarks") => {
-    const newDirection = view === "bookmarks" ? 1 : -1;
+  const handleViewChange = (view: "search" | "bookmarks" | "sentiment") => {
+    const newDirection = view === "search" ? -1 : 1;
     setPage([page + 1, newDirection]);
     setSelectedView(view);
   };
 
   return (
-    <div className={`h-full flex flex-col sm:flex-row ${isCollapsed ? 'sm:w-[60px]' : ''}`}>
-      <div className="sm:h-full w-full sm:w-[60px] border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
+    <div
+      className={`bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col sm:flex-row overflow-x-hidden ${
+        isCollapsed ? "sm:w-[60px]" : ""
+      }`}
+    >
+      <div className="sm:h-full w-full sm:w-[60px] border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 h-[calc(100vh-12.4rem)]">
         <nav className="flex sm:flex-col h-full py-1 px-2 sm:p-2 space-x-1 sm:space-x-0 sm:space-y-1">
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -67,8 +80,24 @@ export default function ScreenA({
             )}
           </button>
           <button
+            onClick={() => handleViewChange("bookmarks")}
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
+              selectedView === "bookmarks"
+                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            }`}
+          >
+            <BookmarkIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="ml-2 text-sm font-medium sm:hidden">
+              Bookmarks
+            </span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              View Bookmarks
+            </div>
+          </button>
+          <button
             onClick={() => handleViewChange("search")}
-            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 ${
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
               selectedView === "search"
                 ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
                 : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
@@ -76,25 +105,37 @@ export default function ScreenA({
           >
             <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             <span className="ml-2 text-sm font-medium sm:hidden">Search</span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              Smart Filters
+            </div>
           </button>
           <button
-            onClick={() => handleViewChange("bookmarks")}
-            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 ${
-              selectedView === "bookmarks"
+            onClick={() => handleViewChange("sentiment")}
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
+              selectedView === "sentiment"
                 ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
                 : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
             }`}
           >
-            <BookmarkIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="ml-2 text-sm font-medium sm:hidden">Bookmarks</span>
+            <FaceSmileIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="ml-2 text-sm font-medium sm:hidden">
+              Sentiment
+            </span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              Sentiment Analysis
+            </div>
           </button>
         </nav>
       </div>
       {!isCollapsed && (
-        <div className="flex-1 bg-white dark:bg-gray-800 backdrop-blur-sm shadow-xl flex flex-col min-w-0 relative overflow-hidden">
-          <div className="flex-shrink-0 px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {selectedView === "bookmarks" ? "Bookmarks" : "Smart Filters"}
+        <div className="flex-1 bg-white dark:bg-gray-800 flex flex-col min-w-0 relative overflow-hidden">
+          <div className="px-4 py-3 h-14 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {selectedView === "bookmarks"
+                ? "Bookmarks"
+                : selectedView === "sentiment"
+                ? "Sentiment Analysis"
+                : "Smart Filters"}
             </h2>
           </div>
           <div className="flex-1 overflow-hidden">
@@ -107,14 +148,16 @@ export default function ScreenA({
                 animate="center"
                 exit="exit"
                 transition={pageTransition}
-                className="h-full overflow-y-auto elegant-scrollbar absolute w-full"
+                className="h-[calc(100vh-12.4rem)] overflow-y-auto elegant-scrollbar absolute w-full pr-0"
               >
-                <div className="h-full p-2 sm:p-4">
+                <div className="h-[calc(100vh-12.4rem)] pl-2 sm:pl-4">
                   {selectedView === "bookmarks" ? (
                     <Bookmarks
                       meetingId={meetingId}
                       onBookmarksChange={onBookmarksChange}
                     />
+                  ) : selectedView === "sentiment" ? (
+                    <Sentiment meetingId={meetingId} />
                   ) : (
                     <SmartFilters meetingId={meetingId} />
                   )}

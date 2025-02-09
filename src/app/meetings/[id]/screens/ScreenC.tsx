@@ -1,9 +1,13 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { formatTranscript } from "../utils/transcriptFormatter";
-import { MagnifyingGlassIcon, BookmarkIcon, ArrowsPointingInIcon } from "@heroicons/react/24/outline";
+import {
+  MagnifyingGlassIcon,
+  BookmarkIcon,
+  ArrowsPointingInIcon,
+} from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
-import { usePlayback } from '@/contexts/PlaybackContext';
+import { usePlayback } from "@/contexts/PlaybackContext";
 
 interface ScreenCProps {
   transcript: string;
@@ -44,7 +48,7 @@ export default function ScreenC({
       transcriptLength: transcript?.length,
       hasTimestampMapping: Boolean(timestampMapping),
       timestampMappingLength: timestampMapping?.length,
-      timestampMappingSample: timestampMapping?.slice(0, 2)
+      timestampMappingSample: timestampMapping?.slice(0, 2),
     });
   }, [transcript, timestampMapping]);
 
@@ -53,12 +57,14 @@ export default function ScreenC({
     console.log("ScreenC received transcript:", {
       transcript: transcript,
       type: typeof transcript,
-      isArray: Array.isArray(transcript)
+      isArray: Array.isArray(transcript),
     });
-    
+
     console.log("ScreenC timestampMapping sample:", {
       first: timestampMapping?.[0],
-      textType: timestampMapping?.[0]?.text ? typeof timestampMapping[0].text : 'undefined'
+      textType: timestampMapping?.[0]?.text
+        ? typeof timestampMapping[0].text
+        : "undefined",
     });
   }, [transcript, timestampMapping]);
 
@@ -225,16 +231,18 @@ export default function ScreenC({
 
   const getCurrentSegment = () => {
     if (!timestampMapping || timestampMapping.length === 0) return null;
-    
+
     const currentTimeMs = currentTime * 1000;
     console.log("Current time (ms):", currentTimeMs);
-    
+
     const currentIndex = timestampMapping.findIndex((segment, index) => {
       const nextSegment = timestampMapping[index + 1];
-      return segment.start_time <= currentTimeMs && 
-             (!nextSegment || nextSegment.start_time > currentTimeMs);
+      return (
+        segment.start_time <= currentTimeMs &&
+        (!nextSegment || nextSegment.start_time > currentTimeMs)
+      );
     });
-    
+
     return currentIndex >= 0 ? currentIndex : null;
   };
 
@@ -247,9 +255,9 @@ export default function ScreenC({
     if (!timestampMapping?.length) {
       return formattedTranscript;
     }
-  
+
     const currentSegmentIndex = getCurrentSegment();
-  
+
     return (
       <div className="space-y-1">
         {timestampMapping.map((segment, index) => {
@@ -265,13 +273,17 @@ export default function ScreenC({
           const isCurrentSegment = index === currentSegmentIndex;
 
           return (
-            <div 
+            <div
               key={`segment-${index}`}
               id={`segment-${index}`}
               onClick={() => handleSegmentClick(segment.start_time)}
-              className={`transcript-text py-2 px-4 rounded transition-all duration-300 cursor-pointer 
+              className={`transcript-text py-2 px-4 rounded transition-all duration-300 cursor-pointer text-13
                          hover:bg-gray-50 dark:hover:bg-gray-700/50 
-                         ${isCurrentSegment ? 'bg-blue-50 dark:bg-blue-900/50 border-l-4 border-blue-500 dark:border-blue-400' : ''}`}
+                         ${
+                           isCurrentSegment
+                             ? "bg-blue-50 dark:bg-blue-900/50 border-l-4 border-blue-500 dark:border-blue-400"
+                             : ""
+                         }`}
             >
               {formattedText}
             </div>
@@ -287,21 +299,26 @@ export default function ScreenC({
 
     const currentSegmentIndex = getCurrentSegment();
     if (currentSegmentIndex !== null && transcriptContainerRef.current) {
-      const segmentElement = document.getElementById(`segment-${currentSegmentIndex}`);
+      const segmentElement = document.getElementById(
+        `segment-${currentSegmentIndex}`
+      );
       const container = transcriptContainerRef.current;
-      
+
       if (segmentElement) {
         const containerRect = container.getBoundingClientRect();
         const elementRect = segmentElement.getBoundingClientRect();
-        
+
         // Only scroll if the element is not already in view
-        if (elementRect.top < containerRect.top || elementRect.bottom > containerRect.bottom) {
+        if (
+          elementRect.top < containerRect.top ||
+          elementRect.bottom > containerRect.bottom
+        ) {
           const relativeTop = elementRect.top - containerRect.top;
           const centerOffset = (containerRect.height - elementRect.height) / 2;
-          
+
           container.scrollTo({
             top: container.scrollTop + relativeTop - centerOffset,
-            behavior: 'smooth'
+            behavior: "smooth",
           });
         }
       }
@@ -312,56 +329,73 @@ export default function ScreenC({
   useEffect(() => {
     const handleScrollToBookmark = (event: CustomEvent) => {
       const { text, timestamp } = event.detail;
-      
+
       // If we have a timestamp, scroll to that segment
       if (timestamp && timestampMapping.length) {
         const segmentIndex = timestampMapping.findIndex(
-          segment => segment.start_time === timestamp
+          (segment) => segment.start_time === timestamp
         );
-        
+
         if (segmentIndex !== -1 && transcriptContainerRef.current) {
-          const segmentElement = document.getElementById(`segment-${segmentIndex}`);
+          const segmentElement = document.getElementById(
+            `segment-${segmentIndex}`
+          );
           const container = transcriptContainerRef.current;
-          
+
           if (segmentElement) {
             // Calculate scroll position within the container
             const containerRect = container.getBoundingClientRect();
             const elementRect = segmentElement.getBoundingClientRect();
             const relativeTop = elementRect.top - containerRect.top;
-            const centerOffset = (containerRect.height - elementRect.height) / 2;
+            const centerOffset =
+              (containerRect.height - elementRect.height) / 2;
 
             container.scrollTo({
               top: container.scrollTop + relativeTop - centerOffset,
-              behavior: 'smooth'
+              behavior: "smooth",
             });
 
-            segmentElement.classList.add('bg-yellow-100', 'dark:bg-yellow-900/50');
+            segmentElement.classList.add(
+              "bg-yellow-100",
+              "dark:bg-yellow-900/50"
+            );
             setTimeout(() => {
-              segmentElement.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/50');
+              segmentElement.classList.remove(
+                "bg-yellow-100",
+                "dark:bg-yellow-900/50"
+              );
             }, 2000);
           }
         }
       } else {
         // If no timestamp, search for text content
         const container = transcriptContainerRef.current;
-        const allTextNodes = container?.getElementsByClassName('transcript-text');
-        
+        const allTextNodes =
+          container?.getElementsByClassName("transcript-text");
+
         if (allTextNodes && container) {
           for (const node of Array.from(allTextNodes)) {
             if (node.textContent?.includes(text)) {
               const elementRect = node.getBoundingClientRect();
               const containerRect = container.getBoundingClientRect();
               const relativeTop = elementRect.top - containerRect.top;
-              const centerOffset = (containerRect.height - elementRect.height) / 2;
+              const centerOffset =
+                (containerRect.height - elementRect.height) / 2;
 
               container.scrollTo({
                 top: container.scrollTop + relativeTop - centerOffset,
-                behavior: 'smooth'
+                behavior: "smooth",
               });
 
-              (node as HTMLElement).classList.add('bg-yellow-100', 'dark:bg-yellow-900/50');
+              (node as HTMLElement).classList.add(
+                "bg-yellow-100",
+                "dark:bg-yellow-900/50"
+              );
               setTimeout(() => {
-                (node as HTMLElement).classList.remove('bg-yellow-100', 'dark:bg-yellow-900/50');
+                (node as HTMLElement).classList.remove(
+                  "bg-yellow-100",
+                  "dark:bg-yellow-900/50"
+                );
               }, 2000);
               break;
             }
@@ -370,9 +404,15 @@ export default function ScreenC({
       }
     };
 
-    window.addEventListener('scrollToBookmark', handleScrollToBookmark as EventListener);
+    window.addEventListener(
+      "scrollToBookmark",
+      handleScrollToBookmark as EventListener
+    );
     return () => {
-      window.removeEventListener('scrollToBookmark', handleScrollToBookmark as EventListener);
+      window.removeEventListener(
+        "scrollToBookmark",
+        handleScrollToBookmark as EventListener
+      );
     };
   }, [timestampMapping]);
 
@@ -383,34 +423,36 @@ export default function ScreenC({
 
     const handleScroll = () => {
       setAutoScroll(false);
-      
+
       // Clear existing timeout
       if (userScrollTimeout.current) {
         clearTimeout(userScrollTimeout.current);
       }
     };
 
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleSyncClick = () => {
     setAutoScroll(true);
     const currentSegmentIndex = getCurrentSegment();
     if (currentSegmentIndex !== null && transcriptContainerRef.current) {
-      const segmentElement = document.getElementById(`segment-${currentSegmentIndex}`);
+      const segmentElement = document.getElementById(
+        `segment-${currentSegmentIndex}`
+      );
       const container = transcriptContainerRef.current;
-      
+
       if (segmentElement) {
         // Calculate scroll position within the container instead of using scrollIntoView
         const containerRect = container.getBoundingClientRect();
         const elementRect = segmentElement.getBoundingClientRect();
         const relativeTop = elementRect.top - containerRect.top;
         const centerOffset = (containerRect.height - elementRect.height) / 2;
-        
+
         container.scrollTo({
           top: container.scrollTop + relativeTop - centerOffset,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
     }
@@ -443,8 +485,11 @@ export default function ScreenC({
         </button>
       )}
 
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Transcript</h2>
+      <div className="px-4 py-3 h-14 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
+        {" "}
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Transcript
+        </h2>
         <div className="relative w-64">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -462,7 +507,7 @@ export default function ScreenC({
           />
         </div>
       </div>
-      
+
       {/* Add a mobile-only search bar */}
       <div className="lg:hidden px-4 py-2 border-b border-gray-200 dark:border-gray-700">
         <div className="relative w-full">
@@ -494,17 +539,24 @@ export default function ScreenC({
                        dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600
                        transition-all duration-150 ease-in-out text-xs"
             >
-              <ArrowsPointingInIcon className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 
+              <ArrowsPointingInIcon
+                className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400 
                 transition-transform group-hover:text-gray-700 dark:group-hover:text-gray-300
-                group-hover:-rotate-90 duration-200" 
+                group-hover:-rotate-90 duration-200"
               />
               <span className="font-medium">Sync with Audio</span>
             </button>
           </div>
         )}
-        <div ref={transcriptContainerRef} className="absolute inset-0 overflow-y-auto elegant-scrollbar">
+        <div
+          ref={transcriptContainerRef}
+          className="absolute inset-0 overflow-y-auto elegant-scrollbar"
+        >
           <div className="p-6">
-            <div className="space-y-1 text-gray-900 dark:text-gray-100" onMouseUp={handleTextSelection}>
+            <div
+              className="space-y-1 text-13 text-gray-900 dark:text-gray-100"
+              onMouseUp={handleTextSelection}
+            >
               {renderTranscriptContent()}
             </div>
           </div>
@@ -523,7 +575,7 @@ function highlightText(text: string, searchTerm: string) {
     <span>
       {parts.map((part, i) =>
         part.toLowerCase() === searchTerm.toLowerCase() ? (
-          <span key={i} className="bg-yellow-200 dark:bg-yellow-900/50">
+          <span key={i} className="bg-yellow-200 dark:bg-yellow-900/50 text-13">
             {part}
           </span>
         ) : (
