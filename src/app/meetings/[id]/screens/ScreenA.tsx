@@ -6,11 +6,14 @@ import {
   ChevronRightIcon,
   MagnifyingGlassIcon,
   FaceSmileIcon,
+  ChatBubbleLeftIcon,
 } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
+import { useChat } from '@/contexts/ChatContext';
 import Bookmarks from "./Bookmarks";
 import SmartFilters from "./SmartFilters";
 import Sentiment from "./Sentiment";
+import ChatView from "./ChatView";
 
 const pageVariants = {
   enter: (direction: number) => ({
@@ -20,7 +23,7 @@ const pageVariants = {
   center: {
     x: 0,
     opacity: 1,
-  },
+  },  // Remove the parenthesis here
   exit: (direction: number) => ({
     x: direction < 0 ? 1000 : -1000,
     opacity: 0,
@@ -44,8 +47,9 @@ export default function ScreenA({
   onBookmarksChange,
   onCollapse,
 }: ScreenAProps) {
+  const { toggleChat, isChatOpen } = useChat();
   const [selectedView, setSelectedView] = useState<
-    "search" | "bookmarks" | "sentiment"
+    "search" | "bookmarks" | "sentiment" | "chat"
   >("bookmarks");
   const [[page, direction], setPage] = useState([0, 0]);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -54,10 +58,29 @@ export default function ScreenA({
     onCollapse?.(isCollapsed);
   }, [isCollapsed, onCollapse]);
 
-  const handleViewChange = (view: "search" | "bookmarks" | "sentiment") => {
-    const newDirection = view === "search" ? -1 : 1;
-    setPage([page + 1, newDirection]);
-    setSelectedView(view);
+  // Add this effect to handle chat state changes
+  useEffect(() => {
+    if (isChatOpen) {
+      setSelectedView("chat");
+    }
+  }, [isChatOpen]);
+
+  // Modify handleViewChange to handle chat
+  const handleViewChange = (view: "search" | "bookmarks" | "sentiment" | "chat") => {
+    if (view === "chat") {
+      toggleChat();
+      setSelectedView("chat");
+    } else {
+      const newDirection = view === "search" ? -1 : 1;
+      setPage([page + 1, newDirection]);
+      setSelectedView(view);
+    }
+  };
+
+  // Modify the chat button click handler
+  const handleChatClick = () => {
+    toggleChat();
+    handleViewChange("chat");
   };
 
   return (
@@ -125,6 +148,20 @@ export default function ScreenA({
               Sentiment Analysis
             </div>
           </button>
+          <button
+            onClick={handleChatClick}
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
+              selectedView === "chat"
+                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            }`}
+          >
+            <ChatBubbleLeftIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="ml-2 text-sm font-medium sm:hidden">Chat</span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              Meeting Assistant
+            </div>
+          </button>
         </nav>
       </div>
       {!isCollapsed && (
@@ -135,6 +172,8 @@ export default function ScreenA({
                 ? "Bookmarks"
                 : selectedView === "sentiment"
                 ? "Sentiment Analysis"
+                : selectedView === "chat"
+                ? "Meeting Assistant"
                 : "Smart Filters"}
             </h2>
           </div>
@@ -158,6 +197,8 @@ export default function ScreenA({
                     />
                   ) : selectedView === "sentiment" ? (
                     <Sentiment meetingId={meetingId} />
+                  ) : selectedView === "chat" ? (
+                    <ChatView meetingId={meetingId} />
                   ) : (
                     <SmartFilters meetingId={meetingId} />
                   )}

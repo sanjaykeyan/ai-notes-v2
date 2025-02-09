@@ -13,6 +13,8 @@ import {
   ScreenType,
   useScreen,
 } from "@/contexts/ScreenContext";
+import { ChatProvider, useChat } from '@/contexts/ChatContext';
+import Chatbot from '@/components/Chatbot/Chatbot';
 
 async function getMeetingData(id: string) {
   const response = await fetch(`/api/meetings/${id}`);
@@ -152,6 +154,7 @@ export default function MeetingPage({
   const resolvedParams = use(params);
   const [meeting, setMeeting] = useState<any>(null);
   const [bookmarksKey, setBookmarksKey] = useState(0);
+  const { isChatOpen } = useChat(); // Add this line
 
   const handleBookmarksChange = () => {
     setBookmarksKey((prev) => prev + 1);
@@ -195,6 +198,7 @@ export default function MeetingPage({
   return (
     <PlaybackProvider>
       <ScreenProvider>
+        {/* Removed ChatProvider since it's in root layout */}
         <div className="fixed inset-x-0 top-16 bottom-0 flex flex-col bg-white dark:bg-gray-900">
           {" "}
           {/* Adjust positioning */}
@@ -222,6 +226,14 @@ export default function MeetingPage({
               title={meeting?.title}
             />
           </footer>
+          {isChatOpen && meeting && (
+            <div className="fixed right-0 bottom-20 w-96 z-50 bg-white dark:bg-gray-800 shadow-lg rounded-tl-lg border-t border-l border-gray-200 dark:border-gray-700">
+              <Chatbot
+                transcript={meeting.transcript}
+                summary={meeting.summary}
+              />
+            </div>
+          )}
         </div>
       </ScreenProvider>
     </PlaybackProvider>
