@@ -46,6 +46,7 @@ model Meeting {
   speakerMappings SpeakerMapping[] @relation("MeetingSpeakerMappings")
   timestampMapping Json?   
   smartFilter   SmartFilter? @relation("MeetingSmartFilter")
+  sentiment     Sentiment? @relation("MeetingSentiment")
 }
 
 model Team {
@@ -96,6 +97,15 @@ model SmartFilter {
   content       String    @db.Text
   meetingId     String    @unique
   meeting       Meeting   @relation("MeetingSmartFilter", fields: [meetingId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Sentiment {
+  id            String    @id @default(cuid())
+  analysis      String    @db.Text
+  meetingId     String    @unique
+  meeting       Meeting   @relation("MeetingSentiment", fields: [meetingId], references: [id], onDelete: Cascade)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
