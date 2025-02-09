@@ -120,8 +120,8 @@ export default function ScreenA({
       </div>
       {!isCollapsed && (
         <div className="flex-1 bg-white dark:bg-gray-800 flex flex-col min-w-0 relative overflow-hidden">
-          <div className="flex-shrink-0 px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="px-4 py-3 h-14 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {selectedView === "bookmarks"
                 ? "Bookmarks"
                 : selectedView === "sentiment"

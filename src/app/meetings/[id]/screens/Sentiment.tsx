@@ -84,7 +84,7 @@ export default function Sentiment({ meetingId }: SentimentProps) {
   }
 
   return (
-    <div className="h-[calc(100vh-15.7rem)] overflow-y-auto elegant-scrollbar">
+    <div className="h-[calc(100vh-15.9rem)] overflow-y-auto elegant-scrollbar">
       <div className="space-y-3 p-2">
         {analysis ? (
           <>
@@ -168,7 +168,7 @@ export default function Sentiment({ meetingId }: SentimentProps) {
             <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="space-y-3">
                 <div>
-                  <h4 className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-1">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
                     Areas of Agreement
                   </h4>
                   <ul className="space-y-1">
@@ -183,7 +183,7 @@ export default function Sentiment({ meetingId }: SentimentProps) {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-1">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
                     Areas of Discussion
                   </h4>
                   <ul className="space-y-1">
