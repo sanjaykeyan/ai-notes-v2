@@ -46,7 +46,7 @@ export default function ScreenA({
 }: ScreenAProps) {
   const [selectedView, setSelectedView] = useState<
     "search" | "bookmarks" | "sentiment"
-  >("search");
+  >("bookmarks");
   const [[page, direction], setPage] = useState([0, 0]);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
