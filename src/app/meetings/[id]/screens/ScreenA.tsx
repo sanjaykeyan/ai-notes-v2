@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import {
-  FunnelIcon,
   BookmarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  MagnifyingGlassIcon,
   FaceSmileIcon,
 } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
@@ -103,7 +103,7 @@ export default function ScreenA({
                 : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
             }`}
           >
-            <FunnelIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             <span className="ml-2 text-sm font-medium sm:hidden">Search</span>
             <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
               Smart Filters
