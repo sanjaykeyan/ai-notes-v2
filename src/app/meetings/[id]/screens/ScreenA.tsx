@@ -62,7 +62,7 @@ export default function ScreenA({
 
   return (
     <div
-      className={`bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col sm:flex-row ${
+      className={`bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col sm:flex-row overflow-x-hidden ${
         isCollapsed ? "sm:w-[60px]" : ""
       }`}
     >
