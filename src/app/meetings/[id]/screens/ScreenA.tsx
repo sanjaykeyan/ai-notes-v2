@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import {
-  MagnifyingGlassIcon,
+  FunnelIcon,
   BookmarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -80,19 +80,8 @@ export default function ScreenA({
             )}
           </button>
           <button
-            onClick={() => handleViewChange("search")}
-            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 ${
-              selectedView === "search"
-                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
-                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
-            }`}
-          >
-            <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="ml-2 text-sm font-medium sm:hidden">Search</span>
-          </button>
-          <button
             onClick={() => handleViewChange("bookmarks")}
-            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 ${
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
               selectedView === "bookmarks"
                 ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
                 : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
@@ -102,10 +91,27 @@ export default function ScreenA({
             <span className="ml-2 text-sm font-medium sm:hidden">
               Bookmarks
             </span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              View Bookmarks
+            </div>
+          </button>
+          <button
+            onClick={() => handleViewChange("search")}
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
+              selectedView === "search"
+                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            }`}
+          >
+            <FunnelIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="ml-2 text-sm font-medium sm:hidden">Search</span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              Smart Filters
+            </div>
           </button>
           <button
             onClick={() => handleViewChange("sentiment")}
-            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 ${
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
               selectedView === "sentiment"
                 ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
                 : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
@@ -115,6 +121,9 @@ export default function ScreenA({
             <span className="ml-2 text-sm font-medium sm:hidden">
               Sentiment
             </span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              Sentiment Analysis
+            </div>
           </button>
         </nav>
       </div>
