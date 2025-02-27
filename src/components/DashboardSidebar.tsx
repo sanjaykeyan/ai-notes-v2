@@ -66,13 +66,13 @@ const DashboardSidebar = () => {
   return (
     <div
       className={`${
-        isCollapsed ? "w-20" : "w-60"
-      } h-screen fixed left-0 top-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 text-[14px] font-[-apple-system,BlinkMacSystemFont,Segoe_UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira_Sans,Droid_Sans,Helvetica_Neue,sans-serif]`}
+        isCollapsed ? "w-16" : "w-48"
+      } h-screen fixed left-0 top-0 bg-[#f8f9fa] dark:bg-gray-900 border-r border-gray-200/10 dark:border-gray-800 flex flex-col transition-[width] duration-300 text-[14px] overflow-hidden font-[-apple-system,BlinkMacSystemFont,Segoe_UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira_Sans,Droid_Sans,Helvetica_Neue,sans-serif]`}
     >
       {/* Collapse Toggle Button */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-8 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors z-50"
+        className="absolute -right-3 top-8 w-6 h-6 bg-[#f8f9fa] dark:bg-gray-900 border border-gray-200/10 dark:border-gray-800 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors z-50"
         aria-label="Toggle sidebar"
       >
         <svg
@@ -93,18 +93,18 @@ const DashboardSidebar = () => {
       </button>
 
       {/* Logo */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center space-x-2">
+      <div className="p-3 border-b border-gray-200/10 dark:border-gray-800">
+        <div className="flex items-center gap-2">
           <Image
             src="/Icon.png"
             alt="Memoria AI Logo"
-            width={32}
-            height={32}
-            className="rounded-lg"
+            width={28}
+            height={28}
+            className="rounded-lg flex-shrink-0"
           />
           <span
-            className={`font-bold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent transition-opacity duration-300 ${
-              isCollapsed ? "opacity-0" : "opacity-100"
+            className={`font-bold text-base bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap transition-all duration-300 ${
+              isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
             }`}
           >
             Memoria AI
@@ -112,81 +112,34 @@ const DashboardSidebar = () => {
         </div>
       </div>
 
-      {/* User Profile */}
-      <div
-        className={`p-4 border-b border-gray-200 dark:border-gray-700 ${
-          isCollapsed ? "items-center" : ""
-        }`}
-      >
-        <div className="flex items-center gap-3 mb-3">
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{ elements: { avatarBox: "w-10 h-10" } }}
-          />
-          <div
-            className={`flex-1 min-w-0 transition-opacity duration-300 ${
-              isCollapsed ? "opacity-0 hidden" : "opacity-100"
-            }`}
-          >
-            <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
-              {user?.firstName} {user?.lastName}
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-              {user?.emailAddresses[0].emailAddress}
-            </div>
-          </div>
-        </div>
-        <div
-          className={`flex items-center gap-2 transition-opacity duration-300 ${
-            isCollapsed ? "opacity-0 hidden" : "opacity-100"
-          }`}
-        >
-          <span
-            className={`px-2 py-1 text-xs rounded-full ${
-              proStatus.isPro
-                ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
-                : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-            }`}
-          >
-            {proStatus.isPro ? "PRO" : "FREE"}
-          </span>
-          {!proStatus.isPro && (
-            <button
-              onClick={() => router.push("/pricing")}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-            >
-              Upgrade
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4">
+      <nav className="flex-1 p-1.5 overflow-y-auto overflow-x-hidden">
         <div className="space-y-1">
           {navigationItems.map((item) => (
             <button
               key={item.title}
               onClick={() => router.push(item.href)}
-              className="flex items-center gap-3 w-full p-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-xl group transition-colors"
+              className="flex items-center w-full p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg group transition-colors overflow-hidden"
               title={isCollapsed ? item.title : ""}
             >
-              <svg
-                className="w-5 h-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d={item.icon}
-                />
-              </svg>
+              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d={item.icon}
+                  />
+                </svg>
+              </div>
               <span
-                className={`font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-opacity duration-300 ${
-                  isCollapsed ? "opacity-0 hidden" : "opacity-100"
+                className={`ml-2 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 whitespace-nowrap transition-all duration-300 ${
+                  isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
                 }`}
               >
                 {item.title}
@@ -197,7 +150,7 @@ const DashboardSidebar = () => {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-3 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <button
             onClick={toggleTheme}

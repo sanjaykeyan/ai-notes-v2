@@ -6,7 +6,6 @@ import Link from "next/link";
 import { Upload, Video, Mic, MonitorUp, Calendar } from "lucide-react";
 import DashboardButton from "@/components/DashboardButton";
 import DeleteMeetingButton from "@/components/DeleteMeetingButton";
-import HelpDialog from "@/components/HelpDialog";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardTopbar from "@/components/DashboardTopbar";
 
@@ -40,16 +39,16 @@ export default async function Dashboard() {
   const fullName = `${user?.firstName} ${user?.lastName}`.trim();
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen overflow-hidden bg-[#f8f9fa] dark:bg-gray-900">
       <DashboardSidebar />
 
       <div
-        className="flex-1 flex flex-col"
+        className="flex-1 flex flex-col overflow-hidden"
         style={{ marginLeft: "var(--sidebar-width)" }}
       >
         <DashboardTopbar />
 
-        <div className="flex-1 p-2 pl-1">
+        <div className="flex-1 p-1 pl-0 overflow-hidden">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-full">
             {/* Header with quote */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -82,50 +81,52 @@ export default async function Dashboard() {
             </div>
 
             {/* Main Content + Right Pane Container */}
-            <div className="flex h-[calc(100%-85px)]">
+            <div className="flex h-[calc(100%-85px)] overflow-hidden">
               {/* Main Content */}
-              <div className="flex-1 p-6 overflow-auto">
-                {/* Recording options */}
-                <div className="grid grid-cols-4 gap-4 mb-8">
-                  <DashboardButton
-                    Icon={Mic}
-                    label="Instant record"
-                    href="/record"
-                    id="newbie-guide-instant-btn"
-                    dataType="instant"
-                    iconColor="text-blue-500"
-                  />
-                  <DashboardButton
-                    Icon={Upload}
-                    label="Upload & transcribe"
-                    href="/upload"
-                    id="newbie-guide-upload-btn"
-                    dataType="upload"
-                    iconColor="text-green-500"
-                  />
-                  <DashboardButton
-                    Icon={Video}
-                    label="Record online meeting"
-                    href="/online-meets"
-                    id="newbie-guide-live-recording-btn"
-                    dataType="meeting"
-                    iconColor="text-rose-500"
-                  />
-                  <DashboardButton
-                    Icon={MonitorUp}
-                    label="Record screen"
-                    href="/screen-record"
-                    id="newbie-guide-screen-recording-btn"
-                    dataType="screen"
-                    beta={true}
-                    iconColor="text-orange-500"
-                  />
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Recording options - Fixed */}
+                <div className="p-6">
+                  <div className="grid grid-cols-4 gap-4">
+                    <DashboardButton
+                      Icon={Mic}
+                      label="Instant record"
+                      href="/record"
+                      id="newbie-guide-instant-btn"
+                      dataType="instant"
+                      iconColor="text-blue-500"
+                    />
+                    <DashboardButton
+                      Icon={Upload}
+                      label="Upload & transcribe"
+                      href="/upload"
+                      id="newbie-guide-upload-btn"
+                      dataType="upload"
+                      iconColor="text-green-500"
+                    />
+                    <DashboardButton
+                      Icon={Video}
+                      label="Record online meeting"
+                      href="/online-meets"
+                      id="newbie-guide-live-recording-btn"
+                      dataType="meeting"
+                      iconColor="text-rose-500"
+                    />
+                    <DashboardButton
+                      Icon={MonitorUp}
+                      label="Record screen"
+                      href="/screen-record"
+                      id="newbie-guide-screen-recording-btn"
+                      dataType="screen"
+                      beta={true}
+                      iconColor="text-orange-500"
+                    />
+                  </div>
                 </div>
 
-                {/* My Records Section */}
-                <div className="mb-8">
+                {/* My Records Section - Scrollable */}
+                <div className="flex-1 px-6 overflow-hidden flex flex-col min-h-0">
                   <h2
-                    className="text-sm font-medium mb-4 text-gray-900 dark:text-gray-100"
+                    className="text-sm font-medium mb-4 text-gray-900 dark:text-gray-100 flex-shrink-0"
                     style={{
                       fontFamily:
                         '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -134,50 +135,52 @@ export default async function Dashboard() {
                     My Records
                   </h2>
 
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg divide-y divide-gray-200 dark:divide-gray-700">
-                    {recentMeetings.length > 0 ? (
-                      recentMeetings.map((meeting) => (
-                        <div
-                          key={meeting.id}
-                          className="flex items-center gap-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                        >
-                          <div className="flex-1">
-                            <h3
-                              className="text-xs font-medium text-gray-900 dark:text-gray-100"
-                              style={{
-                                fontFamily:
-                                  '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                              }}
-                            >
-                              {meeting.title || "Untitled Meeting"}
-                            </h3>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {meeting.duration
-                              ? `${Math.floor(meeting.duration / 60)}min ${
-                                  meeting.duration % 60
-                                }s`
-                              : "N/A"}
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(meeting.createdAt).toLocaleDateString()}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs">
-                              {firstName[0]}
+                  <div className="flex-1 overflow-auto elegant-scrollbar">
+                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg divide-y divide-gray-200 dark:divide-gray-700">
+                      {recentMeetings.length > 0 ? (
+                        recentMeetings.map((meeting) => (
+                          <div
+                            key={meeting.id}
+                            className="flex items-center gap-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                          >
+                            <div className="flex-1">
+                              <h3
+                                className="text-xs font-medium text-gray-900 dark:text-gray-100"
+                                style={{
+                                  fontFamily:
+                                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                }}
+                              >
+                                {meeting.title || "Untitled Meeting"}
+                              </h3>
                             </div>
-                            <span className="text-sm text-gray-600 dark:text-gray-300">
-                              {fullName}
-                            </span>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {meeting.duration
+                                ? `${Math.floor(meeting.duration / 60)}min ${
+                                    meeting.duration % 60
+                                  }s`
+                                : "N/A"}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {new Date(meeting.createdAt).toLocaleDateString()}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs">
+                                {firstName[0]}
+                              </div>
+                              <span className="text-sm text-gray-600 dark:text-gray-300">
+                                {fullName}
+                              </span>
+                            </div>
+                            <DeleteMeetingButton id={meeting.id} />
                           </div>
-                          <DeleteMeetingButton id={meeting.id} />
+                        ))
+                      ) : (
+                        <div className="p-4 text-center text-xs text-gray-500">
+                          No recordings yet
                         </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-xs text-gray-500">
-                        No recordings yet
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -246,8 +249,6 @@ export default async function Dashboard() {
           </div>
         </div>
       </div>
-
-      <HelpDialog />
     </div>
   );
 }
