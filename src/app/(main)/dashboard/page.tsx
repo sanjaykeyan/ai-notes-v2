@@ -3,11 +3,19 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { isNewUser } from "@/lib/user-utils";
 import Link from "next/link";
-import { Upload, Video, Mic, MonitorUp, Calendar } from "lucide-react";
+import {
+  Upload,
+  Video,
+  Mic,
+  MonitorUp,
+  Calendar,
+  VideoIcon,
+} from "lucide-react";
 import DashboardButton from "@/components/DashboardButton";
 import DeleteMeetingButton from "@/components/DeleteMeetingButton";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardTopbar from "@/components/DashboardTopbar";
+import MyRecordsSection from "@/components/MyRecordsSection";
 
 export default async function Dashboard() {
   const { userId } = await auth();
@@ -50,41 +58,41 @@ export default async function Dashboard() {
 
         <div className="flex-1 p-1 pl-0 overflow-hidden">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-full">
-            {/* Header with quote */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2">
-                <span className="text-yellow-400">👋</span>
-                <h1
-                  className="text-base font-medium text-gray-900 dark:text-gray-100"
-                  style={{
-                    fontFamily:
-                      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                  }}
-                >
-                  Good morning, {fullName}
-                </h1>
-              </div>
-              <div
-                className="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-400"
-                style={{
-                  fontFamily:
-                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                }}
-              >
-                <span className="text-gray-300">"</span>
-                <span>Plato</span>
-                <span className="mx-1">
-                  Thinking: the talking of the soul with itself.
-                </span>
-                <span className="text-gray-300">"</span>
-              </div>
-            </div>
-
             {/* Main Content + Right Pane Container */}
-            <div className="flex h-[calc(100%-85px)] overflow-hidden">
+            <div className="flex h-full overflow-hidden">
               {/* Main Content */}
               <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Recording options - Fixed */}
+                {/* Header with quote */}
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <span className="text-yellow-400">👋</span>
+                    <h1
+                      className="text-base font-medium text-gray-900 dark:text-gray-100"
+                      style={{
+                        fontFamily:
+                          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      }}
+                    >
+                      Good morning, {fullName}
+                    </h1>
+                  </div>
+                  <div
+                    className="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-400"
+                    style={{
+                      fontFamily:
+                        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                    }}
+                  >
+                    <span className="text-gray-300">"</span>
+                    <span>Plato</span>
+                    <span className="mx-1">
+                      Thinking: the talking of the soul with itself.
+                    </span>
+                    <span className="text-gray-300">"</span>
+                  </div>
+                </div>
+
+                {/* Recording options */}
                 <div className="p-6">
                   <div className="grid grid-cols-4 gap-4">
                     <DashboardButton
@@ -123,71 +131,13 @@ export default async function Dashboard() {
                   </div>
                 </div>
 
-                {/* My Records Section - Scrollable */}
-                <div className="flex-1 px-6 overflow-hidden flex flex-col min-h-0">
-                  <h2
-                    className="text-sm font-medium mb-4 text-gray-900 dark:text-gray-100 flex-shrink-0"
-                    style={{
-                      fontFamily:
-                        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                    }}
-                  >
-                    My Records
-                  </h2>
-
-                  <div className="flex-1 overflow-auto elegant-scrollbar">
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-lg divide-y divide-gray-200 dark:divide-gray-700">
-                      {recentMeetings.length > 0 ? (
-                        recentMeetings.map((meeting) => (
-                          <div
-                            key={meeting.id}
-                            className="flex items-center gap-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                          >
-                            <div className="flex-1">
-                              <h3
-                                className="text-xs font-medium text-gray-900 dark:text-gray-100"
-                                style={{
-                                  fontFamily:
-                                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                                }}
-                              >
-                                {meeting.title || "Untitled Meeting"}
-                              </h3>
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {meeting.duration
-                                ? `${Math.floor(meeting.duration / 60)}min ${
-                                    meeting.duration % 60
-                                  }s`
-                                : "N/A"}
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(meeting.createdAt).toLocaleDateString()}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs">
-                                {firstName[0]}
-                              </div>
-                              <span className="text-sm text-gray-600 dark:text-gray-300">
-                                {fullName}
-                              </span>
-                            </div>
-                            <DeleteMeetingButton id={meeting.id} />
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-4 text-center text-xs text-gray-500">
-                          No recordings yet
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                {/* My Records Section */}
+                <MyRecordsSection meetings={recentMeetings} />
               </div>
 
               {/* Right Pane - Events */}
-              <div className="w-80 border-l border-gray-200 dark:border-gray-700 overflow-auto">
-                <div className="p-4">
+              <div className="w-80 border-l border-gray-200 dark:border-gray-700 h-full flex flex-col">
+                <div className="p-4 flex-1 overflow-auto">
                   <div className="flex items-center gap-2 mb-4 sticky top-0 bg-white dark:bg-gray-800 py-2">
                     <Calendar className="w-4 h-4 text-blue-500" />
                     <h2

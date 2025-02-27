@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState, use } from "react";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { type ActiveTool } from "@/components/MeetingSidebar";
-import ScreenA from "@/app/meetings/[id]/screens/ScreenA";
-import ScreenB from "@/app/meetings/[id]/screens/ScreenB";
-import ScreenC from "@/app/meetings/[id]/screens/ScreenC";
+import ScreenA from "@/app/(main)/meetings/[id]/screens/ScreenA";
+import ScreenB from "@/app/(main)/meetings/[id]/screens/ScreenB";
+import ScreenC from "@/app/(main)/meetings/[id]/screens/ScreenC";
 import AudioPlayer from "@/components/AudioPlayer";
 import Split from "react-split";
 import { PlaybackProvider } from "@/contexts/PlaybackContext";
@@ -13,8 +14,8 @@ import {
   ScreenType,
   useScreen,
 } from "@/contexts/ScreenContext";
-import { ChatProvider, useChat } from '@/contexts/ChatContext';
-import Chatbot from '@/components/Chatbot/Chatbot';
+import { ChatProvider, useChat } from "@/contexts/ChatContext";
+import Chatbot from "@/components/Chatbot/Chatbot";
 
 async function getMeetingData(id: string) {
   const response = await fetch(`/api/meetings/${id}`);
@@ -204,9 +205,29 @@ export default function MeetingPage({
           {/* Adjust positioning */}
           {/* Desktop Title */}
           <header className="h-14 flex-none py-4 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 lg:block hidden">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {meeting?.title || "Untitled Meeting"}
-            </h1>
+            <div className="flex items-center">
+              <Link
+                href="/dashboard"
+                className="mr-4 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+              </Link>
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {meeting?.title || "Untitled Meeting"}
+              </h1>
+            </div>
           </header>
           {/* Main content */}
           <main className="flex-1 min-h-0 overflow-hidden">

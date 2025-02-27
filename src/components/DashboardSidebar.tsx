@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { useSidebar } from "@/contexts/SidebarContext";
 
 const DashboardSidebar = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { isLoaded, isSignedIn, user } = useUser();
   const { theme, toggleTheme } = useTheme();
   const { isCollapsed, toggleSidebar } = useSidebar();
@@ -47,27 +48,29 @@ const DashboardSidebar = () => {
       href: "/meetings",
     },
     {
-      title: "Online Meetings",
-      icon: "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z",
-      href: "/online-meets",
-    },
-    {
-      title: "Settings",
-      icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z",
-      href: "/settings",
-    },
-    {
       title: "Pricing",
       icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
       href: "/pricing",
     },
   ];
 
+  const isSelected = (href: string) => {
+    if (href === "/dashboard") {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
+
   return (
     <div
       className={`${
         isCollapsed ? "w-16" : "w-48"
       } h-screen fixed left-0 top-0 bg-[#f8f9fa] dark:bg-gray-900 border-r border-gray-200/10 dark:border-gray-800 flex flex-col transition-[width] duration-300 text-[14px] overflow-hidden font-[-apple-system,BlinkMacSystemFont,Segoe_UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira_Sans,Droid_Sans,Helvetica_Neue,sans-serif]`}
+      style={
+        {
+          "--sidebar-width": isCollapsed ? "4rem" : "12rem",
+        } as React.CSSProperties
+      }
     >
       {/* Collapse Toggle Button */}
       <button
@@ -115,37 +118,50 @@ const DashboardSidebar = () => {
       {/* Navigation */}
       <nav className="flex-1 p-1.5 overflow-y-auto overflow-x-hidden">
         <div className="space-y-1">
-          {navigationItems.map((item) => (
-            <button
-              key={item.title}
-              onClick={() => router.push(item.href)}
-              className="flex items-center w-full p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg group transition-colors overflow-hidden"
-              title={isCollapsed ? item.title : ""}
-            >
-              <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d={item.icon}
-                  />
-                </svg>
-              </div>
-              <span
-                className={`ml-2 font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 whitespace-nowrap transition-all duration-300 ${
-                  isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+          {navigationItems.map((item) => {
+            const selected = isSelected(item.href);
+            return (
+              <button
+                key={item.title}
+                onClick={() => router.push(item.href)}
+                className={`flex items-center w-full p-2 rounded-lg group transition-all duration-200 overflow-hidden ${
+                  selected
+                    ? "bg-purple-100 dark:bg-purple-800/40 text-purple-700 dark:text-purple-300"
+                    : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 }`}
+                title={isCollapsed ? item.title : ""}
               >
-                {item.title}
-              </span>
-            </button>
-          ))}
+                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                  <svg
+                    className={`w-5 h-5 transition-colors ${
+                      selected
+                        ? "text-purple-700 dark:text-purple-300"
+                        : "text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={selected ? 2 : 1.5}
+                      d={item.icon}
+                    />
+                  </svg>
+                </div>
+                <span
+                  className={`ml-2 font-medium whitespace-nowrap transition-all duration-300 ${
+                    selected
+                      ? "text-purple-700 dark:text-purple-300"
+                      : "group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                  } ${isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"}`}
+                >
+                  {item.title}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </nav>
 
