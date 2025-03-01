@@ -120,12 +120,13 @@ export default async function Dashboard() {
                       iconColor="text-rose-500"
                     />
                     <DashboardButton
-                      iconName="MonitorUp"
-                      label="Record screen"
-                      href="/screen-record"
-                      id="newbie-guide-screen-recording-btn"
-                      dataType="screen"
+                      iconName="Bot"
+                      label="Send meeting bot"
+                      href="/meeting-bot"
+                      id="newbie-guide-meeting-bot-btn"
+                      dataType="bot"
                       beta={true}
+                      wip={true}
                       iconColor="text-orange-500"
                     />
                   </div>

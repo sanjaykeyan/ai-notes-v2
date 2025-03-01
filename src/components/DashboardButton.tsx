@@ -6,6 +6,7 @@ import {
   Mic,
   MonitorUp,
   Calendar,
+  Bot,
   LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -18,6 +19,7 @@ const IconMap = {
   Mic,
   MonitorUp,
   Calendar,
+  Bot,
 } as const;
 
 type IconName = keyof typeof IconMap;
