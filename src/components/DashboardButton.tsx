@@ -1,37 +1,19 @@
 "use client";
-
-import {
-  Upload,
-  Video,
-  Mic,
-  MonitorUp,
-  Calendar,
-  Bot,
-  LucideIcon,
-} from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
+import Link from "next/link";
+import * as Icons from "lucide-react";
+import RecordingPopup from "./RecordingPopup";
 import UploadMeetingModal from "./upload-meeting-modal";
 
-const IconMap = {
-  Upload,
-  Video,
-  Mic,
-  MonitorUp,
-  Calendar,
-  Bot,
-} as const;
-
-type IconName = keyof typeof IconMap;
-
-interface DashboardButtonProps {
-  iconName: IconName;
+interface Props {
+  iconName: keyof typeof Icons;
   label: string;
   href: string;
   id?: string;
   dataType?: string;
-  iconColor?: string;
   beta?: boolean;
+  wip?: boolean;
+  iconColor?: string;
 }
 
 export default function DashboardButton({
@@ -40,59 +22,83 @@ export default function DashboardButton({
   href,
   id,
   dataType,
-  iconColor,
   beta,
-}: DashboardButtonProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  wip,
+  iconColor,
+}: Props) {
+  const [isRecordingPopupOpen, setIsRecordingPopupOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const Icon = Icons[iconName];
 
-  const Icon = IconMap[iconName];
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
 
-  if (dataType === "upload") {
-    return (
-      <>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex flex-col items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-          id={id}
-          data-type={dataType}
-        >
-          <div className={`p-3 rounded-lg ${iconColor}`}>
-            <Icon className="w-6 h-6" />
-          </div>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-            {label}
-          </span>
-        </button>
+    switch (href) {
+      case "/online-meets":
+        setIsRecordingPopupOpen(true);
+        break;
+      case "/upload":
+        setIsUploadModalOpen(true);
+        break;
+      case "/record":
+        window.location.href = href;
+        break;
+      case "/meeting-bot":
+        // For now, just navigate since it's in beta/WIP
+        window.location.href = href;
+        break;
+      default:
+        window.location.href = href;
+    }
+  };
 
-        <UploadMeetingModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onProcessingStart={() => setIsProcessing(true)}
-          onProcessingEnd={() => setIsProcessing(false)}
-        />
-      </>
-    );
-  }
-
-  return (
-    <Link
-      href={href}
-      className="flex flex-col items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
-      id={id}
-      data-type={dataType}
+  const button = (
+    <div
+      onClick={handleClick}
+      className="relative group flex flex-col items-center justify-center gap-3 p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200 cursor-pointer"
     >
-      <div className={`p-3 rounded-lg ${iconColor}`}>
+      <div
+        className={`w-12 h-12 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center ${
+          iconColor || "text-gray-500"
+        }`}
+      >
         <Icon className="w-6 h-6" />
       </div>
       <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
         {label}
-        {beta && (
-          <span className="ml-1 px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-600 rounded">
-            BETA
-          </span>
-        )}
       </span>
-    </Link>
+      {beta && (
+        <span className="absolute top-2 right-2 px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-600 rounded">
+          BETA
+        </span>
+      )}
+      {wip && (
+        <span className="absolute top-2 right-2 px-1.5 py-0.5 text-[10px] font-medium bg-yellow-100 text-yellow-600 rounded">
+          WIP
+        </span>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      <div id={id} data-type={dataType}>
+        {button}
+      </div>
+
+      {/* Recording Popup Modal */}
+      <RecordingPopup
+        isOpen={isRecordingPopupOpen}
+        onClose={() => setIsRecordingPopupOpen(false)}
+      />
+
+      {/* Upload Meeting Modal */}
+      <UploadMeetingModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onProcessingStart={() => {}}
+        onProcessingEnd={() => {}}
+      />
+    </>
   );
 }

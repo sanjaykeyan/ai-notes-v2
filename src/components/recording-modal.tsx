@@ -11,7 +11,7 @@ interface RecordingModalProps {
   recordedAudio: Blob | null;
   onProcessingStart: () => void;
   onProcessingEnd: () => void;
-  // Remove isLiveRecorded prop as it's not needed anymore
+  onSuccess?: () => void; // Add this new prop
 }
 
 const RecordingModal = ({
@@ -20,6 +20,7 @@ const RecordingModal = ({
   recordedAudio,
   onProcessingStart,
   onProcessingEnd,
+  onSuccess, // Add this new prop
 }: RecordingModalProps) => {
   const router = useRouter();
   const { addNotification } = useNotifications();
@@ -71,6 +72,7 @@ const RecordingModal = ({
       addNotification(
         "Your meeting recording has been processed successfully."
       );
+      onSuccess?.(); // Call the onSuccess callback
       onClose();
       onProcessingEnd();
     } catch (error) {
