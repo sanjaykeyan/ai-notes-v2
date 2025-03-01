@@ -96,7 +96,7 @@ export default async function Dashboard() {
                 <div className="p-6">
                   <div className="grid grid-cols-4 gap-4">
                     <DashboardButton
-                      Icon={Mic}
+                      iconName="Mic"
                       label="Instant record"
                       href="/record"
                       id="newbie-guide-instant-btn"
@@ -104,7 +104,7 @@ export default async function Dashboard() {
                       iconColor="text-blue-500"
                     />
                     <DashboardButton
-                      Icon={Upload}
+                      iconName="Upload"
                       label="Upload & transcribe"
                       href="/upload"
                       id="newbie-guide-upload-btn"
@@ -112,7 +112,7 @@ export default async function Dashboard() {
                       iconColor="text-green-500"
                     />
                     <DashboardButton
-                      Icon={Video}
+                      iconName="Video"
                       label="Record online meeting"
                       href="/online-meets"
                       id="newbie-guide-live-recording-btn"
@@ -120,7 +120,7 @@ export default async function Dashboard() {
                       iconColor="text-rose-500"
                     />
                     <DashboardButton
-                      Icon={MonitorUp}
+                      iconName="MonitorUp"
                       label="Record screen"
                       href="/screen-record"
                       id="newbie-guide-screen-recording-btn"

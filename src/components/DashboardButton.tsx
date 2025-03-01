@@ -1,51 +1,96 @@
+"use client";
+
+import {
+  Upload,
+  Video,
+  Mic,
+  MonitorUp,
+  Calendar,
+  LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
-import { LucideIcon } from "lucide-react";
+import { useState } from "react";
+import UploadMeetingModal from "./upload-meeting-modal";
+
+const IconMap = {
+  Upload,
+  Video,
+  Mic,
+  MonitorUp,
+  Calendar,
+} as const;
+
+type IconName = keyof typeof IconMap;
 
 interface DashboardButtonProps {
-  Icon: LucideIcon;
+  iconName: IconName;
   label: string;
   href: string;
   id?: string;
   dataType?: string;
-  beta?: boolean;
   iconColor?: string;
+  beta?: boolean;
 }
 
 export default function DashboardButton({
-  Icon,
+  iconName,
   label,
   href,
   id,
   dataType,
+  iconColor,
   beta,
-  iconColor = "text-gray-700",
 }: DashboardButtonProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const Icon = IconMap[iconName];
+
+  if (dataType === "upload") {
+    return (
+      <>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex flex-col items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
+          id={id}
+          data-type={dataType}
+        >
+          <div className={`p-3 rounded-lg ${iconColor}`}>
+            <Icon className="w-6 h-6" />
+          </div>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+            {label}
+          </span>
+        </button>
+
+        <UploadMeetingModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onProcessingStart={() => setIsProcessing(true)}
+          onProcessingEnd={() => setIsProcessing(false)}
+        />
+      </>
+    );
+  }
+
   return (
     <Link
       href={href}
-      className="flex flex-col items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-xl transition-colors"
+      className="flex flex-col items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors"
       id={id}
       data-type={dataType}
     >
-      <div className="flex items-center justify-center">
-        <Icon className={`w-6 h-6 ${iconColor} dark:text-gray-200`} />
+      <div className={`p-3 rounded-lg ${iconColor}`}>
+        <Icon className="w-6 h-6" />
       </div>
-      <div className="flex items-center gap-1">
-        <div
-          className="font-medium text-gray-800 dark:text-gray-100 text-[12px]"
-          style={{
-            fontFamily:
-              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          }}
-        >
-          {label}
-        </div>
+      <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+        {label}
         {beta && (
-          <span className="bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.5 rounded-md">
-            Beta
+          <span className="ml-1 px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-600 rounded">
+            BETA
           </span>
         )}
-      </div>
+      </span>
     </Link>
   );
 }
