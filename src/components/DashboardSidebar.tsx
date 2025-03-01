@@ -65,7 +65,7 @@ const DashboardSidebar = () => {
     <div
       className={`${
         isCollapsed ? "w-16" : "w-48"
-      } h-screen fixed left-0 top-0 bg-[#f8f9fa] dark:bg-gray-900 border-r border-gray-200/10 dark:border-gray-800 flex flex-col transition-[width] duration-300 text-[14px] overflow-hidden font-[-apple-system,BlinkMacSystemFont,Segoe_UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira_Sans,Droid_Sans,Helvetica_Neue,sans-serif]`}
+      } h-screen fixed left-0 top-0 bg-[#f8f9fa] dark:bg-gray-900 border-r border-gray-200/10 dark:border-gray-800 flex flex-col transition-[width] duration-300 text-[14px] font-[-apple-system,BlinkMacSystemFont,Segoe_UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira_Sans,Droid_Sans,Helvetica_Neue,sans-serif] overflow-visible`}
       style={
         {
           "--sidebar-width": isCollapsed ? "4rem" : "12rem",
@@ -75,11 +75,11 @@ const DashboardSidebar = () => {
       {/* Collapse Toggle Button */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-8 w-6 h-6 bg-[#f8f9fa] dark:bg-gray-900 border border-gray-200/10 dark:border-gray-800 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors z-50"
+        className="absolute -right-3 top-8 w-6 h-6 bg-[#f8f9fa] dark:bg-gray-900 border border-gray-200/20 dark:border-gray-700/50 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors z-[100]"
         aria-label="Toggle sidebar"
       >
         <svg
-          className={`w-4 h-4 text-gray-600 dark:text-gray-300 transition-transform duration-300 ${
+          className={`w-3.5 h-3.5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ${
             isCollapsed ? "rotate-180" : ""
           }`}
           fill="none"
