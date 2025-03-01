@@ -52,7 +52,7 @@ export default async function Dashboard() {
 
       <div
         className="flex-1 flex flex-col overflow-hidden"
-        style={{ marginLeft: "var(--sidebar-width)" }}
+        style={{ marginLeft: "calc(var(--sidebar-width) - 10px)" }}
       >
         <DashboardTopbar />
 
