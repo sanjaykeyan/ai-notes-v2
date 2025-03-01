@@ -75,7 +75,7 @@ const DashboardSidebar = () => {
       {/* Collapse Toggle Button */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-8 w-6 h-6 bg-[#f8f9fa] dark:bg-gray-900 border border-gray-200/20 dark:border-gray-700/50 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors z-[100]"
+        className="absolute -right-3 top-[22px] w-6 h-6 bg-[#f8f9fa] dark:bg-gray-900 border border-gray-200/20 dark:border-gray-700/50 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors z-[100]"
         aria-label="Toggle sidebar"
       >
         <svg
@@ -96,17 +96,19 @@ const DashboardSidebar = () => {
       </button>
 
       {/* Logo */}
-      <div className="p-3 border-b border-gray-200/10 dark:border-gray-800">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/Icon.png"
-            alt="Memoria AI Logo"
-            width={28}
-            height={28}
-            className="rounded-lg flex-shrink-0"
-          />
+      <div className="px-4 py-3 border-b border-gray-200/10 dark:border-gray-800">
+        <div className="flex items-center gap-3">
+          <div className="flex-shrink-0">
+            <Image
+              src="/Icon.png"
+              alt="Memoria AI Logo"
+              width={32}
+              height={32}
+              className="rounded-lg"
+            />
+          </div>
           <span
-            className={`font-bold text-base bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap transition-all duration-300 ${
+            className={`font-semibold text-[15px] bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap transition-all duration-300 ${
               isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
             }`}
           >
