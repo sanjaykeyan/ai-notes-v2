@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useClickAway } from "react-use";
+import { useOnClickOutside } from "@/hooks/use-on-click-outside";
 
 interface FolderMenuProps {
   folderId: string;
@@ -10,24 +10,25 @@ interface FolderMenuProps {
 
 export default function FolderMenu({ folderId, onDelete }: FolderMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  useClickAway(menuRef, () => {
-    setIsOpen(false);
-  });
+  useOnClickOutside(menuRef, () => setIsOpen(false));
 
   return (
-    <div ref={menuRef} className="relative">
+    <div ref={menuRef} className="relative flex items-center">
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
+        className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
       >
         <svg
-          className="w-4 h-4 text-gray-500 dark:text-gray-400"
+          className="w-5 h-5 text-gray-500 dark:text-gray-400"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
-          strokeWidth={2}
+          strokeWidth={1.5}
           stroke="currentColor"
         >
           <path
@@ -39,18 +40,27 @@ export default function FolderMenu({ folderId, onDelete }: FolderMenuProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
-          <div className="py-1">
-            <button
-              onClick={() => {
-                onDelete();
-                setIsOpen(false);
-              }}
-              className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-            >
-              Delete Folder
-            </button>
-          </div>
+        <div
+          className="fixed w-48 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-[60]"
+          style={{
+            top: menuRef.current
+              ? menuRef.current.getBoundingClientRect().top
+              : 0,
+            left: menuRef.current
+              ? menuRef.current.getBoundingClientRect().right - 192
+              : 0, // 192 = w-48
+          }}
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+              setIsOpen(false);
+            }}
+            className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+          >
+            Delete Folder
+          </button>
         </div>
       )}
     </div>

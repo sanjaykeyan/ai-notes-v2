@@ -144,7 +144,7 @@ export default function MeetingsContent({
                 <span className="font-medium text-sm">New</span>
               </button>
             </div>
-            <div className="p-3 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800/50">
+            <div className="p-3 space-y-1 overflow-y-auto flex-1 relative scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800/50">
               {/* Root folder button */}
               <button
                 onClick={() => setSelectedFolderId(null)}
@@ -175,7 +175,7 @@ export default function MeetingsContent({
               {folders.map((folder) => (
                 <div
                   key={folder.id}
-                  className="flex items-center justify-between group"
+                  className="flex items-center justify-between group relative"
                 >
                   <button
                     onClick={() => setSelectedFolderId(folder.id)}
@@ -244,9 +244,24 @@ export default function MeetingsContent({
           {/* Main Content */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Meetings Table */}
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-800 elegant-scrollbar">
               <table className="w-full">
-                {/* ...existing table header... */}
+                <thead className="bg-gray-50 dark:bg-gray-700/50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Title
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Duration
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {displayedMeetings.map((meeting) => (
                     <tr key={meeting.id} className="bg-white dark:bg-gray-800">
