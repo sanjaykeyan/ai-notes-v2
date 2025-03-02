@@ -45,7 +45,9 @@ export default function MeetingsContent({
     }
 
     try {
-      await createFolder(newFolderName);
+      const newFolder = await createFolder(newFolderName);
+      // Update the folders state with the new folder
+      setFolders((prevFolders) => [...prevFolders, newFolder]);
       setNewFolderName("");
       setIsCreatingFolder(false);
     } catch (error) {
