@@ -21,7 +21,6 @@ export default async function MeetingsPage() {
   const meetings = await prisma.meeting.findMany({
     where: {
       userId,
-      folderId: null, // Only fetch meetings not in any folder (root folder)
     },
     orderBy: { createdAt: "desc" },
     select: {
@@ -30,6 +29,7 @@ export default async function MeetingsPage() {
       createdAt: true,
       duration: true,
       folderId: true,
+      isLiveRecorded: true, // Add this field
     },
   });
 

@@ -11,6 +11,7 @@ type Meeting = {
   duration: number;
   createdAt: Date;
   folderId: string | null;
+  isLiveRecorded?: boolean; // Add this field
 };
 
 type Folder = {
@@ -112,6 +113,12 @@ export default function MeetingsContent({
     }
     return secs > 0 ? `${mins} min ${secs} sec` : `${mins} min`;
   };
+
+  const handleMeetingDelete = useCallback((meetingId: string) => {
+    setMeetings((prevMeetings) =>
+      prevMeetings.filter((meeting) => meeting.id !== meetingId)
+    );
+  }, []);
 
   return (
     <div className="flex-1 p-1 pl-0 overflow-hidden">
@@ -275,7 +282,7 @@ export default function MeetingsContent({
                         {meeting.createdAt.toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <DeleteMeetingButton meetingId={meeting.id} />
+                        <DeleteMeetingButton id={meeting.id} />
                       </td>
                     </tr>
                   ))}
