@@ -31,6 +31,7 @@
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.1",
     "react-split": "^2.0.14",
+    "react-use": "^17.6.0",
     "resend": "^4.1.1",
     "tailwind-scrollbar": "^3.1.0"
   },
