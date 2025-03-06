@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import DeleteMeetingButton from "@/components/DeleteMeetingButton";
 import { createFolder, deleteFolder } from "@/app/api/folders/actions/folder";
 import FolderMenu from "@/components/FolderMenu";
+import MyRecordsSection from "@/components/MyRecordsSection";
+import Records from "@/components/RecordSection_MeetingPage";
 
 type Meeting = {
   id: string;
@@ -250,45 +251,10 @@ export default function MeetingsContent({
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Meetings Table */}
-            <div className="flex-1 overflow-y-auto bg-white dark:bg-gray-800 elegant-scrollbar">
-              <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-700/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Title
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Duration
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {displayedMeetings.map((meeting) => (
-                    <tr key={meeting.id} className="bg-white dark:bg-gray-800">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                        {meeting.title}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                        {formatDuration(meeting.duration)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                        {meeting.createdAt.toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <DeleteMeetingButton id={meeting.id} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <Records
+              meetings={displayedMeetings}
+              onDelete={handleMeetingDelete}
+            />
           </div>
         </div>
       </div>
