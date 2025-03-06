@@ -39,3 +39,19 @@ export async function deleteFolder(folderId: string) {
   revalidatePath("/meetings");
   return folder;
 }
+
+export async function updateMeetingFolder(
+  meetingId: string,
+  folderId: string | null
+) {
+  try {
+    const meeting = await prisma.meeting.update({
+      where: { id: meetingId },
+      data: { folderId },
+    });
+    return meeting;
+  } catch (error) {
+    console.error("Error updating meeting folder:", error);
+    throw new Error("Failed to update meeting folder");
+  }
+}

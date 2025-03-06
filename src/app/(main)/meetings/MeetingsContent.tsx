@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { createFolder, deleteFolder } from "@/app/api/folders/actions/folder";
+import {
+  createFolder,
+  deleteFolder,
+  updateMeetingFolder,
+} from "@/app/api/folders/actions/folder";
 import FolderMenu from "@/components/FolderMenu";
 import MyRecordsSection from "@/components/MyRecordsSection";
 import Records from "@/components/RecordSection_MeetingPage";
@@ -89,7 +93,7 @@ export default function MeetingsContent({
   };
 
   const displayedMeetings = meetings.filter((meeting) => {
-    if (selectedFolderId === null) return meeting.folderId === null; // Root folder
+    if (selectedFolderId === null) return true; // Show all meetings in root
     return meeting.folderId === selectedFolderId;
   });
 
@@ -120,6 +124,56 @@ export default function MeetingsContent({
       prevMeetings.filter((meeting) => meeting.id !== meetingId)
     );
   }, []);
+
+  const handleDrop = async (
+    e: React.DragEvent,
+    targetFolderId: string | null
+  ) => {
+    e.preventDefault();
+    const meetingId = e.dataTransfer.getData("meetingId");
+
+    try {
+      await updateMeetingFolder(meetingId, targetFolderId);
+
+      // Update local state
+      setMeetings(
+        meetings.map((meeting) =>
+          meeting.id === meetingId
+            ? { ...meeting, folderId: targetFolderId }
+            : meeting
+        )
+      );
+    } catch (error) {
+      console.error("Failed to move meeting:", error);
+    }
+  };
+
+  const handleMoveMeetings = async (
+    meetingIds: string[],
+    targetFolderId: string | null
+  ) => {
+    try {
+      // Update all meetings in parallel
+      await Promise.all(
+        meetingIds.map((id) => updateMeetingFolder(id, targetFolderId))
+      );
+
+      // Update local state
+      setMeetings(
+        meetings.map((meeting) =>
+          meetingIds.includes(meeting.id)
+            ? { ...meeting, folderId: targetFolderId }
+            : meeting
+        )
+      );
+    } catch (error) {
+      console.error("Failed to move meetings:", error);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
 
   return (
     <div className="flex-1 p-1 pl-0 overflow-hidden">
@@ -156,6 +210,8 @@ export default function MeetingsContent({
               {/* Root folder button */}
               <button
                 onClick={() => setSelectedFolderId(null)}
+                onDrop={(e) => handleDrop(e, null)}
+                onDragOver={handleDragOver}
                 className={`flex w-full items-center gap-2.5 px-3 py-2 rounded-lg transition-colors duration-200 ${
                   selectedFolderId === null
                     ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400"
@@ -165,16 +221,17 @@ export default function MeetingsContent({
                 <svg
                   className="w-5 h-5"
                   xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={1.5}
+                  fill="none"
                   stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
-                  />
+                  <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+                  <circle cx="12" cy="13" r="3" />
+                  <path d="M12 10v6" />
+                  <path d="M9 13h6" />
                 </svg>
                 <span className="text-sm font-medium">All Meetings</span>
               </button>
@@ -187,6 +244,8 @@ export default function MeetingsContent({
                 >
                   <button
                     onClick={() => setSelectedFolderId(folder.id)}
+                    onDrop={(e) => handleDrop(e, folder.id)}
+                    onDragOver={handleDragOver}
                     className={`flex flex-1 items-center gap-2.5 px-3 py-2 rounded-lg group transition-colors duration-200 ${
                       selectedFolderId === folder.id
                         ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400"
@@ -254,6 +313,8 @@ export default function MeetingsContent({
             <Records
               meetings={displayedMeetings}
               onDelete={handleMeetingDelete}
+              folders={folders}
+              onMoveMeetings={handleMoveMeetings}
             />
           </div>
         </div>
