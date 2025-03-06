@@ -83,20 +83,7 @@ export default function Records({
       <div className="flex-1 overflow-auto elegant-scrollbar">
         {/* Column Headers */}
         <div className="flex items-center px-4 pb-2 text-xs text-gray-600 border-b border-gray-200 dark:border-gray-700">
-          <div className="w-[60%] flex items-center">
-            <button className="border border-gray-200 rounded-md px-3 py-1 flex items-center gap-1">
-              All Types
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M6 9L12 15L18 9"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
+          <div className="w-[60%]"></div>
           <div className="w-[20%]">Duration</div>
           <div className="w-[20%] flex items-center gap-1">
             Date created

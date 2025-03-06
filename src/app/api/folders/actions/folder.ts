@@ -55,3 +55,27 @@ export async function updateMeetingFolder(
     throw new Error("Failed to update meeting folder");
   }
 }
+
+export async function renameFolder(folderId: string, newName: string) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    const folder = await prisma.folder.update({
+      where: {
+        id: folderId,
+        userId, // Ensure the folder belongs to the user
+      },
+      data: { name: newName },
+    });
+
+    revalidatePath("/meetings");
+    return folder;
+  } catch (error) {
+    console.error("Error renaming folder:", error);
+    throw new Error("Failed to rename folder");
+  }
+}

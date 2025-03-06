@@ -5,6 +5,7 @@ import {
   createFolder,
   deleteFolder,
   updateMeetingFolder,
+  renameFolder,
 } from "@/app/api/folders/actions/folder";
 import FolderMenu from "@/components/FolderMenu";
 import MyRecordsSection from "@/components/MyRecordsSection";
@@ -37,12 +38,21 @@ export default function MeetingsContent({
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const newFolderInputRef = useRef<HTMLInputElement>(null);
+  const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
+  const [editingFolderName, setEditingFolderName] = useState("");
+  const editFolderInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isCreatingFolder) {
       newFolderInputRef.current?.focus();
     }
   }, [isCreatingFolder]);
+
+  useEffect(() => {
+    if (editingFolderId) {
+      editFolderInputRef.current?.focus();
+    }
+  }, [editingFolderId]);
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) {
@@ -82,6 +92,37 @@ export default function MeetingsContent({
     },
     [folders, initialFolders, selectedFolderId]
   );
+
+  const handleStartRenameFolder = (folderId: string, currentName: string) => {
+    setEditingFolderId(folderId);
+    setEditingFolderName(currentName);
+  };
+
+  const handleRenameFolder = async (folderId: string) => {
+    if (!editingFolderName.trim() || editingFolderName.trim() === "") return;
+
+    try {
+      const updatedFolder = await renameFolder(folderId, editingFolderName);
+      setFolders(folders.map((f) => (f.id === folderId ? updatedFolder : f)));
+    } catch (error) {
+      console.error("Failed to rename folder:", error);
+    } finally {
+      setEditingFolderId(null);
+      setEditingFolderName("");
+    }
+  };
+
+  const handleRenameFolderKeyDown = (
+    e: React.KeyboardEvent,
+    folderId: string
+  ) => {
+    if (e.key === "Enter") {
+      handleRenameFolder(folderId);
+    } else if (e.key === "Escape") {
+      setEditingFolderId(null);
+      setEditingFolderName("");
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -266,11 +307,29 @@ export default function MeetingsContent({
                         d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"
                       />
                     </svg>
-                    <span className="text-sm font-medium">{folder.name}</span>
+                    {editingFolderId === folder.id ? (
+                      <input
+                        ref={editFolderInputRef}
+                        type="text"
+                        value={editingFolderName}
+                        onChange={(e) => setEditingFolderName(e.target.value)}
+                        onBlur={() => handleRenameFolder(folder.id)}
+                        onKeyDown={(e) =>
+                          handleRenameFolderKeyDown(e, folder.id)
+                        }
+                        className="flex-1 bg-transparent border-none text-sm font-medium text-blue-600 dark:text-blue-400 focus:outline-none focus:ring-0"
+                        autoFocus
+                      />
+                    ) : (
+                      <span className="text-sm font-medium">{folder.name}</span>
+                    )}
                   </button>
                   <FolderMenu
                     folderId={folder.id}
                     onDelete={() => handleDeleteFolder(folder.id)}
+                    onRename={() =>
+                      handleStartRenameFolder(folder.id, folder.name)
+                    }
                   />
                 </div>
               ))}
