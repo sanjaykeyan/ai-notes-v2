@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { Plus, Upload, Video, Mic, Bot } from "lucide-react";
+import Link from "next/link";
 import {
   createFolder,
   deleteFolder,
@@ -10,6 +12,7 @@ import {
 import FolderMenu from "@/components/FolderMenu";
 import MyRecordsSection from "@/components/MyRecordsSection";
 import Records from "@/components/RecordSection_MeetingPage";
+import UploadMeetingModal from "@/components/upload-meeting-modal";
 
 type Meeting = {
   id: string;
@@ -41,6 +44,10 @@ export default function MeetingsContent({
   const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
   const [editingFolderName, setEditingFolderName] = useState("");
   const editFolderInputRef = useRef<HTMLInputElement>(null);
+  const [showProcessMenu, setShowProcessMenu] = useState(false);
+  const processMenuRef = useRef<HTMLDivElement>(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (isCreatingFolder) {
@@ -53,6 +60,19 @@ export default function MeetingsContent({
       editFolderInputRef.current?.focus();
     }
   }, [editingFolderId]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        processMenuRef.current &&
+        !processMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowProcessMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) {
@@ -216,6 +236,14 @@ export default function MeetingsContent({
     e.preventDefault();
   };
 
+  const handleProcessMenuClick = (type: string) => {
+    setShowProcessMenu(false);
+    if (type === "upload") {
+      setIsUploadModalOpen(true);
+    }
+    // Add other type handlers here
+  };
+
   return (
     <div className="flex-1 p-1 pl-0 overflow-hidden">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-full">
@@ -230,23 +258,11 @@ export default function MeetingsContent({
                 onClick={() => setIsCreatingFolder(true)}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-sm hover:shadow transition-all duration-200 group"
               >
-                <svg
-                  className="w-4 h-4 text-blue-100 group-hover:scale-110 transition-transform duration-200"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 4.5v15m7.5-7.5h-15"
-                  />
-                </svg>
-                <span className="font-medium text-sm">New</span>
+                <Plus className="w-4 h-4 text-blue-100 group-hover:scale-110 transition-transform duration-200" />
+                <span className="font-medium text-sm">New Folder</span>
               </button>
             </div>
+
             <div className="p-3 space-y-1 overflow-y-auto flex-1 relative scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-100 dark:scrollbar-track-gray-800/50">
               {/* Root folder button */}
               <button
@@ -369,6 +385,57 @@ export default function MeetingsContent({
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Add Meeting Button Section */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-end">
+              <div className="relative" ref={processMenuRef}>
+                <button
+                  onClick={() => setShowProcessMenu(!showProcessMenu)}
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600"
+                >
+                  <Plus className="w-4 h-4 text-gray-500" />
+                  <span>New Meeting</span>
+                </button>
+
+                {showProcessMenu && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                    <div className="p-2 space-y-1">
+                      <button
+                        onClick={() => handleProcessMenuClick("record")}
+                        className="flex w-full items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                      >
+                        <Mic className="w-4 h-4 text-blue-500" />
+                        <span>Instant record</span>
+                      </button>
+                      <button
+                        onClick={() => handleProcessMenuClick("upload")}
+                        className="flex w-full items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                      >
+                        <Upload className="w-4 h-4 text-green-500" />
+                        <span>Upload & transcribe</span>
+                      </button>
+                      <Link
+                        href="/online-meets"
+                        className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                      >
+                        <Video className="w-4 h-4 text-rose-500" />
+                        <span>Record online meeting</span>
+                      </Link>
+                      <Link
+                        href="/meeting-bot"
+                        className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                      >
+                        <Bot className="w-4 h-4 text-orange-500" />
+                        <span>Send meeting bot</span>
+                        <span className="ml-auto text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
+                          Beta
+                        </span>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <Records
               meetings={displayedMeetings}
               onDelete={handleMeetingDelete}
@@ -378,6 +445,12 @@ export default function MeetingsContent({
           </div>
         </div>
       </div>
+      <UploadMeetingModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onProcessingStart={() => setIsProcessing(true)}
+        onProcessingEnd={() => setIsProcessing(false)}
+      />
     </div>
   );
 }
