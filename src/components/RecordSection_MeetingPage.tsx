@@ -22,6 +22,9 @@ interface RecordsProps {
   onRename?: (id: string, newTitle: string) => Promise<void>;
 }
 
+type SortField = "name" | "duration" | "date";
+type SortDirection = "asc" | "desc";
+
 export default function Records({
   meetings,
   onDelete,
@@ -33,6 +36,13 @@ export default function Records({
   const [isMovingDialogOpen, setIsMovingDialogOpen] = useState(false);
   const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
+  const [sortConfig, setSortConfig] = useState<{
+    field: SortField;
+    direction: SortDirection;
+  }>({
+    field: "date",
+    direction: "desc",
+  });
 
   const handleDragStart = (e: React.DragEvent, meetingId: string) => {
     e.dataTransfer.setData("meetingId", meetingId);
@@ -72,6 +82,56 @@ export default function Records({
       setEditingTitle("");
     }
   };
+
+  const handleSort = (field: SortField) => {
+    setSortConfig((current) => ({
+      field,
+      direction:
+        current.field === field && current.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+
+  const getSortedMeetings = () => {
+    return [...meetings].sort((a, b) => {
+      const multiplier = sortConfig.direction === "asc" ? 1 : -1;
+
+      switch (sortConfig.field) {
+        case "name":
+          return (a.title || "").localeCompare(b.title || "") * multiplier;
+        case "duration":
+          return (a.duration - b.duration) * multiplier;
+        case "date":
+          return (
+            (new Date(a.createdAt).getTime() -
+              new Date(b.createdAt).getTime()) *
+            multiplier
+          );
+        default:
+          return 0;
+      }
+    });
+  };
+
+  const SortIcon = ({ field }: { field: SortField }) => (
+    <svg
+      className={`w-3 h-3 transition-transform ${
+        sortConfig.field === field
+          ? "text-blue-500" +
+            (sortConfig.direction === "desc" ? " rotate-180" : "")
+          : "text-gray-400"
+      }`}
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M6 9L12 15L18 9"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 
   return (
     <div className="flex-1 px-6 overflow-hidden flex flex-col min-h-0">
@@ -115,27 +175,36 @@ export default function Records({
       {/* Filters and List Container */}
       <div className="flex-1 overflow-auto elegant-scrollbar">
         {/* Column Headers */}
-        <div className="flex items-center px-4 pb-2 text-xs text-gray-600 border-b border-gray-200 dark:border-gray-700">
-          <div className="w-[60%]"></div>
-          <div className="w-[20%]">Duration</div>
-          <div className="w-[20%] flex items-center gap-1">
+        <div className="flex items-center px-4 pb-2 text-xs text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+          <div className="w-[60%] flex items-center">
+            <div
+              className="ml-8 cursor-pointer flex items-center gap-1"
+              onClick={() => handleSort("name")}
+            >
+              Meeting Name
+              <SortIcon field="name" />
+            </div>
+          </div>
+          <div
+            className="w-[20%] -ml-1 cursor-pointer flex items-center gap-1"
+            onClick={() => handleSort("duration")}
+          >
+            Duration
+            <SortIcon field="duration" />
+          </div>
+          <div
+            className="w-[20%] -ml-1 cursor-pointer flex items-center gap-1"
+            onClick={() => handleSort("date")}
+          >
             Date created
-            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M6 9L12 15L18 9"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <SortIcon field="date" />
           </div>
         </div>
 
         {/* List Items */}
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
-          {meetings.length > 0 ? (
-            meetings.map((meeting) => (
+          {getSortedMeetings().length > 0 ? (
+            getSortedMeetings().map((meeting) => (
               <div
                 key={meeting.id}
                 draggable
