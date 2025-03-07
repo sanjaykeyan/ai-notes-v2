@@ -199,10 +199,7 @@ export default function MeetingPage({
   return (
     <PlaybackProvider>
       <ScreenProvider>
-        {/* Removed ChatProvider since it's in root layout */}
-        <div className="fixed inset-x-0 top-16 bottom-0 flex flex-col bg-white dark:bg-gray-900">
-          {" "}
-          {/* Adjust positioning */}
+        <div className="h-full flex flex-col bg-white dark:bg-gray-900">
           {/* Desktop Title */}
           <header className="h-14 flex-none py-4 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 lg:block hidden">
             <div className="flex items-center">
