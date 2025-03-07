@@ -25,7 +25,6 @@ async function getMeetingData(id: string) {
 
 interface MeetingPageProps {
   params: Promise<{ id: string }>;
-  isSidebarVisible: boolean;
 }
 
 function ScreenSelector() {
@@ -63,12 +62,10 @@ function MeetingContent({
   meeting,
   bookmarksKey,
   handleBookmarksChange,
-  isSidebarVisible,
 }: {
   meeting: any;
   bookmarksKey: number;
   handleBookmarksChange: () => void;
-  isSidebarVisible: boolean;
 }) {
   const { activeScreen } = useScreen();
   const [isScreenACollapsed, setIsScreenACollapsed] = useState(false);
@@ -102,13 +99,7 @@ function MeetingContent({
   const desktopContent = (
     <Split
       className="h-full flex split"
-      sizes={
-        isScreenACollapsed
-          ? [2, 49, 49] // Changed from [2, 58, 40]
-          : isSidebarVisible
-          ? [20, 40, 40] // Changed from [20, 50, 30]
-          : [30, 35, 35] // Changed from [30, 40, 30]
-      }
+      sizes={isScreenACollapsed ? [2, 49, 49] : [30, 35, 35]}
       minSize={isScreenACollapsed ? [60, 200, 200] : [150, 300, 300]}
       gutterSize={4}
       snapOffset={30}
@@ -152,10 +143,7 @@ function MeetingContent({
   );
 }
 
-export default function MeetingPage({
-  params,
-  isSidebarVisible,
-}: MeetingPageProps) {
+export default function MeetingPage({ params }: MeetingPageProps) {
   const resolvedParams = use(params);
   const [meeting, setMeeting] = useState<any>(null);
   const [bookmarksKey, setBookmarksKey] = useState(0);
@@ -237,7 +225,6 @@ export default function MeetingPage({
                 meeting={meeting}
                 bookmarksKey={bookmarksKey}
                 handleBookmarksChange={handleBookmarksChange}
-                isSidebarVisible={isSidebarVisible}
               />
             )}
           </main>
