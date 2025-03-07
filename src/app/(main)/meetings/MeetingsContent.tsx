@@ -9,6 +9,7 @@ import {
   updateMeetingFolder,
   renameFolder,
 } from "@/app/api/folders/actions/folder";
+import { renameMeeting } from "@/app/api/meetings/actions";
 import FolderMenu from "@/components/FolderMenu";
 import MyRecordsSection from "@/components/MyRecordsSection";
 import Records from "@/components/RecordSection_MeetingPage";
@@ -253,6 +254,20 @@ export default function MeetingsContent({
     setIsScreenRecorderOpen(false);
   };
 
+  const handleRenameMeeting = async (meetingId: string, newTitle: string) => {
+    try {
+      await renameMeeting(meetingId, newTitle);
+      // Update local state
+      setMeetings(
+        meetings.map((meeting) =>
+          meeting.id === meetingId ? { ...meeting, title: newTitle } : meeting
+        )
+      );
+    } catch (error) {
+      console.error("Failed to rename meeting:", error);
+    }
+  };
+
   return (
     <div className="flex-1 p-1 pl-0 overflow-hidden">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-full">
@@ -454,6 +469,7 @@ export default function MeetingsContent({
               onDelete={handleMeetingDelete}
               folders={folders}
               onMoveMeetings={handleMoveMeetings}
+              onRename={handleRenameMeeting}
             />
           </div>
         </div>

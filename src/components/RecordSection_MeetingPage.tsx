@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { VideoIcon } from "lucide-react";
+import { VideoIcon, Pencil } from "lucide-react";
 import Link from "next/link";
 import DeleteMeetingButton from "@/components/DeleteMeetingButton";
 import MoveMeetingsDialog from "./MoveMeetingsDialog";
@@ -19,6 +19,7 @@ interface RecordsProps {
   onDelete: (id: string) => void;
   folders: { id: string; name: string }[];
   onMoveMeetings: (meetingIds: string[], targetFolderId: string | null) => void;
+  onRename?: (id: string, newTitle: string) => Promise<void>;
 }
 
 export default function Records({
@@ -26,9 +27,12 @@ export default function Records({
   onDelete,
   folders,
   onMoveMeetings,
+  onRename,
 }: RecordsProps) {
   const [selectedMeetings, setSelectedMeetings] = useState<string[]>([]);
   const [isMovingDialogOpen, setIsMovingDialogOpen] = useState(false);
+  const [editingMeetingId, setEditingMeetingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
 
   const handleDragStart = (e: React.DragEvent, meetingId: string) => {
     e.dataTransfer.setData("meetingId", meetingId);
@@ -38,6 +42,35 @@ export default function Records({
     onMoveMeetings(selectedMeetings, folderId);
     setSelectedMeetings([]);
     setIsMovingDialogOpen(false);
+  };
+
+  const handleStartRename = (meeting: Meeting, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent any parent click handlers
+    setEditingMeetingId(meeting.id);
+    setEditingTitle(meeting.title || "Untitled Meeting");
+  };
+
+  const handleRename = async (meetingId: string) => {
+    if (!onRename || editingTitle.trim() === "") return;
+
+    try {
+      await onRename(meetingId, editingTitle);
+    } catch (error) {
+      console.error("Failed to rename meeting:", error);
+    } finally {
+      setEditingMeetingId(null);
+      setEditingTitle("");
+    }
+  };
+
+  const handleRenameKeyDown = (e: React.KeyboardEvent, meetingId: string) => {
+    if (e.key === "Enter") {
+      handleRename(meetingId);
+    } else if (e.key === "Escape") {
+      setEditingMeetingId(null);
+      setEditingTitle("");
+    }
   };
 
   return (
@@ -109,6 +142,7 @@ export default function Records({
                 onDragStart={(e) => handleDragStart(e, meeting.id)}
                 className="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 group"
               >
+                {/* Checkbox section */}
                 <div
                   className={`mr-3 transition-opacity ${
                     selectedMeetings.includes(meeting.id)
@@ -129,20 +163,50 @@ export default function Records({
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </div>
-                <div className="flex items-center gap-3 w-[60%]">
+
+                {/* Meeting title section */}
+                <div className="flex items-center gap-3 w-[60%] relative">
                   <VideoIcon className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                  <Link
-                    href={`/meetings/${meeting.id}`}
-                    className="text-sm text-gray-900 dark:text-gray-100 truncate hover:text-blue-500 hover:underline"
-                    style={{
-                      fontFamily:
-                        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                      fontSize: "14px",
-                    }}
-                  >
-                    {meeting.title || "Untitled Meeting"}
-                  </Link>
+                  {editingMeetingId === meeting.id ? (
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        value={editingTitle}
+                        onChange={(e) => setEditingTitle(e.target.value)}
+                        onBlur={() => handleRename(meeting.id)}
+                        onKeyDown={(e) => handleRenameKeyDown(e, meeting.id)}
+                        className="w-full bg-white dark:bg-gray-800 border border-blue-500 dark:border-blue-400 rounded px-2 py-1 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        autoFocus
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                        Press Enter to save
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center flex-1 group/title">
+                      <Link
+                        href={`/meetings/${meeting.id}`}
+                        className="text-sm text-gray-900 dark:text-gray-100 truncate hover:text-blue-500 hover:underline mr-2"
+                        style={{
+                          fontFamily:
+                            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                          fontSize: "14px",
+                        }}
+                      >
+                        {meeting.title || "Untitled Meeting"}
+                      </Link>
+                      <button
+                        onClick={(e) => handleStartRename(meeting, e)}
+                        className="opacity-0 group-hover/title:opacity-100 transition-opacity hover:bg-gray-100 dark:hover:bg-gray-700 p-1 rounded-md"
+                        title="Rename meeting"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-gray-400 hover:text-blue-500" />
+                      </button>
+                    </div>
+                  )}
                 </div>
+
+                {/* Duration and date sections remain unchanged */}
                 <div className="w-[20%] text-xs text-gray-500 dark:text-gray-400">
                   {`${Math.floor(meeting.duration / 60)}min ${
                     meeting.duration % 60
