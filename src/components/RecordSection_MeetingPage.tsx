@@ -168,7 +168,7 @@ export default function Records({
                 <div className="flex items-center gap-3 w-[60%] relative">
                   <VideoIcon className="w-5 h-5 text-blue-500 flex-shrink-0" />
                   {editingMeetingId === meeting.id ? (
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative max-w-md">
                       <input
                         type="text"
                         value={editingTitle}
@@ -178,7 +178,7 @@ export default function Records({
                         className="w-full bg-white dark:bg-gray-800 border border-blue-500 dark:border-blue-400 rounded px-2 py-1 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                         autoFocus
                       />
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 whitespace-nowrap">
                         Press Enter to save
                       </div>
                     </div>
