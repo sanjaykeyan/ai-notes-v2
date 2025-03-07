@@ -408,12 +408,14 @@ export default function MeetingsContent({
                 {showProcessMenu && (
                   <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
                     <div className="p-2 space-y-1">
-                      <button
-                        onClick={() => handleProcessMenuClick("record")}
-                        className="flex w-full items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
-                      >
+                      <button className="flex w-full items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 relative group">
                         <Mic className="w-4 h-4 text-blue-500" />
                         <span>Instant record</span>
+                        <div className="absolute inset-0 bg-gray-900/90 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="text-white text-xs font-medium">
+                            Coming Soon
+                          </span>
+                        </div>
                       </button>
                       <button
                         onClick={() => handleProcessMenuClick("upload")}
@@ -429,16 +431,18 @@ export default function MeetingsContent({
                         <Video className="w-4 h-4 text-rose-500" />
                         <span>Record online meeting</span>
                       </button>
-                      <Link
-                        href="/meeting-bot"
-                        className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
-                      >
+                      <button className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200 relative group">
                         <Bot className="w-4 h-4 text-orange-500" />
                         <span>Send meeting bot</span>
                         <span className="ml-auto text-xs bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
                           Beta
                         </span>
-                      </Link>
+                        <div className="absolute inset-0 bg-gray-900/90 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="text-white text-xs font-medium">
+                            Coming Soon
+                          </span>
+                        </div>
+                      </button>
                     </div>
                   </div>
                 )}
