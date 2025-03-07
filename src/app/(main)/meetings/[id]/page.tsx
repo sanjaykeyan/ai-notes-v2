@@ -136,12 +136,16 @@ function MeetingContent({
 
   return (
     <>
-      <div className="lg:hidden h-[calc(100vh-15rem)]">
+      <div className="lg:hidden h-[calc(100vh-14rem)]">
+        {" "}
+        {/* Changed from 15rem to 12rem */}
         <ScreenSelector />
         <div className="h-[calc(100%-3rem)]">{mobileContent}</div>
       </div>
       {/* Code to change if required to adjust the size of scrABC */}
-      <div className="hidden lg:block h-[calc(100vh-12.4rem)]">
+      <div className="hidden lg:block h-[calc(100vh-8.4rem)]">
+        {" "}
+        {/* Changed from 12.4rem to 9.4rem */}
         {desktopContent}
       </div>
     </>
