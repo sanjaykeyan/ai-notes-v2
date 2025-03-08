@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardTopbar from "@/components/DashboardTopbar";
 import { Send, Filter } from "lucide-react";
@@ -12,12 +12,22 @@ type Chat = {
   createdAt: Date;
 };
 
+type Message = {
+  id: string;
+  content: string;
+  role: "user" | "assistant";
+  createdAt: Date;
+};
+
 export default function SmartSearch() {
   const [input, setInput] = useState("");
   const [chats, setChats] = useState<Chat[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [isMeetingSelectorOpen, setIsMeetingSelectorOpen] = useState(false);
   const [selectedMeetings, setSelectedMeetings] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Load chats from API
@@ -35,6 +45,65 @@ export default function SmartSearch() {
     const newChat = await res.json();
     setChats([newChat, ...chats]);
     setSelectedChat(newChat.id);
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: input.trim(),
+      role: "user",
+      createdAt: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: userMessage.content,
+          selectedMeetings,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to get response");
+
+      const data = await response.json();
+
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        content: data.message,
+        role: "assistant",
+        createdAt: new Date(),
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error("Error:", error);
+      // Handle error appropriately
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
   };
 
   return (
@@ -101,43 +170,70 @@ export default function SmartSearch() {
                 {/* Chat Messages */}
                 <div className="flex-1 overflow-auto p-6">
                   <div className="max-w-3xl mx-auto">
-                    {/* Empty state */}
-                    <div className="h-full flex flex-col items-center justify-center text-center">
-                      <div className="w-20 h-20 mb-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center">
-                        <svg
-                          className="w-10 h-10 text-blue-500 dark:text-blue-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                    {messages.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center text-center">
+                        <div className="w-20 h-20 mb-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center">
+                          <svg
+                            className="w-10 h-10 text-blue-500 dark:text-blue-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                            />
+                          </svg>
+                        </div>
+                        <h3
+                          className="text-[16px] font-semibold mb-3 text-gray-900 dark:text-gray-100"
+                          style={{
+                            fontFamily:
+                              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                          }}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                          />
-                        </svg>
+                          Ask me anything about your meetings
+                        </h3>
+                        <p
+                          className="text-[14px] text-gray-500 dark:text-gray-400 max-w-md"
+                          style={{
+                            fontFamily:
+                              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                          }}
+                        >
+                          Search across all your meeting transcripts and get
+                          instant answers to your questions.
+                        </p>
                       </div>
-                      <h3
-                        className="text-[16px] font-semibold mb-3 text-gray-900 dark:text-gray-100"
-                        style={{
-                          fontFamily:
-                            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                        }}
-                      >
-                        Ask me anything about your meetings
-                      </h3>
-                      <p
-                        className="text-[14px] text-gray-500 dark:text-gray-400 max-w-md"
-                        style={{
-                          fontFamily:
-                            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                        }}
-                      >
-                        Search across all your meeting transcripts and get
-                        instant answers to your questions.
-                      </p>
-                    </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {messages.map((message) => (
+                          <div
+                            key={message.id}
+                            className={`flex ${
+                              message.role === "user"
+                                ? "justify-end"
+                                : "justify-start"
+                            }`}
+                          >
+                            <div
+                              className={`max-w-[80%] rounded-lg p-4 ${
+                                message.role === "user"
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-gray-100 dark:bg-gray-800"
+                              }`}
+                            >
+                              <p className="text-[14px] whitespace-pre-wrap">
+                                {message.content}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -157,6 +253,7 @@ export default function SmartSearch() {
                       <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyPress}
                         placeholder="Ask a question about your meetings..."
                         className="w-full p-4 pr-12 text-[14px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:text-gray-100 resize-none shadow-sm"
                         style={{
@@ -166,9 +263,16 @@ export default function SmartSearch() {
                             '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                         }}
                         rows={1}
+                        disabled={isLoading}
                       />
                       <button
-                        className="absolute right-3 bottom-3 p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        onClick={sendMessage}
+                        disabled={isLoading || !input.trim()}
+                        className={`absolute right-3 bottom-3 p-2 rounded-lg transition-colors ${
+                          isLoading || !input.trim()
+                            ? "text-gray-400 dark:text-gray-600"
+                            : "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        }`}
                         aria-label="Send message"
                       >
                         <Send className="w-5 h-5" />
