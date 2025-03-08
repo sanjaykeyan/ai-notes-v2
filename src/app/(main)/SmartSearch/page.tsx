@@ -5,6 +5,7 @@ import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardTopbar from "@/components/DashboardTopbar";
 import { Send, Filter } from "lucide-react";
 import MeetingSelectorModal from "@/components/MeetingSelectorModal";
+import { toast } from "react-hot-toast";
 
 type Chat = {
   id: string;
@@ -25,6 +26,12 @@ export default function SmartSearch() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [isMeetingSelectorOpen, setIsMeetingSelectorOpen] = useState(false);
   const [selectedMeetings, setSelectedMeetings] = useState<string[]>([]);
+  const [selectedMeetingsInfo, setSelectedMeetingsInfo] = useState<
+    Array<{
+      id: string;
+      title: string;
+    }>
+  >([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -58,6 +65,11 @@ export default function SmartSearch() {
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
+    if (selectedMeetings.length === 0) {
+      toast.error("Please select at least one meeting first");
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       content: input.trim(),
@@ -79,21 +91,30 @@ export default function SmartSearch() {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to get response");
-
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to get response");
+      }
 
       const assistantMessage: Message = {
         id: Date.now().toString(),
-        content: data.message,
+        content: data.response, // Changed from data.message to data.response
         role: "assistant",
         createdAt: new Date(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error);
-      // Handle error appropriately
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        content:
+          error.message || "Sorry, something went wrong. Please try again.",
+        role: "assistant",
+        createdAt: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -103,6 +124,34 @@ export default function SmartSearch() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  };
+
+  const handleMeetingSelection = async (meetingIds: string[]) => {
+    try {
+      setSelectedMeetings(meetingIds);
+
+      if (meetingIds.length === 0) {
+        setSelectedMeetingsInfo([]);
+        return;
+      }
+
+      const queryString = meetingIds.join(",");
+      const response = await fetch(
+        `/api/SmartSearch?meetingIds=${queryString}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch meeting info");
+      }
+
+      const meetings = await response.json();
+      setSelectedMeetingsInfo(meetings);
+      // Removed onClose() call as it's handled by the modal component
+    } catch (error) {
+      console.error("Error fetching meeting info:", error);
+      toast.error("Failed to fetch meeting information");
+      setSelectedMeetingsInfo([]);
     }
   };
 
@@ -247,8 +296,8 @@ export default function SmartSearch() {
                       >
                         <Filter className="w-4 h-4" />
                         {selectedMeetings.length
-                          ? `${selectedMeetings.length} selected`
-                          : "All meetings"}
+                          ? `${selectedMeetings.length} meetings selected`
+                          : "Select meetings"}
                       </button>
                       <textarea
                         value={input}
@@ -285,7 +334,7 @@ export default function SmartSearch() {
                   isOpen={isMeetingSelectorOpen}
                   onClose={() => setIsMeetingSelectorOpen(false)}
                   selectedMeetings={selectedMeetings}
-                  onSelectMeetings={setSelectedMeetings}
+                  onSelectMeetings={handleMeetingSelection}
                 />
               </div>
             </div>
