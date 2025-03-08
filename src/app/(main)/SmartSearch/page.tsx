@@ -162,22 +162,17 @@ export default function SmartSearch() {
   const resizeTextarea = () => {
     const textarea = inputRef.current;
     if (textarea) {
-      // Reset height to auto first to get the correct scrollHeight
-      textarea.style.height = "auto";
+      textarea.style.height = "44px";
+      const scrollHeight = textarea.scrollHeight;
+      const newHeight = Math.min(scrollHeight, 200);
+      textarea.style.height = `${newHeight}px`;
 
-      // Calculate new height
-      const newHeight = Math.min(textarea.scrollHeight, 200);
-
-      // Apply new height and adjust padding to maintain visual center
-      textarea.style.height = `${Math.max(44, newHeight)}px`; // 44px is the height of a single line
-
-      // Update container position when expanding
-      const container = textarea.closest(".input-container");
-      if (container && newHeight > 44) {
-        const extraHeight = newHeight - 44;
-        container.style.marginTop = `-${extraHeight}px`;
-      } else if (container) {
-        container.style.marginTop = "0";
+      // Find the input container and adjust its position
+      const container = textarea.closest(".input-expand-container");
+      if (container instanceof HTMLElement) {
+        const extraHeight = Math.max(0, newHeight - 44);
+        container.style.marginTop = extraHeight ? `-${extraHeight}px` : "0";
+        container.style.paddingTop = extraHeight ? `${extraHeight}px` : "0";
       }
     }
   };
@@ -382,95 +377,96 @@ export default function SmartSearch() {
                 {/* Input Area */}
                 <div className="p-4">
                   <div className="max-w-3xl mx-auto">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-                      {/* Text Input */}
-                      <div className="input-container transition-all">
-                        <div className="p-3">
-                          <textarea
-                            ref={inputRef}
-                            value={input}
-                            onChange={(e) => {
-                              setInput(e.target.value);
-                              // Resize on next tick to ensure value is updated
-                              setTimeout(resizeTextarea, 0);
-                            }}
-                            onKeyDown={handleKeyPress}
-                            placeholder="Ask a question about your meetings..."
-                            className="w-full text-[15px] bg-transparent border-0 focus:ring-0 dark:text-gray-100 resize-none p-0 overflow-hidden"
-                            style={{
-                              height: "44px", // Initial single line height
-                              minHeight: "44px",
-                              maxHeight: "200px",
-                            }}
-                            rows={1}
-                            disabled={isLoading}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Controls */}
-                      <div className="flex items-center justify-between px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/70">
-                        {/* Meeting Selector */}
-                        <button
-                          onClick={() => setIsMeetingSelectorOpen(true)}
-                          className="group p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
-                          title={
-                            selectedMeetings.length
-                              ? `${selectedMeetings.length} meetings selected`
-                              : "Select meetings"
-                          }
-                        >
-                          <div className="relative">
-                            <PlusCircle
-                              className={`w-5 h-5 ${
-                                selectedMeetings.length > 0
-                                  ? "text-blue-500 dark:text-blue-400"
-                                  : "text-gray-500 dark:text-gray-400"
-                              }`}
+                    <div className="relative">
+                      <div className="input-expand-container transition-all duration-200 ease-out">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                          {/* Text Input */}
+                          <div className="p-3">
+                            <textarea
+                              ref={inputRef}
+                              value={input}
+                              onChange={(e) => {
+                                setInput(e.target.value);
+                                setTimeout(resizeTextarea, 0);
+                              }}
+                              onKeyDown={handleKeyPress}
+                              placeholder="Ask a question about your meetings..."
+                              className="w-full text-[15px] bg-transparent border-0 focus:ring-0 dark:text-gray-100 resize-none p-0 overflow-hidden"
+                              style={{
+                                height: "44px",
+                                minHeight: "44px",
+                                maxHeight: "200px",
+                              }}
+                              rows={1}
+                              disabled={isLoading}
                             />
-                            {selectedMeetings.length > 0 && (
-                              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-medium text-white ring-1 ring-white dark:ring-gray-800">
-                                {selectedMeetings.length}
-                              </span>
-                            )}
                           </div>
-                        </button>
 
-                        {/* Send Button */}
-                        <button
-                          onClick={sendMessage}
-                          disabled={
-                            isLoading ||
-                            !input.trim() ||
-                            selectedMeetings.length === 0
-                          }
-                          className={`p-2 rounded-lg transition-colors ${
-                            isLoading ||
-                            !input.trim() ||
-                            selectedMeetings.length === 0
-                              ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-                              : "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          }`}
-                          aria-label="Send message"
-                        >
-                          {isLoading ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                          ) : (
-                            <svg
-                              className="w-5 h-5 transform rotate-90"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
+                          {/* Controls */}
+                          <div className="flex items-center justify-between px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/70">
+                            {/* Meeting Selector */}
+                            <button
+                              onClick={() => setIsMeetingSelectorOpen(true)}
+                              className="group p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
+                              title={
+                                selectedMeetings.length
+                                  ? `${selectedMeetings.length} meetings selected`
+                                  : "Select meetings"
+                              }
                             >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                              />
-                            </svg>
-                          )}
-                        </button>
+                              <div className="relative">
+                                <PlusCircle
+                                  className={`w-5 h-5 ${
+                                    selectedMeetings.length > 0
+                                      ? "text-blue-500 dark:text-blue-400"
+                                      : "text-gray-500 dark:text-gray-400"
+                                  }`}
+                                />
+                                {selectedMeetings.length > 0 && (
+                                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-medium text-white ring-1 ring-white dark:ring-gray-800">
+                                    {selectedMeetings.length}
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+
+                            {/* Send Button */}
+                            <button
+                              onClick={sendMessage}
+                              disabled={
+                                isLoading ||
+                                !input.trim() ||
+                                selectedMeetings.length === 0
+                              }
+                              className={`p-2 rounded-lg transition-colors ${
+                                isLoading ||
+                                !input.trim() ||
+                                selectedMeetings.length === 0
+                                  ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                                  : "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                              }`}
+                              aria-label="Send message"
+                            >
+                              {isLoading ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <svg
+                                  className="w-5 h-5 transform rotate-90"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
