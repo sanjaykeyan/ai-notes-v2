@@ -162,8 +162,23 @@ export default function SmartSearch() {
   const resizeTextarea = () => {
     const textarea = inputRef.current;
     if (textarea) {
+      // Reset height to auto first to get the correct scrollHeight
       textarea.style.height = "auto";
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+
+      // Calculate new height
+      const newHeight = Math.min(textarea.scrollHeight, 200);
+
+      // Apply new height and adjust padding to maintain visual center
+      textarea.style.height = `${Math.max(44, newHeight)}px`; // 44px is the height of a single line
+
+      // Update container position when expanding
+      const container = textarea.closest(".input-container");
+      if (container && newHeight > 44) {
+        const extraHeight = newHeight - 44;
+        container.style.marginTop = `-${extraHeight}px`;
+      } else if (container) {
+        container.style.marginTop = "0";
+      }
     }
   };
 
@@ -256,10 +271,12 @@ export default function SmartSearch() {
 
                 {/* Chat Messages */}
                 <div
-                  className="flex-1 overflow-auto p-6"
+                  className="flex-1 overflow-y-auto overflow-x-hidden p-6" // Changed overflow handling
                   ref={chatContainerRef}
                 >
-                  <div className="max-w-3xl mx-auto">
+                  <div className="max-w-3xl mx-auto relative">
+                    {" "}
+                    {/* Added relative */}
                     {messages.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-center py-12">
                         <div className="w-20 h-20 mb-6 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center shadow-sm">
@@ -287,7 +304,7 @@ export default function SmartSearch() {
                         <div className="mt-6 flex flex-col gap-3 items-center">
                           <button
                             onClick={() => setIsMeetingSelectorOpen(true)}
-                            className="px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors flex items-center gap-2 text-sm font-medium"
+                            className="px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors flex items-center gap-2.5 text-sm font-medium shadow-sm border border-blue-100 dark:border-blue-800"
                           >
                             <Filter className="w-4 h-4" />
                             Select meetings to search
@@ -295,7 +312,9 @@ export default function SmartSearch() {
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-6">
+                      <div className="space-y-6 w-full">
+                        {" "}
+                        {/* Added w-full */}
                         {messages.map((message, index) => (
                           <motion.div
                             key={message.id}
@@ -309,13 +328,16 @@ export default function SmartSearch() {
                             }`}
                           >
                             <div
-                              className={`max-w-[80%] rounded-2xl p-4 ${
+                              className={`max-w-[80%] min-w-0 rounded-2xl p-4 ${
+                                // Added min-w-0
                                 message.role === "user"
                                   ? "bg-blue-500 text-white shadow-sm"
                                   : "bg-gray-100 dark:bg-gray-700/70 text-gray-800 dark:text-gray-100 shadow-sm"
                               }`}
                             >
-                              <p className="text-[15px] whitespace-pre-wrap leading-relaxed">
+                              <p className="text-[15px] whitespace-pre-wrap leading-relaxed break-words">
+                                {" "}
+                                {/* Added break-words */}
                                 {message.content}
                               </p>
                               <div
@@ -358,81 +380,119 @@ export default function SmartSearch() {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                  <div className="max-w-3xl mx-auto relative">
-                    <div className="flex flex-col gap-3">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setIsMeetingSelectorOpen(true)}
-                          className="px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors flex items-center gap-2 shadow-sm"
-                        >
-                          <Filter className="w-4 h-4" />
-                          <span className="whitespace-nowrap">
-                            {selectedMeetings.length
-                              ? `${selectedMeetings.length} meeting${
-                                  selectedMeetings.length > 1 ? "s" : ""
-                                }`
-                              : "Select meetings"}
-                          </span>
-                        </button>
-                        <div className="relative flex-1">
+                <div className="p-4">
+                  <div className="max-w-3xl mx-auto">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                      {/* Text Input */}
+                      <div className="input-container transition-all">
+                        <div className="p-3">
                           <textarea
                             ref={inputRef}
                             value={input}
-                            onChange={(e) => setInput(e.target.value)}
+                            onChange={(e) => {
+                              setInput(e.target.value);
+                              // Resize on next tick to ensure value is updated
+                              setTimeout(resizeTextarea, 0);
+                            }}
                             onKeyDown={handleKeyPress}
                             placeholder="Ask a question about your meetings..."
-                            className="w-full p-3.5 pr-12 text-[15px] bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:text-gray-100 resize-none shadow-sm"
+                            className="w-full text-[15px] bg-transparent border-0 focus:ring-0 dark:text-gray-100 resize-none p-0 overflow-hidden"
                             style={{
-                              minHeight: "50px",
+                              height: "44px", // Initial single line height
+                              minHeight: "44px",
                               maxHeight: "200px",
                             }}
                             rows={1}
                             disabled={isLoading}
                           />
-                          <button
-                            onClick={sendMessage}
-                            disabled={
-                              isLoading ||
-                              !input.trim() ||
-                              selectedMeetings.length === 0
-                            }
-                            className={`absolute right-2.5 bottom-2.5 p-2 rounded-lg transition-colors ${
-                              isLoading ||
-                              !input.trim() ||
-                              selectedMeetings.length === 0
-                                ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
-                                : "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                            }`}
-                            aria-label="Send message"
-                          >
-                            {isLoading ? (
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                              <Send className="w-5 h-5" />
-                            )}
-                          </button>
                         </div>
                       </div>
-                      {!selectedMeetings.length && (
-                        <div className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5 px-1">
-                          <svg
-                            className="w-3.5 h-3.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+
+                      {/* Controls */}
+                      <div className="flex items-center justify-between px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/70">
+                        {/* Meeting Selector */}
+                        <button
+                          onClick={() => setIsMeetingSelectorOpen(true)}
+                          className="group p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative"
+                          title={
+                            selectedMeetings.length
+                              ? `${selectedMeetings.length} meetings selected`
+                              : "Select meetings"
+                          }
+                        >
+                          <div className="relative">
+                            <PlusCircle
+                              className={`w-5 h-5 ${
+                                selectedMeetings.length > 0
+                                  ? "text-blue-500 dark:text-blue-400"
+                                  : "text-gray-500 dark:text-gray-400"
+                              }`}
                             />
-                          </svg>
-                          Please select at least one meeting to search through
-                        </div>
-                      )}
+                            {selectedMeetings.length > 0 && (
+                              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 text-[10px] font-medium text-white ring-1 ring-white dark:ring-gray-800">
+                                {selectedMeetings.length}
+                              </span>
+                            )}
+                          </div>
+                        </button>
+
+                        {/* Send Button */}
+                        <button
+                          onClick={sendMessage}
+                          disabled={
+                            isLoading ||
+                            !input.trim() ||
+                            selectedMeetings.length === 0
+                          }
+                          className={`p-2 rounded-lg transition-colors ${
+                            isLoading ||
+                            !input.trim() ||
+                            selectedMeetings.length === 0
+                              ? "text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                              : "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`}
+                          aria-label="Send message"
+                        >
+                          {isLoading ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <svg
+                              className="w-5 h-5 transform rotate-90"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
                     </div>
+
+                    {/* Warning Message */}
+                    {!selectedMeetings.length && (
+                      <div className="mt-2 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5 px-1">
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                        Please select at least one meeting to search through
+                      </div>
+                    )}
                   </div>
                 </div>
 

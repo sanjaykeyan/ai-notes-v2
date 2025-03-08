@@ -1,6 +1,15 @@
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect, Fragment, useMemo } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { X, Check, Loader2 } from "lucide-react";
+import {
+  X,
+  Check,
+  Loader2,
+  Search,
+  Calendar,
+  Clock,
+  ChevronDown,
+  Tag,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 type Meeting = {
@@ -29,6 +38,26 @@ export default function MeetingSelectorModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // New states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<
+    "newest" | "oldest" | "alphabetical"
+  >("newest");
+  const [showSortOptions, setShowSortOptions] = useState(false);
+
+  // Reset search when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setSearchQuery("");
+    }
+  }, [isOpen]);
+
+  // Reset selected meetings when modal opens to sync with parent component
+  useEffect(() => {
+    setSelected(new Set(selectedMeetings));
+  }, [selectedMeetings, isOpen]);
+
+  // Fetch meetings when modal opens
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
@@ -61,6 +90,39 @@ export default function MeetingSelectorModal({
     }
   }, [isOpen]);
 
+  // Filter and sort the meetings
+  const filteredAndSortedMeetings = useMemo(() => {
+    let result = [...meetings];
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((meeting) =>
+        meeting.title.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort meetings
+    result.sort((a, b) => {
+      switch (sortOrder) {
+        case "newest":
+          return a.date && b.date
+            ? new Date(b.date).getTime() - new Date(a.date).getTime()
+            : 0;
+        case "oldest":
+          return a.date && b.date
+            ? new Date(a.date).getTime() - new Date(b.date).getTime()
+            : 0;
+        case "alphabetical":
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [meetings, searchQuery, sortOrder]);
+
   const handleSave = () => {
     const selectedIds = Array.from(selected);
     if (selectedIds.length === 0) {
@@ -69,6 +131,69 @@ export default function MeetingSelectorModal({
     }
     onSelectMeetings(selectedIds);
     onClose();
+  };
+
+  const toggleSelectAll = () => {
+    if (filteredAndSortedMeetings.length > 0) {
+      if (
+        filteredAndSortedMeetings.every((meeting) => selected.has(meeting.id))
+      ) {
+        // If all filtered meetings are selected, deselect them
+        const newSelected = new Set(selected);
+        filteredAndSortedMeetings.forEach((meeting) => {
+          newSelected.delete(meeting.id);
+        });
+        setSelected(newSelected);
+      } else {
+        // Otherwise, select all filtered meetings
+        const newSelected = new Set(selected);
+        filteredAndSortedMeetings.forEach((meeting) => {
+          newSelected.add(meeting.id);
+        });
+        setSelected(newSelected);
+      }
+    }
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "No date";
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    // Today
+    if (date.toDateString() === now.toDateString()) {
+      return `Today at ${date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+    }
+    // Yesterday
+    else if (date.toDateString() === yesterday.toDateString()) {
+      return `Yesterday at ${date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+    }
+    // This week (within 7 days)
+    else if (now.getTime() - date.getTime() < 7 * 24 * 60 * 60 * 1000) {
+      return `${date.toLocaleDateString([], {
+        weekday: "long",
+      })} at ${date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })}`;
+    }
+    // Default date format
+    else {
+      return date.toLocaleDateString([], {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
   };
 
   return (
@@ -99,7 +224,7 @@ export default function MeetingSelectorModal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <Dialog.Panel className="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden transform transition-all">
+            <Dialog.Panel className="w-full max-w-xl bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden transform transition-all">
               <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
                 <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   Select Meetings
@@ -112,7 +237,85 @@ export default function MeetingSelectorModal({
                 </button>
               </div>
 
-              <div className="p-4 max-h-[60vh] overflow-y-auto">
+              {/* Search and Filter Section */}
+              <div className="p-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/70">
+                <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+                  <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Search className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search meetings..."
+                      className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 py-2 pl-10 pr-3 text-sm text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    {searchQuery && (
+                      <button
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setSearchQuery("")}
+                      >
+                        <X className="h-4 w-4 text-gray-400 hover:text-gray-500" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <button
+                      className="py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center gap-1.5"
+                      onClick={() => setShowSortOptions(!showSortOptions)}
+                    >
+                      <Clock className="w-4 h-4" />
+                      <span>Sort</span>
+                      <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                    </button>
+
+                    {showSortOptions && (
+                      <div className="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white dark:bg-gray-700 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="py-1">
+                          {[
+                            {
+                              id: "newest",
+                              label: "Newest first",
+                              icon: <Calendar className="w-4 h-4" />,
+                            },
+                            {
+                              id: "oldest",
+                              label: "Oldest first",
+                              icon: <Calendar className="w-4 h-4" />,
+                            },
+                            {
+                              id: "alphabetical",
+                              label: "Alphabetical",
+                              icon: <Tag className="w-4 h-4" />,
+                            },
+                          ].map((option) => (
+                            <button
+                              key={option.id}
+                              className={`flex items-center w-full px-4 py-2 text-sm ${
+                                sortOrder === option.id
+                                  ? "bg-gray-100 dark:bg-gray-600 text-gray-900 dark:text-white"
+                                  : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
+                              }`}
+                              onClick={() => {
+                                setSortOrder(option.id as any);
+                                setShowSortOptions(false);
+                              }}
+                            >
+                              <span className="w-5 mr-2 inline-flex justify-center">
+                                {option.icon}
+                              </span>
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="max-h-[60vh] overflow-y-auto">
                 {isLoading ? (
                   <div className="flex flex-col items-center justify-center py-8">
                     <Loader2 className="w-6 h-6 text-blue-500 animate-spin mb-2" />
@@ -165,75 +368,129 @@ export default function MeetingSelectorModal({
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-1">
-                    {meetings.map((meeting) => (
-                      <div
-                        key={meeting.id}
-                        className={`flex items-center p-3 rounded-lg transition-all duration-150 cursor-pointer
-                        ${
-                          selected.has(meeting.id)
-                            ? "bg-blue-50 dark:bg-blue-900/20"
-                            : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                        }`}
-                        onClick={() => {
-                          const newSelected = new Set(selected);
-                          if (selected.has(meeting.id)) {
-                            newSelected.delete(meeting.id);
-                          } else {
-                            newSelected.add(meeting.id);
-                          }
-                          setSelected(newSelected);
-                        }}
-                      >
-                        <div
-                          className={`w-5 h-5 rounded-md border flex items-center justify-center mr-3 transition-all 
-                          ${
-                            selected.has(meeting.id)
-                              ? "bg-blue-500 border-blue-500"
-                              : "border-gray-300 dark:border-gray-600"
-                          }`}
+                  <div className="p-1">
+                    {/* Select all row */}
+                    {filteredAndSortedMeetings.length > 0 && (
+                      <div className="flex items-center px-3 py-2 mx-1 bg-gray-50 dark:bg-gray-700/40 rounded-md mb-1 sticky top-0 z-10 shadow-sm">
+                        <button
+                          onClick={toggleSelectAll}
+                          className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
                         >
-                          {selected.has(meeting.id) && (
-                            <Check className="w-3 h-3 text-white" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {meeting.title}
-                          </div>
-                          {meeting.date && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(meeting.date).toLocaleDateString()}
-                            </div>
-                          )}
+                          {filteredAndSortedMeetings.every((meeting) =>
+                            selected.has(meeting.id)
+                          )
+                            ? "Deselect all"
+                            : "Select all"}
+                        </button>
+                        <div className="ml-auto text-xs text-gray-500">
+                          {selected.size} selected
                         </div>
                       </div>
-                    ))}
+                    )}
+
+                    {/* Filtered results message */}
+                    {searchQuery && filteredAndSortedMeetings.length === 0 ? (
+                      <div className="py-6 text-center">
+                        <p className="text-gray-500 dark:text-gray-400">
+                          No meetings match your search
+                        </p>
+                      </div>
+                    ) : searchQuery ? (
+                      <div className="px-4 py-1.5 text-xs text-gray-500 dark:text-gray-400">
+                        Found {filteredAndSortedMeetings.length}{" "}
+                        {filteredAndSortedMeetings.length === 1
+                          ? "meeting"
+                          : "meetings"}{" "}
+                        matching "{searchQuery}"
+                      </div>
+                    ) : null}
+
+                    {/* Meeting list */}
+                    <div className="p-2 space-y-1.5">
+                      {filteredAndSortedMeetings.map((meeting) => (
+                        <div
+                          key={meeting.id}
+                          className={`flex items-center p-3 rounded-lg transition-all duration-150 cursor-pointer
+                          ${
+                            selected.has(meeting.id)
+                              ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50"
+                              : "hover:bg-gray-50 dark:hover:bg-gray-700/50 border border-transparent"
+                          }`}
+                          onClick={() => {
+                            const newSelected = new Set(selected);
+                            if (selected.has(meeting.id)) {
+                              newSelected.delete(meeting.id);
+                            } else {
+                              newSelected.add(meeting.id);
+                            }
+                            setSelected(newSelected);
+                          }}
+                        >
+                          <div
+                            className={`flex-shrink-0 w-5 h-5 rounded-md border flex items-center justify-center mr-3 transition-all 
+                            ${
+                              selected.has(meeting.id)
+                                ? "bg-blue-500 border-blue-500"
+                                : "border-gray-300 dark:border-gray-600"
+                            }`}
+                          >
+                            {selected.has(meeting.id) && (
+                              <Check className="w-3 h-3 text-white" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                              {meeting.title}
+                            </div>
+                            {meeting.date && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5 mt-0.5">
+                                <Calendar className="w-3 h-3 flex-shrink-0" />
+                                {formatDate(meeting.date)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
 
-              <div className="p-4 border-t dark:border-gray-700 flex justify-end gap-2 bg-gray-50 dark:bg-gray-800/70">
-                <button
-                  onClick={onClose}
-                  className="px-4 py-2 text-sm rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors font-medium"
-                  disabled={selected.size === 0 || isLoading}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center">
-                      <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                      Processing...
-                    </span>
-                  ) : (
-                    "Apply"
+              <div className="p-4 border-t dark:border-gray-700 flex flex-col sm:flex-row sm:justify-between gap-3 bg-gray-50 dark:bg-gray-800/70">
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  {meetings.length > 0 && (
+                    <>
+                      <span className="font-medium text-gray-900 dark:text-gray-200">
+                        {selected.size}
+                      </span>
+                      <span className="ml-1">
+                        of {meetings.length} meetings selected
+                      </span>
+                    </>
                   )}
-                </button>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={onClose}
+                    className="px-4 py-2 text-sm rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    className="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-colors font-medium shadow-sm disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center min-w-[90px]"
+                    disabled={selected.size === 0 || isLoading}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center">
+                        <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                        Processing...
+                      </span>
+                    ) : (
+                      "Apply"
+                    )}
+                  </button>
+                </div>
               </div>
             </Dialog.Panel>
           </Transition.Child>
