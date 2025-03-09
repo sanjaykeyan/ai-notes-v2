@@ -11,6 +11,9 @@ export default function UploadButton({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const handleProcessingStart = () => setIsProcessing(true);
+  const handleProcessingEnd = () => setIsProcessing(false);
+
   const buttonStyle = {
     gradient: isProcessing
       ? "bg-gray-400 dark:bg-gray-600"
@@ -60,8 +63,8 @@ export default function UploadButton({
       <UploadMeetingModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onProcessingStart={() => setIsProcessing(true)}
-        onProcessingEnd={() => setIsProcessing(false)}
+        onProcessingStart={handleProcessingStart}
+        onProcessingEnd={handleProcessingEnd}
       />
     </div>
   );

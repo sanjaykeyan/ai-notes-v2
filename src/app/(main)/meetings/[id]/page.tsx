@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useState, use } from "react";
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Pencil } from "lucide-react"; // Add this import
+import { renameMeeting } from "@/app/api/meetings/actions"; // Add this import
 import { type ActiveTool } from "@/components/MeetingSidebar";
-import ScreenA from "@/app/meetings/[id]/screens/ScreenA";
-import ScreenB from "@/app/meetings/[id]/screens/ScreenB";
-import ScreenC from "@/app/meetings/[id]/screens/ScreenC";
+import ScreenA from "@/app/(main)/meetings/[id]/screens/ScreenA";
+import ScreenB from "@/app/(main)/meetings/[id]/screens/ScreenB";
+import ScreenC from "@/app/(main)/meetings/[id]/screens/ScreenC";
 import AudioPlayer from "@/components/AudioPlayer";
 import Split from "react-split";
 import { PlaybackProvider } from "@/contexts/PlaybackContext";
@@ -13,8 +16,8 @@ import {
   ScreenType,
   useScreen,
 } from "@/contexts/ScreenContext";
-import { ChatProvider, useChat } from '@/contexts/ChatContext';
-import Chatbot from '@/components/Chatbot/Chatbot';
+import { ChatProvider, useChat } from "@/contexts/ChatContext";
+import Chatbot from "@/components/Chatbot/Chatbot";
 
 async function getMeetingData(id: string) {
   const response = await fetch(`/api/meetings/${id}`);
@@ -24,7 +27,6 @@ async function getMeetingData(id: string) {
 
 interface MeetingPageProps {
   params: Promise<{ id: string }>;
-  isSidebarVisible: boolean;
 }
 
 function ScreenSelector() {
@@ -62,12 +64,10 @@ function MeetingContent({
   meeting,
   bookmarksKey,
   handleBookmarksChange,
-  isSidebarVisible,
 }: {
   meeting: any;
   bookmarksKey: number;
   handleBookmarksChange: () => void;
-  isSidebarVisible: boolean;
 }) {
   const { activeScreen } = useScreen();
   const [isScreenACollapsed, setIsScreenACollapsed] = useState(false);
@@ -101,13 +101,7 @@ function MeetingContent({
   const desktopContent = (
     <Split
       className="h-full flex split"
-      sizes={
-        isScreenACollapsed
-          ? [2, 49, 49] // Changed from [2, 58, 40]
-          : isSidebarVisible
-          ? [20, 40, 40] // Changed from [20, 50, 30]
-          : [30, 35, 35] // Changed from [30, 40, 30]
-      }
+      sizes={isScreenACollapsed ? [2, 49, 49] : [30, 35, 35]}
       minSize={isScreenACollapsed ? [60, 200, 200] : [150, 300, 300]}
       gutterSize={4}
       snapOffset={30}
@@ -135,26 +129,29 @@ function MeetingContent({
 
   return (
     <>
-      <div className="lg:hidden h-[calc(100vh-15rem)]">
+      <div className="lg:hidden h-[calc(100vh-14rem)]">
+        {" "}
+        {/* Changed from 15rem to 12rem */}
         <ScreenSelector />
         <div className="h-[calc(100%-3rem)]">{mobileContent}</div>
       </div>
       {/* Code to change if required to adjust the size of scrABC */}
-      <div className="hidden lg:block h-[calc(100vh-12.4rem)]">
+      <div className="hidden lg:block h-[calc(100vh-8.4rem)]">
+        {" "}
+        {/* Changed from 12.4rem to 9.4rem */}
         {desktopContent}
       </div>
     </>
   );
 }
 
-export default function MeetingPage({
-  params,
-  isSidebarVisible,
-}: MeetingPageProps) {
+export default function MeetingPage({ params }: MeetingPageProps) {
   const resolvedParams = use(params);
   const [meeting, setMeeting] = useState<any>(null);
   const [bookmarksKey, setBookmarksKey] = useState(0);
-  const { isChatOpen } = useChat(); // Add this line
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingTitle, setEditingTitle] = useState("");
+  const { isChatOpen } = useChat();
 
   const handleBookmarksChange = () => {
     setBookmarksKey((prev) => prev + 1);
@@ -193,20 +190,91 @@ export default function MeetingPage({
     };
   }, [meeting?.title]);
 
+  const handleStartRename = () => {
+    setIsEditing(true);
+    setEditingTitle(meeting?.title || "Untitled Meeting");
+  };
+
+  const handleRename = async () => {
+    if (!editingTitle.trim()) return;
+
+    try {
+      await renameMeeting(meeting.id, editingTitle);
+      setMeeting({ ...meeting, title: editingTitle });
+    } catch (error) {
+      console.error("Failed to rename meeting:", error);
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const handleRenameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleRename();
+    } else if (e.key === "Escape") {
+      setIsEditing(false);
+    }
+  };
+
   if (!meeting) return null;
 
   return (
     <PlaybackProvider>
       <ScreenProvider>
-        {/* Removed ChatProvider since it's in root layout */}
-        <div className="fixed inset-x-0 top-16 bottom-0 flex flex-col bg-white dark:bg-gray-900">
-          {" "}
-          {/* Adjust positioning */}
+        <div className="h-full flex flex-col bg-white dark:bg-gray-900">
           {/* Desktop Title */}
           <header className="h-14 flex-none py-4 px-6 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 lg:block hidden">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {meeting?.title || "Untitled Meeting"}
-            </h1>
+            <div className="flex items-center">
+              <Link
+                href="/meetings"
+                className="mr-4 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+              </Link>
+              <div className="flex items-center gap-2">
+                {isEditing ? (
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      value={editingTitle}
+                      onChange={(e) => setEditingTitle(e.target.value)}
+                      onBlur={handleRename}
+                      onKeyDown={handleRenameKeyDown}
+                      className="bg-white dark:bg-gray-800 border border-blue-500 dark:border-blue-400 rounded px-2 py-1 text-base text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                      autoFocus
+                    />
+                    <span className="ml-2 text-xs text-gray-400">
+                      Press Enter to save
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {meeting?.title || "Untitled Meeting"}
+                    </h1>
+                    <button
+                      onClick={handleStartRename}
+                      className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                      title="Rename meeting"
+                    >
+                      <Pencil className="w-4 h-4 text-gray-400 hover:text-blue-500" />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           </header>
           {/* Main content */}
           <main className="flex-1 min-h-0 overflow-hidden">
@@ -215,7 +283,6 @@ export default function MeetingPage({
                 meeting={meeting}
                 bookmarksKey={bookmarksKey}
                 handleBookmarksChange={handleBookmarksChange}
-                isSidebarVisible={isSidebarVisible}
               />
             )}
           </main>

@@ -1,4 +1,4 @@
-import Navbar from "@/components/navbar";
+import DashboardSidebar from "@/components/DashboardSidebar";
 
 export default function MainLayout({
   children,
@@ -6,11 +6,9 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <Navbar />
-      <div className="pt-[56px]">
-        {children}
-      </div>
-    </>
+    <div className="flex h-screen overflow-hidden bg-[#f8f9fa] dark:bg-gray-900">
+      <DashboardSidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">{children}</div>
+    </div>
   );
 }

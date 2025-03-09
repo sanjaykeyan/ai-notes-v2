@@ -1,0 +1,213 @@
+"use client";
+import { useState, useEffect } from "react";
+import {
+  BookmarkIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MagnifyingGlassIcon,
+  FaceSmileIcon,
+  ChatBubbleLeftIcon,
+} from "@heroicons/react/24/outline";
+import { motion, AnimatePresence } from "framer-motion";
+import { useChat } from '@/contexts/ChatContext';
+import Bookmarks from "./Bookmarks";
+import SmartFilters from "./SmartFilters";
+import Sentiment from "./Sentiment";
+import ChatView from "./ChatView";
+
+const pageVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 1000 : -1000,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },  // Remove the parenthesis here
+  exit: (direction: number) => ({
+    x: direction < 0 ? 1000 : -1000,
+    opacity: 0,
+  }),
+};
+
+const pageTransition = {
+  type: "tween",
+  duration: 0.3,
+  ease: [0.25, 0.1, 0.25, 1], // cubic-bezier curve for natural motion
+};
+
+interface ScreenAProps {
+  meetingId: string;
+  onBookmarksChange?: () => void;
+  onCollapse?: (collapsed: boolean) => void;
+}
+
+export default function ScreenA({
+  meetingId,
+  onBookmarksChange,
+  onCollapse,
+}: ScreenAProps) {
+  const { toggleChat, isChatOpen } = useChat();
+  const [selectedView, setSelectedView] = useState<
+    "search" | "bookmarks" | "sentiment" | "chat"
+  >("bookmarks");
+  const [[page, direction], setPage] = useState([0, 0]);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    onCollapse?.(isCollapsed);
+  }, [isCollapsed, onCollapse]);
+
+  // Add this effect to handle chat state changes
+  useEffect(() => {
+    if (isChatOpen) {
+      setSelectedView("chat");
+    }
+  }, [isChatOpen]);
+
+  // Modify handleViewChange to handle chat
+  const handleViewChange = (view: "search" | "bookmarks" | "sentiment" | "chat") => {
+    if (view === "chat") {
+      toggleChat();
+      setSelectedView("chat");
+    } else {
+      const newDirection = view === "search" ? -1 : 1;
+      setPage([page + 1, newDirection]);
+      setSelectedView(view);
+    }
+  };
+
+  // Modify the chat button click handler
+  const handleChatClick = () => {
+    toggleChat();
+    handleViewChange("chat");
+  };
+
+  return (
+    <div
+      className={`bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 h-full flex flex-col sm:flex-row overflow-x-hidden ${
+        isCollapsed ? "sm:w-[60px]" : ""
+      }`}
+    >
+      <div className="sm:h-full w-full sm:w-[60px] border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 h-[calc(100vh-12.4rem)]">
+        <nav className="flex sm:flex-col h-full py-1 px-2 sm:p-2 space-x-1 sm:space-x-0 sm:space-y-1">
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="hidden sm:flex px-3 py-1.5 sm:p-3 rounded-md items-center justify-center transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 mb-1"
+            title={isCollapsed ? "Expand" : "Collapse"}
+          >
+            {isCollapsed ? (
+              <ChevronRightIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            ) : (
+              <ChevronLeftIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            )}
+          </button>
+          <button
+            onClick={() => handleViewChange("bookmarks")}
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
+              selectedView === "bookmarks"
+                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            }`}
+          >
+            <BookmarkIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="ml-2 text-sm font-medium sm:hidden">
+              Bookmarks
+            </span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              View Bookmarks
+            </div>
+          </button>
+          <button
+            onClick={() => handleViewChange("search")}
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
+              selectedView === "search"
+                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            }`}
+          >
+            <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="ml-2 text-sm font-medium sm:hidden">Search</span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              Smart Filters
+            </div>
+          </button>
+          <button
+            onClick={() => handleViewChange("sentiment")}
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
+              selectedView === "sentiment"
+                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            }`}
+          >
+            <FaceSmileIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="ml-2 text-sm font-medium sm:hidden">
+              Sentiment
+            </span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              Sentiment Analysis
+            </div>
+          </button>
+          <button
+            onClick={handleChatClick}
+            className={`px-3 py-1.5 sm:p-3 rounded-md flex items-center justify-center sm:justify-start transition-colors duration-200 group relative ${
+              selectedView === "chat"
+                ? "bg-blue-50 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                : "hover:bg-gray-50 dark:hover:bg-gray-700/50"
+            }`}
+          >
+            <ChatBubbleLeftIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="ml-2 text-sm font-medium sm:hidden">Chat</span>
+            <div className="absolute z-50 left-full ml-2 invisible opacity-0 sm:group-hover:visible sm:group-hover:opacity-100 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-xs rounded shadow-lg whitespace-nowrap transition-all duration-200 border border-gray-200 dark:border-gray-700">
+              Meeting Assistant
+            </div>
+          </button>
+        </nav>
+      </div>
+      {!isCollapsed && (
+        <div className="flex-1 bg-white dark:bg-gray-800 flex flex-col min-w-0 relative overflow-hidden">
+          <div className="px-4 py-3 h-14 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center lg:flex hidden">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {selectedView === "bookmarks"
+                ? "Bookmarks"
+                : selectedView === "sentiment"
+                ? "Sentiment Analysis"
+                : selectedView === "chat"
+                ? "Meeting Assistant"
+                : "Smart Filters"}
+            </h2>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <AnimatePresence initial={false} custom={direction} mode="wait">
+              <motion.div
+                key={selectedView}
+                custom={direction}
+                variants={pageVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={pageTransition}
+                className="h-[calc(100vh-12.4rem)] overflow-y-auto elegant-scrollbar absolute w-full pr-0"
+              >
+                <div className="h-[calc(100vh-12.4rem)] pl-2 sm:pl-4">
+                  {selectedView === "bookmarks" ? (
+                    <Bookmarks
+                      meetingId={meetingId}
+                      onBookmarksChange={onBookmarksChange}
+                    />
+                  ) : selectedView === "sentiment" ? (
+                    <Sentiment meetingId={meetingId} />
+                  ) : selectedView === "chat" ? (
+                    <ChatView meetingId={meetingId} />
+                  ) : (
+                    <SmartFilters meetingId={meetingId} />
+                  )}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

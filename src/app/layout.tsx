@@ -3,8 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
-import { NotificationProvider } from '@/contexts/NotificationContext';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import { NotificationProvider } from "@/contexts/NotificationContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { SidebarProvider } from "@/contexts/SidebarContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,17 +28,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-        <body>
-          <NotificationProvider>
-            <ThemeProvider>
-              {children}
-              <Toaster position="bottom-right" />
-            </ThemeProvider>
-          </NotificationProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <style>
+          {`
+            :root {
+              --sidebar-width: 256px;
+            }
+          `}
+        </style>
+      </head>
+      <body>
+        <NotificationProvider>
+          <ThemeProvider>
+            <SidebarProvider>
+              <ClerkProvider>
+                {children}
+                <Toaster position="bottom-right" />
+              </ClerkProvider>
+            </SidebarProvider>
+          </ThemeProvider>
+        </NotificationProvider>
+      </body>
+    </html>
   );
 }

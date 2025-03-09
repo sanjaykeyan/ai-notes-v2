@@ -2,15 +2,22 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { isNewUser } from "@/lib/user-utils";
-import UploadButton from "@/components/upload-button";
-import DeleteMeetingButton from "@/components/DeleteMeetingButton";
-import MobileDashboardWrapper from "@/components/MobileDashboardWrapper";
-import MeetingInsightsFeed from "@/components/MeetingInsightsFeed";
-import HelpDialog from "@/components/HelpDialog";
-
 import Link from "next/link";
+import {
+  Upload,
+  Video,
+  Mic,
+  MonitorUp,
+  Calendar,
+  VideoIcon,
+} from "lucide-react";
+import DashboardButton from "@/components/DashboardButton";
+import DeleteMeetingButton from "@/components/DeleteMeetingButton";
+import DashboardSidebar from "@/components/DashboardSidebar";
+import DashboardTopbar from "@/components/DashboardTopbar";
+import MyRecordsSection from "@/components/MyRecordsSection";
 
-export default async function NewUserDashboard() {
+export default async function Dashboard() {
   const { userId } = await auth();
   const user = await currentUser();
 
@@ -18,10 +25,7 @@ export default async function NewUserDashboard() {
     redirect("/auth/sign-in");
   }
 
-  const firstName = user?.firstName || "there";
-  const isFirstTimer = await isNewUser(userId);
-
-  const [recentMeetings, totalMeetings, latestMeeting] = await Promise.all([
+  const [recentMeetings, totalMeetings] = await Promise.all([
     prisma.meeting.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
@@ -30,256 +34,172 @@ export default async function NewUserDashboard() {
         title: true,
         createdAt: true,
         isLiveRecorded: true,
+        duration: true,
       },
-      take: 7,
+      take: 10,
     }),
     prisma.meeting.count({
       where: { userId },
     }),
-    prisma.meeting.findFirst({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        createdAt: true,
-        summary: true,
-        keyTakeaways: true,
-        actionItems: true,
-        isLiveRecorded: true,
-        duration: true,
-        speakerMappings: {
-          select: {
-            customName: true,
-            originalName: true,
-          },
-        },
-        timestampMapping: true,
-      },
-    }),
   ]);
 
+  const firstName = user?.firstName || "there";
+  const fullName = `${user?.firstName} ${user?.lastName}`.trim();
+
   return (
-    <>
-      {/* Mobile Layout */}
-      <div className="lg:hidden min-h-screen dark:bg-gray-900">
-        <MobileDashboardWrapper
-          firstName={firstName}
-          recentMeetings={JSON.parse(JSON.stringify(recentMeetings))}
-        />
-      </div>
+    <div className="flex h-screen overflow-hidden bg-[#f8f9fa] dark:bg-gray-900">
+      <DashboardSidebar />
 
-      {/* Desktop Layout */}
-      <div className="hidden lg:flex gap-6 relative pb-6 pt-2">
-        {/* Main Content */}
-        <div className="flex-1">
-          <div className="flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-            {/* Welcome Section - Removed individual border */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="max-w-2xl">
-                <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                  Welcome back{firstName !== "there" ? `, ${firstName}` : ""}
-                </h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-1">
-                  Manage your meetings and get AI-powered insights
-                </p>
-              </div>
-              <div className="flex items-center gap-4 mt-6">
-                <UploadButton />
-                <Link
-                  href="/online-meets"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+      <div
+        className="flex-1 flex flex-col overflow-hidden"
+        style={{ marginLeft: "calc(var(--sidebar-width) - 10px)" }}
+      >
+        <DashboardTopbar />
+
+        <div className="flex-1 p-1 pl-0 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-full">
+            {/* Main Content + Right Pane Container */}
+            <div className="flex h-full overflow-hidden">
+              {/* Main Content */}
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Header with quote */}
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <span className="text-yellow-400">👋</span>
+                    <h1
+                      className="text-base font-medium text-gray-900 dark:text-gray-100"
+                      style={{
+                        fontFamily:
+                          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      }}
+                    >
+                      Good morning, {fullName}
+                    </h1>
+                  </div>
+                  <div
+                    className="flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-gray-400"
+                    style={{
+                      fontFamily:
+                        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                    }}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                  Live Recording
-                </Link>
-              </div>
-            </div>
-
-            {/* Stats Grid - Removed individual borders except separators */}
-            <div className="grid grid-cols-3 gap-0">
-              {[
-                {
-                  label: "Total Meetings",
-                  value: totalMeetings,
-                  icon: (
-                    <svg
-                      className="w-5 h-5 text-blue-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "This Month",
-                  value: recentMeetings.length,
-                  icon: (
-                    <svg
-                      className="w-5 h-5 text-green-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                  ),
-                },
-                {
-                  label: "Time Saved",
-                  value: "~2.5 hrs",
-                  icon: (
-                    <svg
-                      className="w-5 h-5 text-purple-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  ),
-                },
-              ].map((stat, index) => (
-                <div
-                  key={stat.label}
-                  className={`p-6 border-b border-gray-200 dark:border-gray-700 ${
-                    index !== 2 ? "border-r" : ""
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-700">
-                      {stat.icon}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        {stat.label}
-                      </p>
-                      <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                        {stat.value}
-                      </p>
-                    </div>
+                    <span className="text-gray-300">"</span>
+                    <span>Plato</span>
+                    <span className="mx-1">
+                      Thinking: the talking of the soul with itself.
+                    </span>
+                    <span className="text-gray-300">"</span>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Meeting Insights Card - Removed individual border */}
-            <div className="p-4">
-              <MeetingInsightsFeed meeting={latestMeeting} />
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Meetings Sidebar */}
-        <div className="w-[400px] flex-shrink-0">
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden h-full">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                    Recent Meetings
-                  </h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Last {recentMeetings.length} of {totalMeetings} meetings
-                  </p>
-                </div>
-                <Link
-                  href="/meetings"
-                  className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                >
-                  View All
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
+                {/* Recording options */}
+                <div className="p-4">
+                  <div className="grid grid-cols-4 gap-3">
+                    <DashboardButton
+                      iconName="Mic"
+                      label="Instant record"
+                      href="/record"
+                      id="newbie-guide-instant-btn"
+                      dataType="instant"
+                      iconColor="text-blue-500"
                     />
-                  </svg>
-                </Link>
+                    <DashboardButton
+                      iconName="Upload"
+                      label="Upload & transcribe"
+                      href="/upload"
+                      id="newbie-guide-upload-btn"
+                      dataType="upload"
+                      iconColor="text-green-500"
+                    />
+                    <DashboardButton
+                      iconName="Video"
+                      label="Record online meeting"
+                      href="/online-meets"
+                      id="newbie-guide-live-recording-btn"
+                      dataType="meeting"
+                      iconColor="text-rose-500"
+                    />
+                    <DashboardButton
+                      iconName="Bot"
+                      label="Send meeting bot"
+                      href="/meeting-bot"
+                      id="newbie-guide-meeting-bot-btn"
+                      dataType="bot"
+                      beta={true}
+                      wip={true}
+                      iconColor="text-orange-500"
+                    />
+                  </div>
+                </div>
+
+                {/* My Records Section */}
+                <MyRecordsSection meetings={recentMeetings} />
               </div>
-              <div className="overflow-y-auto">
-                {recentMeetings.length > 0 ? (
-                  <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {recentMeetings.map((meeting, index) => (
-                      <div
-                        key={meeting.id}
-                        className={`block p-3 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors group relative ${
-                          index === recentMeetings.length - 1
-                            ? "border-b-0"
-                            : ""
-                        }`}
+
+              {/* Right Pane - Events */}
+              <div className="w-80 border-l border-gray-200 dark:border-gray-700 h-full flex flex-col">
+                <div className="p-4 flex-1 overflow-auto">
+                  <div className="flex items-center gap-2 mb-4 sticky top-0 bg-white dark:bg-gray-800 py-2">
+                    <Calendar className="w-4 h-4 text-blue-500" />
+                    <h2
+                      className="text-sm font-medium text-gray-900 dark:text-gray-100"
+                      style={{
+                        fontFamily:
+                          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      }}
+                    >
+                      Today's Events (0)
+                    </h2>
+                    <Link
+                      href="/events"
+                      className="text-xs text-blue-500 ml-auto hover:text-blue-600"
+                    >
+                      All events &gt;
+                    </Link>
+                  </div>
+
+                  {/* Events List */}
+                  <div className="space-y-3">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 text-center py-8">
+                      No events scheduled for today
+                    </div>
+                  </div>
+
+                  {/* Calendar Integration Section */}
+                  <div className="mt-6 p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
+                      Link your calendar for{" "}
+                      <span className="font-medium">
+                        20 free meeting transcriptions
+                      </span>
+                      .
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                      Notta Bot will join and transcribe your meetings
+                      automatically.
+                    </p>
+
+                    <div className="space-y-2">
+                      <Link
+                        href="/connect/google"
+                        className="flex items-center justify-center gap-2 p-2 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <Link
-                            href={`/meetings/${meeting.id}`}
-                            className="flex-1"
-                          >
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                              {meeting.title || "Untitled Meeting"}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              {new Date(meeting.createdAt).toLocaleDateString()}
-                            </p>
-                          </Link>
-                          <div className="flex items-center gap-2">
-                            {meeting.isLiveRecorded && (
-                              <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 rounded-full">
-                                Live
-                              </span>
-                            )}
-                            <DeleteMeetingButton id={meeting.id} />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                        Connect Google Calendar
+                      </Link>
+                      <Link
+                        href="/connect/outlook"
+                        className="flex items-center justify-center gap-2 p-2 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      >
+                        Connect Microsoft Outlook
+                      </Link>
+                    </div>
                   </div>
-                ) : (
-                  <div className="text-center text-gray-500 dark:text-gray-400 py-12">
-                    No meetings yet
-                  </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <HelpDialog />
-    </>
+    </div>
   );
 }

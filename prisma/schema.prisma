@@ -24,6 +24,8 @@ model User {
   proUntil      DateTime?
   meetings      Meeting[]
   teamMembers   TeamMember[]
+  folders       Folder[]
+  chats         Chat[]
 }
 
 model Meeting {
@@ -42,6 +44,8 @@ model Meeting {
   user          User      @relation(fields: [userId], references: [id])
   teamId        String?
   team          Team?     @relation(fields: [teamId], references: [id])
+  folderId      String?
+  folder        Folder?   @relation(fields: [folderId], references: [id])
   bookmarks     Bookmark[] @relation("MeetingBookmarks")
   speakerMappings SpeakerMapping[] @relation("MeetingSpeakerMappings")
   timestampMapping Json?   
@@ -56,6 +60,7 @@ model Team {
   updatedAt     DateTime  @default(now())
   meetings      Meeting[]
   members       TeamMember[]
+  folders       Folder[]
 }
 
 model TeamMember {
@@ -108,4 +113,37 @@ model Sentiment {
   meeting       Meeting   @relation("MeetingSentiment", fields: [meetingId], references: [id], onDelete: Cascade)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+model Folder {
+  id            String    @id @default(cuid())
+  name          String
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  teamId        String?
+  team          Team?     @relation(fields: [teamId], references: [id])
+  meetings      Meeting[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([name, userId, teamId])
+}
+
+model Chat {
+  id            String    @id @default(cuid())
+  title         String
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  messages      ChatMessage[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model ChatMessage {
+  id            String    @id @default(cuid())
+  content       String    @db.Text
+  role          String    // 'user' or 'assistant'
+  chatId        String
+  chat          Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
 }

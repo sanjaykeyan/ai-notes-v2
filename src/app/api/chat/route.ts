@@ -1,53 +1,91 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
+import { auth } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
+import Groq from "groq-sdk";
+import prisma from "@/lib/prisma";
 
-// Initialize Groq with existing API key from .env
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY,
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, transcript, summary, messageHistory } = await req.json();
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    // Convert messageHistory to Groq message format
-    const previousMessages = messageHistory.map((msg: any) => ({
-      role: msg.sender === 'user' ? 'user' : 'assistant',
-      content: msg.text
-    }));
+    const { message, selectedMeetings, chatId } = await req.json();
 
-    const systemPrompt = {
-      role: "system",
-      content: `You are a friendly and helpful meeting assistant. Respond naturally to greetings and only provide meeting information when specifically asked. Be concise and relevant.
+    if (!message || !chatId) {
+      return NextResponse.json(
+        { error: "Message and chatId are required" },
+        { status: 400 }
+      );
+    }
 
-Meeting Summary:
-${summary}
+    // Save user message
+    const userMessage = await prisma.chatMessage.create({
+      data: {
+        content: message,
+        role: "user",
+        chatId,
+      },
+    });
 
-Meeting Transcript:
-${transcript}
+    // Get transcripts from selected meetings
+    const meetings = await prisma.meeting.findMany({
+      where: {
+        id: { in: selectedMeetings },
+        userId,
+      },
+      select: {
+        transcript: true,
+        title: true,
+      },
+    });
 
-Remember previous interactions and maintain conversation continuity.`
-    };
+    const contextText = meetings
+      .map((m) => `Meeting: ${m.title}\nTranscript: ${m.transcript}`)
+      .join("\n\n");
 
     const completion = await groq.chat.completions.create({
       messages: [
-        systemPrompt,
-        ...previousMessages,
-        { role: "user", content: message }
+        {
+          role: "system",
+          content:
+            "You are a helpful AI assistant that helps users find information in their meeting transcripts. Answer questions based on the meeting context provided.",
+        },
+        {
+          role: "user",
+          content: `Context:\n${contextText}\n\nQuestion: ${message}`,
+        },
       ],
       model: "mixtral-8x7b-32768",
-      temperature: 0.3, // Lowered for more focused responses
+      temperature: 0.5,
       max_tokens: 1024,
     });
 
-    return NextResponse.json({
-      response: completion.choices[0]?.message?.content || "Sorry, I couldn't process that request."
+    const response =
+      completion.choices[0]?.message?.content ||
+      "Sorry, I couldn't generate a response";
+
+    // Save assistant message
+    const assistantMessage = await prisma.chatMessage.create({
+      data: {
+        content: response,
+        role: "assistant",
+        chatId,
+      },
     });
 
-  } catch (error: any) {
-    console.error('Chat error:', error.message);
+    return NextResponse.json({
+      response,
+      messages: [userMessage, assistantMessage],
+    });
+  } catch (error) {
+    console.error("Chat API Error:", error);
     return NextResponse.json(
-      { error: 'Failed to process chat request. Please try again.' },
+      { error: "Failed to process chat request" },
       { status: 500 }
     );
   }
