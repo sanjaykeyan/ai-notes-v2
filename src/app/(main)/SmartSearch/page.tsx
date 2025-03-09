@@ -15,6 +15,7 @@ import {
   X,
   ChevronLeft,
   Search,
+  Trash2, // Add this import
 } from "lucide-react";
 import MeetingSelectorModal from "@/components/MeetingSelectorModal";
 import { toast } from "react-hot-toast";
@@ -293,6 +294,34 @@ export default function SmartSearch() {
     }
   }, [selectedChat]);
 
+  const deleteChat = async (chatId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent chat selection when clicking delete
+
+    try {
+      const response = await fetch(`/api/chats/${chatId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete chat");
+      }
+
+      // Remove chat from state
+      setChats(chats.filter((chat) => chat.id !== chatId));
+
+      // Clear messages if the deleted chat was selected
+      if (selectedChat === chatId) {
+        setSelectedChat(null);
+        setMessages([]);
+      }
+
+      toast.success("Chat deleted successfully");
+    } catch (error) {
+      console.error("Error deleting chat:", error);
+      toast.error("Failed to delete chat");
+    }
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8f9fa] dark:bg-gray-900">
       <DashboardSidebar />
@@ -412,6 +441,17 @@ export default function SmartSearch() {
                                   >
                                     {chat.title}
                                   </span>
+                                  <button
+                                    onClick={(e) => deleteChat(chat.id, e)}
+                                    className={`p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity ${
+                                      selectedChat === chat.id
+                                        ? "hover:bg-blue-100 dark:hover:bg-blue-800/50 text-blue-600 dark:text-blue-400"
+                                        : "hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-500 dark:text-gray-400"
+                                    }`}
+                                    title="Delete chat"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
                                 </div>
                                 <div className="ml-6 text-[11px] text-gray-500 dark:text-gray-400 flex items-center">
                                   <span>{formattedDate}</span>
