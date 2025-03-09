@@ -276,6 +276,21 @@ export default function SmartSearch() {
     }
   }, [messages.length]);
 
+  // Add this useEffect to load messages when a chat is selected
+  useEffect(() => {
+    if (selectedChat) {
+      fetch(`/api/chats/${selectedChat}/messages`)
+        .then((res) => res.json())
+        .then((data) => setMessages(data))
+        .catch((error) => {
+          console.error("Error loading messages:", error);
+          toast.error("Failed to load chat messages");
+        });
+    } else {
+      setMessages([]);
+    }
+  }, [selectedChat]);
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8f9fa] dark:bg-gray-900">
       <DashboardSidebar />
