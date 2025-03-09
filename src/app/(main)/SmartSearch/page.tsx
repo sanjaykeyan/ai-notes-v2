@@ -261,16 +261,18 @@ export default function SmartSearch() {
       setTypingText("");
       setTypingComplete(false);
 
+      let currentText = "";
       let i = 0;
       const typingInterval = setInterval(() => {
         if (i < fullText.length) {
-          setTypingText((prev) => prev + fullText.charAt(i));
+          currentText += fullText.charAt(i);
+          setTypingText(currentText);
           i++;
         } else {
           setTypingComplete(true);
           clearInterval(typingInterval);
         }
-      }, 50); // Adjust speed here (lower = faster)
+      }, 50);
 
       return () => clearInterval(typingInterval);
     }
