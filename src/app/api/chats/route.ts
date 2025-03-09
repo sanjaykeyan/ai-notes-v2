@@ -18,18 +18,29 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const { title } = await req.json();
+  const { title, message } = await req.json();
 
   const chat = await prisma.chat.create({
     data: {
       title,
       userId,
+      messages: message
+        ? {
+            create: {
+              content: message,
+              role: "user",
+            },
+          }
+        : undefined,
+    },
+    include: {
+      messages: true,
     },
   });
 

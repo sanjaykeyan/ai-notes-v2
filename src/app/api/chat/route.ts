@@ -14,14 +14,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { message, selectedMeetings } = await req.json();
+    const { message, selectedMeetings, chatId } = await req.json();
 
-    if (!message) {
+    if (!message || !chatId) {
       return NextResponse.json(
-        { error: "Message is required" },
+        { error: "Message and chatId are required" },
         { status: 400 }
       );
     }
+
+    // Save user message
+    const userMessage = await prisma.chatMessage.create({
+      data: {
+        content: message,
+        role: "user",
+        chatId,
+      },
+    });
 
     // Get transcripts from selected meetings
     const meetings = await prisma.meeting.findMany({
@@ -60,7 +69,19 @@ export async function POST(req: NextRequest) {
       completion.choices[0]?.message?.content ||
       "Sorry, I couldn't generate a response";
 
-    return NextResponse.json({ response });
+    // Save assistant message
+    const assistantMessage = await prisma.chatMessage.create({
+      data: {
+        content: response,
+        role: "assistant",
+        chatId,
+      },
+    });
+
+    return NextResponse.json({
+      response,
+      messages: [userMessage, assistantMessage],
+    });
   } catch (error) {
     console.error("Chat API Error:", error);
     return NextResponse.json(

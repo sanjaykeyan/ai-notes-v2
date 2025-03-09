@@ -64,14 +64,16 @@ export default function SmartSearch() {
   }, []);
 
   const createNewChat = async () => {
+    const initialTitle = "New Chat";
     const res = await fetch("/api/chats", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "New Chat" }),
+      body: JSON.stringify({ title: initialTitle }),
     });
     const newChat = await res.json();
     setChats([newChat, ...chats]);
     setSelectedChat(newChat.id);
+    setMessages([]);
   };
 
   const scrollToBottom = () => {
@@ -88,6 +90,24 @@ export default function SmartSearch() {
     if (selectedMeetings.length === 0) {
       toast.error("Please select at least one meeting first");
       return;
+    }
+
+    // Create a new chat if none is selected
+    let currentChatId = selectedChat;
+    if (!currentChatId) {
+      const res = await fetch("/api/chats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: input.trim().substring(0, 50),
+          message: input.trim(),
+        }),
+      });
+      const newChat = await res.json();
+      setChats([newChat, ...chats]);
+      currentChatId = newChat.id;
+      setSelectedChat(newChat.id);
+      setMessages(newChat.messages || []);
     }
 
     const userMessage: Message = {
@@ -108,6 +128,7 @@ export default function SmartSearch() {
         body: JSON.stringify({
           message: userMessage.content,
           selectedMeetings,
+          chatId: currentChatId,
         }),
       });
 
@@ -117,14 +138,13 @@ export default function SmartSearch() {
         throw new Error(data.error || "Failed to get response");
       }
 
-      const assistantMessage: Message = {
-        id: Date.now().toString(),
-        content: data.response, // Changed from data.message to data.response
-        role: "assistant",
-        createdAt: new Date(),
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
+      // Update messages with the saved messages from the database
+      if (data.messages) {
+        setMessages((prev) => [
+          ...prev.slice(0, -1), // Remove the temporary user message
+          ...data.messages, // Add both messages from the database
+        ]);
+      }
     } catch (error: any) {
       console.error("Error:", error);
       const errorMessage: Message = {
