@@ -97,7 +97,8 @@ export default function UploadMeetingModal({
       });
   
       if (!uploadResponse.ok) {
-        throw new Error(`Meeting creation failed: ${uploadResponse.statusText}`);
+        const errorText = await uploadResponse.text();
+        throw new Error(`Meeting creation failed: ${uploadResponse.statusText} - ${errorText}`);
       }
   
       const meeting = await uploadResponse.json();
