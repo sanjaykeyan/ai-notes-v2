@@ -34,118 +34,81 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const file = formData.get("file") as File;
-    const title = formData.get("title") as string;
-    const isLiveRecorded = formData.get("isLiveRecorded") === "true";
+    
+    console.log("Received form data entries:", Array.from(formData.entries()).map(([key, value]) => ({
+      key,
+      type: typeof value,
+      isFile: value instanceof File
+    })));
 
-    // Add debug logging to track file information
-    console.log("Received file:", {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-    });
+    // Get data from FormData
+    const file = formData.get('file') as File;
+    const title = formData.get('title') as string || 'Untitled Meeting';
+    const transcription = formData.get('transcription') as string;
+    const summaryStr = formData.get('summary') as string;
+    const timestampMappingStr = formData.get('timestamp_mapping') as string;
+    const durationStr = formData.get('duration') as string;
 
-    if (!file || !title) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    // Validate required fields
+    if (!transcription || !summaryStr || !timestampMappingStr) {
+      throw new Error('Missing required fields');
     }
 
-    // Upload to S3 first
-    const audioUrl = await uploadToS3(file, userId);
-
-    // First response to indicate upload complete
-    const uploadStream = new TransformStream();
-    writer = uploadStream.writable.getWriter();
-    const encoder = new TextEncoder();
-
-    const responseStream = new Response(uploadStream.readable, {
-      headers: { "Content-Type": "text/event-stream" },
-    });
-
-    // Send "uploading complete" message
-    writer.write(encoder.encode('data: {"status": "processing"}\n\n'));
-
-    // Send to Flask server
-    const flaskResponse = await fetch("http://127.0.0.1:5000/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!flaskResponse.ok) {
-      throw new Error(`Flask server error: ${flaskResponse.statusText}`);
+    // Upload to S3 if file exists
+    let audioUrl = null;
+    if (file) {
+      audioUrl = await uploadToS3(file, userId);
+      console.log("File uploaded to S3:", audioUrl);
     }
 
-    const { transcription, summary, timestamp_mapping, duration } =
-      await flaskResponse.json();
-
-    // Store in database with audioUrl
+    // Create meeting entry
     const meeting = await prisma.meeting.create({
       data: {
         title,
         transcript: transcription,
-        summary,
-        duration: duration,
-        timestampMapping: timestamp_mapping,
-        recordingUrl: audioUrl, // Store the S3 URL
+        summary: summaryStr, // Already stringified
+        duration: parseFloat(durationStr) || 0,
+        timestampMapping: timestampMappingStr, // Already stringified
+        recordingUrl: audioUrl,
         userId,
-        isLiveRecorded: isLiveRecorded || false, // Ensure it's explicitly set
+        isLiveRecorded: false,
       },
     });
 
-    // When sending email, add better error handling
+    // Send email notification if we have a user email
     if (userEmail) {
       try {
-        console.log("Attempting to send email to:", userEmail);
-        const emailResult = await sendProcessingCompleteEmail(userEmail, title);
-        console.log("Email sent successfully:", emailResult);
-      } catch (emailError) {
-        console.error("Email sending failed:", {
-          error: emailError,
+        await sendProcessingCompleteEmail({
           email: userEmail,
           userId,
-          title,
+          title: title || 'Untitled Meeting',
         });
+        console.log("Email notification sent successfully");
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
         // Don't throw here - continue with the process
       }
     } else {
       console.log("No email address found for user:", userId);
     }
 
-    writer.write(
-      encoder.encode(
-        `data: {"status": "complete", "meeting": ${JSON.stringify(
-          meeting
-        )}}\n\n`
-      )
-    );
-    writer.close();
+    return NextResponse.json({
+      status: "complete",
+      meeting
+    });
 
-    return responseStream;
   } catch (error) {
-    // Clean up resources
-    if (writer) {
-      try {
-        await writer.close();
-      } catch (closeError) {
-        console.error("Error closing writer:", closeError);
-      }
-    }
-
-    // Properly format error response
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
-    console.error("Upload processing error:", errorMessage);
+    console.error("Upload processing error:", error instanceof Error ? {
+      message: error.message,
+      stack: error.stack
+    } : String(error));
 
     return NextResponse.json(
       {
         error: "Processing failed",
-        details: errorMessage,
+        details: error instanceof Error ? error.message : String(error)
       },
-      {
-        status: 500,
-      }
+      { status: 400 }
     );
   }
 }

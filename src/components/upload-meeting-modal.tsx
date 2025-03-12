@@ -68,74 +68,61 @@ export default function UploadMeetingModal({
       }
 
       setPhase("processing");
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("title", title);
-
-      // Start the upload
-      const response = await fetch("/api/meetings/upload", {
+      const processFormData = new FormData();
+      processFormData.append("file", file);
+      processFormData.append("title", title);
+  
+      const processResponse = await fetch("/api/process-audio", {
         method: "POST",
-        body: formData,
+        body: processFormData,
       });
-
-      if (!response.ok) throw new Error("Upload failed");
-
-      setPhase("processing");
-
-      // Handle SSE response
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-
-      while (reader) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const text = decoder.decode(value);
-        const lines = text.split('\n');
-        
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-              const data = JSON.parse(line.slice(5));
-              if (data.status === 'complete') {
-                // Show completion toast
-                toast.success(
-                  'Meeting processing complete! View it in Recent Meetings.',
-                  {
-                    duration: 5000,
-                    position: 'bottom-center',
-                    style: {
-                      background: '#F0FDF4',
-                      color: '#166534',
-                      border: '1px solid #BBF7D0'
-                    },
-                  }
-                );
-                
-                // Dispatch event for meeting processed
-                window.dispatchEvent(new CustomEvent('meetingProcessed', {
-                  detail: data.meeting
-                }));
-                // Add both toast and notification
-                toast.success('Meeting processing complete!');
-                addNotification('Your meeting recording has been processed successfully.');
-                handleClose(); // Close modal after successful processing
-              }
-            } catch (e) {
-              console.error('Error parsing SSE data:', e);
-            }
-          }
-        }
+  
+      if (!processResponse.ok) {
+        throw new Error(`Audio processing failed: ${processResponse.statusText}`);
       }
-
+  
+      const processResult = await processResponse.json();
+  
+      const meetingData = new FormData();
+      meetingData.append("file", file); // Include the original file
+      meetingData.append("title", title);
+      meetingData.append("transcription", processResult.transcription);
+      meetingData.append("summary", processResult.summary);
+      meetingData.append("timestamp_mapping", processResult.timestamp_mapping);
+      meetingData.append("duration", processResult.duration);
+  
+      const uploadResponse = await fetch("/api/meetings/upload", {
+        method: "POST",
+        body: meetingData,
+      });
+  
+      if (!uploadResponse.ok) {
+        throw new Error(`Meeting creation failed: ${uploadResponse.statusText}`);
+      }
+  
+      const meeting = await uploadResponse.json();
+  
+      toast.success('Meeting processing complete! View it in Recent Meetings.', {
+        duration: 5000,
+        position: 'bottom-center',
+        style: {
+          background: '#F0FDF4',
+          color: '#166534',
+          border: '1px solid #BBF7D0'
+        },
+      });
+      addNotification('Your meeting recording has been processed successfully.');
+      handleClose();
       router.refresh();
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error("Upload error:", error instanceof Error ? { message: error.message, stack: error.stack } : error);
+      toast.error("Failed to process meeting recording");
     } finally {
       setLoading(false);
       setProgress(0);
     }
   };
+      
 
   return (
     <Transition show={isOpen} as={Fragment}>

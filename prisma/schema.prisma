@@ -32,7 +32,7 @@ model Meeting {
   id            String    @id @default(cuid())
   title         String
   transcript    String?   @db.Text
-  summary       String?   @db.Text
+  summary       String
   keyTakeaways  String[]  @default([])
   actionItems   String[]  @default([])
   recordingUrl  String?
@@ -48,7 +48,7 @@ model Meeting {
   folder        Folder?   @relation(fields: [folderId], references: [id])
   bookmarks     Bookmark[] @relation("MeetingBookmarks")
   speakerMappings SpeakerMapping[] @relation("MeetingSpeakerMappings")
-  timestampMapping Json?   
+  timestampMapping String   
   smartFilter   SmartFilter? @relation("MeetingSmartFilter")
   sentiment     Sentiment? @relation("MeetingSentiment")
 }
@@ -124,7 +124,7 @@ model Folder {
   team          Team?     @relation(fields: [teamId], references: [id])
   meetings      Meeting[]
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @default(now())
 
   @@unique([name, userId, teamId])
 }
@@ -136,7 +136,7 @@ model Chat {
   user          User      @relation(fields: [userId], references: [id])
   messages      ChatMessage[]
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @default(now())
 }
 
 model ChatMessage {
