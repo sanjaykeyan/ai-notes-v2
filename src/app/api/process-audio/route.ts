@@ -5,6 +5,17 @@ import { writeFile, readFile, unlink } from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
+interface MeetingSummary {
+  keyInsights: string[];
+  overview: string;
+  keyPoints: string[];
+  actionItems: string[];
+  decisions: string[];
+  nextSteps: string[];
+}
+
+type MeetingSummaryKey = keyof MeetingSummary;
+
 // Initialize clients with API keys from .env
 const client = new AssemblyAI({
   apiKey: process.env.ASSEMBLYAI_API_KEY as string
@@ -14,7 +25,7 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY as string
 });
 
-function createDefaultSummary() {
+function createDefaultSummary(): MeetingSummary {
   return {
     keyInsights: ["No key insights available"],
     overview: "No meeting overview available",
@@ -129,19 +140,19 @@ IMPORTANT:
       let summary;
       const summaryText = completion.choices[0]?.message?.content || '{}';
       console.log('Raw Groq response:', summaryText);
-      let summaryJson;
+      let summaryJson: MeetingSummary;
       const trimmedText = summaryText.trim();
       
       if (!trimmedText || !trimmedText.startsWith('{')) {
         summaryJson = createDefaultSummary();
       } else {
         try {
-          summaryJson = JSON.parse(trimmedText);
+          summaryJson = JSON.parse(trimmedText) as MeetingSummary;
         } catch (firstError) {
           const match = trimmedText.match(/```(?:json)?\s*([\s\S]*?)```/);
           if (match) {
             try {
-              summaryJson = JSON.parse(match[1].trim());
+              summaryJson = JSON.parse(match[1].trim()) as MeetingSummary;
             } catch (secondError) {
               console.error('Error parsing code block:', secondError);
               summaryJson = createDefaultSummary();
@@ -152,11 +163,11 @@ IMPORTANT:
           }
         }
       }
-      const requiredKeys = ["keyInsights", "overview", "keyPoints", "actionItems", "decisions", "nextSteps"];
+      const requiredKeys: MeetingSummaryKey[] = ["keyInsights", "overview", "keyPoints", "actionItems", "decisions", "nextSteps"];
       if (!requiredKeys.every(key => key in summaryJson && (key === "overview" ? typeof summaryJson[key] === "string" : Array.isArray(summaryJson[key])))) {
-          console.warn('Summary missing required keys, using default');
-          summaryJson = createDefaultSummary();
-        }
+        console.warn('Summary missing required keys, using default');
+        summaryJson = createDefaultSummary();
+      }
       summary = summaryJson;
       // Format response data like Python implementation
       const responseFormData = new FormData();

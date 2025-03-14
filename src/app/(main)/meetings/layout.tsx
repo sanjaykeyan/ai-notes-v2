@@ -10,7 +10,7 @@ export default function MeetingsLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isSpecificMeeting = pathname.match(/^\/meetings\/[^/]+$/);
+  const isSpecificMeeting = pathname?.match(/^\/meetings\/[^/]+$/);
 
   return (
     <div className="h-screen overflow-hidden bg-white dark:bg-gray-900 meetings-container">

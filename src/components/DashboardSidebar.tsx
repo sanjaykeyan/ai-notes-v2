@@ -60,6 +60,7 @@ const DashboardSidebar = () => {
   ];
 
   const isSelected = (href: string) => {
+    if (!pathname) return false;
     if (href === "/dashboard") {
       return pathname === href;
     }

@@ -1,4 +1,39 @@
 -- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "firstName" TEXT,
+    "fullName" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "isPro" BOOLEAN NOT NULL DEFAULT false,
+    "proUntil" TIMESTAMP(3),
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Meeting" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "transcript" TEXT,
+    "summary" TEXT NOT NULL,
+    "keyTakeaways" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "actionItems" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "recordingUrl" TEXT,
+    "duration" DOUBLE PRECISION,
+    "isLiveRecorded" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "userId" TEXT NOT NULL,
+    "teamId" TEXT,
+    "folderId" TEXT,
+    "timestampMapping" TEXT NOT NULL,
+
+    CONSTRAINT "Meeting_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Team" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -100,6 +135,9 @@ CREATE TABLE "ChatMessage" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "TeamMember_userId_teamId_key" ON "TeamMember"("userId", "teamId");
 
 -- CreateIndex
@@ -113,6 +151,9 @@ CREATE UNIQUE INDEX "Sentiment_meetingId_key" ON "Sentiment"("meetingId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Folder_name_userId_teamId_key" ON "Folder"("name", "userId", "teamId");
+
+-- AddForeignKey
+ALTER TABLE "Meeting" ADD CONSTRAINT "Meeting_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Meeting" ADD CONSTRAINT "Meeting_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE SET NULL ON UPDATE CASCADE;

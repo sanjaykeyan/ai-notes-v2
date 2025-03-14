@@ -43,13 +43,25 @@ Format the response as a JSON array:
       top_p: 1,
     });
 
-    const result = JSON.parse(completion.choices[0].message.content);
-    
-    return NextResponse.json(result);
+    const content = completion.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No content received from Groq API');
+    }
+
+    try {
+      const result = JSON.parse(content);
+      return NextResponse.json(result);
+    } catch (parseError) {
+      console.error('Error parsing Groq API response:', parseError);
+      throw new Error('Invalid JSON response from Groq API');
+    }
   } catch (error) {
     console.error('Error expanding insight:', error);
     return NextResponse.json(
-      { error: 'Failed to expand insight' },
+      { 
+        error: 'Failed to expand insight',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

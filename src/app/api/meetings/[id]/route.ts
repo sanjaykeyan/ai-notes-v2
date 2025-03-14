@@ -2,27 +2,35 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
+type RouteSegment = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  segment: RouteSegment
 ) {
   try {
     const { userId } = await auth();
+    const { id } = await segment.params;
+    
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const meeting = await prisma.meeting.findUnique({
       where: {
-        id: params.id,
+        id: id,
       },
       select: {
         id: true,
         title: true,
         transcript: true,
         summary: true,
-        recordingUrl: true, // Add this field
-        timestampMapping:true,
+        recordingUrl: true,
+        timestampMapping: true,
         createdAt: true,
         userId: true,
       },
@@ -74,11 +82,11 @@ export async function GET(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  segment: RouteSegment
 ) {
   try {
-    const resolvedParams = params instanceof Promise ? await params : params;
     const { userId } = await auth();
+    const { id } = await segment.params;
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -86,7 +94,7 @@ export async function DELETE(
 
     await prisma.meeting.delete({
       where: {
-        id: resolvedParams.id,
+        id: id,
         userId,
       },
     });

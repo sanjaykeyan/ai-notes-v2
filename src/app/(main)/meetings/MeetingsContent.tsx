@@ -19,10 +19,10 @@ import ScreenRecorder from "@/components/ScreenRecorder";
 type Meeting = {
   id: string;
   title: string;
-  duration: number;
+  duration: number | null;
   createdAt: Date;
   folderId: string | null;
-  isLiveRecorded?: boolean; // Add this field
+  isLiveRecorded?: boolean;
 };
 
 type Folder = {
@@ -161,7 +161,8 @@ export default function MeetingsContent({
     return meeting.folderId === selectedFolderId;
   });
 
-  const formatDuration = (seconds: number) => {
+  const formatDuration = (seconds: number | null) => {
+    if (seconds === null) return 'N/A';
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     if (mins === 0) {
@@ -172,7 +173,7 @@ export default function MeetingsContent({
 
   const getTotalDuration = (meetings: Meeting[]) => {
     const totalSeconds = meetings.reduce(
-      (acc, meeting) => acc + meeting.duration,
+      (acc, meeting) => acc + (meeting.duration || 0),
       0
     );
     const mins = Math.floor(totalSeconds / 60);

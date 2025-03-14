@@ -63,13 +63,15 @@ export async function POST(req: NextRequest) {
     let userEmail = user.email; // Use DB email if available
     if (!userEmail) {
       try {
-        const clerkUser = await clerkClient().users.getUser(userId);
+        const clerk = await clerkClient();
+        const clerkUser = await clerk.users.getUser(userId);
         userEmail = clerkUser.emailAddresses.find(
           (email) => email.id === clerkUser.primaryEmailAddressId
-        )?.emailAddress;
+        )?.emailAddress || `${userId}@example.com`; // Provide default if undefined
         console.log("Found user email from Clerk:", userEmail);
       } catch (clerkError) {
         console.error("Clerk error:", clerkError);
+        userEmail = `${userId}@example.com`; // Provide default on error
       }
     }
 

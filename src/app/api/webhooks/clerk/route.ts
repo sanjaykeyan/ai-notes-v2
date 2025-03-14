@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   // Get the headers
-  const headerPayload = headers();
+  const headerPayload = await headers();
   const svix_id = headerPayload.get("svix-id");
   const svix_timestamp = headerPayload.get("svix-timestamp");
   const svix_signature = headerPayload.get("svix-signature");
@@ -47,9 +47,8 @@ export async function POST(req: Request) {
         data: {
           id: evt.data.id,
           email: evt.data.email_addresses[0]?.email_address || "",
-          name: `${evt.data.first_name || ""} ${
-            evt.data.last_name || ""
-          }`.trim(),
+          firstName: evt.data.first_name || "",
+          fullName: `${evt.data.first_name || ""} ${evt.data.last_name || ""}`.trim(),
         },
       });
     } catch (e) {

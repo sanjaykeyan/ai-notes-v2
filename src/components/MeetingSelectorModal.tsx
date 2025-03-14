@@ -36,7 +36,7 @@ export default function MeetingSelectorModal({
     new Set(selectedMeetings)
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   // New states
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,7 +78,7 @@ export default function MeetingSelectorModal({
       } catch (error) {
         console.error("Error fetching meetings:", error);
         toast.error("Failed to load meetings");
-        setError(error.message);
+        setError(error instanceof Error ? error.message : "An unknown error occurred");
         setMeetings([]);
       } finally {
         setIsLoading(false);

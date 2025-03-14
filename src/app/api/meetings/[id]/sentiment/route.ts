@@ -6,6 +6,12 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY!,
 });
 
+type RouteSegment = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
 function cleanAndValidateJSON(text: string): string {
   // Remove any potential BOM or hidden characters
   text = text.replace(/^\uFEFF/, "");
@@ -20,19 +26,23 @@ function cleanAndValidateJSON(text: string): string {
   try {
     const parsed = JSON.parse(text);
     return JSON.stringify(parsed);
-  } catch (e) {
-    throw new Error(`Invalid JSON structure: ${e.message}`);
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      throw new Error(`Invalid JSON structure: ${e.message}`);
+    }
+    throw new Error("Invalid JSON structure");
   }
 }
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  segment: RouteSegment
 ) {
   try {
+    const { id } = await segment.params;
     const sentiment = await prisma.sentiment.findUnique({
       where: {
-        meetingId: params.id,
+        meetingId: id,
       },
     });
 
@@ -53,13 +63,14 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  segment: RouteSegment
 ) {
   try {
+    const { id } = await segment.params;
     // Get meeting transcript
     const meeting = await prisma.meeting.findUnique({
       where: {
-        id: params.id,
+        id: id,
       },
       select: {
         transcript: true,
@@ -169,13 +180,13 @@ Transcript: ${meeting.transcript}`,
     // Save to database
     const sentiment = await prisma.sentiment.upsert({
       where: {
-        meetingId: params.id,
+        meetingId: id,
       },
       update: {
         analysis,
       },
       create: {
-        meetingId: params.id,
+        meetingId: id,
         analysis,
       },
     });

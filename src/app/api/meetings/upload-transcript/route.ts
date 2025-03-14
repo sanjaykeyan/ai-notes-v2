@@ -45,8 +45,9 @@ export async function POST(req: Request) {
           title: title.trim(),
           transcript: transcript.trim(),
           userId,
-          summary: null,
-          recordingUrl: null,
+          summary: "",
+          recordingUrl: "",
+          timestampMapping: "{}",
         },
         select: {
           id: true,

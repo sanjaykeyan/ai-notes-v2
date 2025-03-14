@@ -19,6 +19,16 @@ export interface FormattedSentiment {
   };
 }
 
+interface KeyMoment {
+  moment?: string;
+  sentiment?: string;
+}
+
+interface ParticipantEngagement {
+  observation?: string;
+  level?: string;
+}
+
 export const formatSentimentAnalysis = (
   rawAnalysis: string
 ): FormattedSentiment => {
@@ -61,15 +71,15 @@ export const formatSentimentAnalysis = (
         description: String(parsed.overallTone.description || "").trim(),
       },
       keyMoments: Array.isArray(parsed.keyMoments)
-        ? parsed.keyMoments.map((km) => ({
+        ? parsed.keyMoments.map((km: KeyMoment) => ({
             moment: String(km.moment || "").trim(),
             sentiment: String(km.sentiment || "").trim(),
           }))
         : getDefaultAnalysis().keyMoments,
       participantEngagement: Array.isArray(parsed.participantEngagement)
-        ? parsed.participantEngagement.map((pe) => ({
+        ? parsed.participantEngagement.map((pe: ParticipantEngagement) => ({
             observation: String(pe.observation || "").trim(),
-            level: validateEngagementLevel(pe.level),
+            level: validateEngagementLevel(pe.level || "Medium"),
           }))
         : getDefaultAnalysis().participantEngagement,
       agreementAreas: Array.isArray(parsed.agreementAreas)

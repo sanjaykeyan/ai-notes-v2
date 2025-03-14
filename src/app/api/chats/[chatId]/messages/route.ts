@@ -1,12 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 
+type RouteSegment = {
+  params: Promise<{
+    chatId: string;
+  }>;
+};
+
 export async function GET(
-  req: Request,
-  { params }: { params: { chatId: string } }
+  request: NextRequest,
+  segment: RouteSegment
 ) {
   const { userId } = await auth();
+  const { chatId } = await segment.params;
 
   if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -15,7 +22,7 @@ export async function GET(
   try {
     const messages = await prisma.chatMessage.findMany({
       where: {
-        chatId: params.chatId,
+        chatId: chatId,
         chat: {
           userId: userId, // Ensure the chat belongs to the user
         },

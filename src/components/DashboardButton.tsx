@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import * as Icons from "lucide-react";
+import { LucideProps } from "lucide-react";
 import RecordingPopup from "./RecordingPopup";
 import UploadMeetingModal from "./upload-meeting-modal";
 
@@ -28,7 +29,7 @@ export default function DashboardButton({
 }: Props) {
   const [isRecordingPopupOpen, setIsRecordingPopupOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const Icon = Icons[iconName];
+  const Icon = Icons[iconName] as React.ComponentType<LucideProps>;
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();

@@ -49,7 +49,8 @@ const Navbar = () => {
     };
   }, []);
 
-  const getMobilePageTitle = (path: string) => {
+  const getMobilePageTitle = (path: string | null) => {
+    if (!path) return "Home";
     if (path.includes("/meetings")) return "Meetings";
     if (path.includes("/pricing")) return "Pricing";
     if (path.includes("/settings")) return "Settings";

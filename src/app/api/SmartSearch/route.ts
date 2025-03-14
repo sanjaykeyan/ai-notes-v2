@@ -45,8 +45,9 @@ export async function POST(req: Request) {
           title: title.trim(),
           transcript: transcript.trim(),
           userId,
-          summary: null,
-          recordingUrl: null,
+          summary: "",
+          recordingUrl: "",
+          timestampMapping: "{}", // Initialize with empty JSON object as string
         },
         select: {
           id: true,

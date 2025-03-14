@@ -2,10 +2,14 @@
 import { ShareButton } from "@/app/components/ShareButton";
 import type { ShareMethod } from "@/app/components/ShareButton";
 
+interface SummaryObject {
+  content?: string;
+}
+
 interface ShareMeetingButtonProps {
   meetingId: string;
   meetingTitle: string;
-  summary?: string;
+  summary?: string | SummaryObject;
   duration?: string;
   createdAt?: string;
   className?: string;
@@ -59,10 +63,14 @@ export function ShareMeetingButton({
           try {
             let summaryData;
             try {
-              // If summary is already a string, parse it; if it's already parsed JSON, use content
-              summaryData = typeof summary === 'string' ? 
-                JSON.parse(summary) : 
-                (summary.content ? JSON.parse(summary.content) : null);
+              // Handle different summary formats
+              if (typeof summary === 'string') {
+                summaryData = JSON.parse(summary);
+              } else if (summary && typeof summary === 'object' && 'content' in summary) {
+                summaryData = JSON.parse(summary.content || '{}');
+              } else {
+                throw new Error('Invalid summary format');
+              }
 
               // Log for debugging
               console.log('Final summary data:', summaryData);

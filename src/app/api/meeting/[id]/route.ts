@@ -1,14 +1,21 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+type RouteSegment = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  segment: RouteSegment
 ) {
   try {
+    const { id } = await segment.params;
     const meeting = await prisma.meeting.findUnique({
       where: {
-        id: params.id,
+        id: id,
       },
       select: {
         id: true,

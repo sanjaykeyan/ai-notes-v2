@@ -10,8 +10,9 @@ interface Meeting {
   id: string;
   title: string;
   createdAt: Date;
-  duration: number;
+  duration: number | null;
   folderId: string | null;
+  isLiveRecorded?: boolean;
 }
 
 interface RecordsProps {
@@ -99,7 +100,9 @@ export default function Records({
         case "name":
           return (a.title || "").localeCompare(b.title || "") * multiplier;
         case "duration":
-          return (a.duration - b.duration) * multiplier;
+          const durationA = a.duration || 0;
+          const durationB = b.duration || 0;
+          return (durationA - durationB) * multiplier;
         case "date":
           return (
             (new Date(a.createdAt).getTime() -
@@ -277,8 +280,8 @@ export default function Records({
 
                 {/* Duration and date sections remain unchanged */}
                 <div className="w-[20%] text-xs text-gray-500 dark:text-gray-400">
-                  {`${Math.floor(meeting.duration / 60)}min ${
-                    meeting.duration % 60
+                  {`${Math.floor(meeting.duration || 0 / 60)}min ${
+                    meeting.duration || 0 % 60
                   }s`}
                 </div>
                 <div className="w-[20%] text-xs text-gray-500 dark:text-gray-400">

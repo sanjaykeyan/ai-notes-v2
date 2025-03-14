@@ -29,19 +29,19 @@ export default function SmartFilters({ meetingId }: SmartFiltersProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPro, setIsPro] = useState(false);
 
-  useEffect(() => {
-    const checkProStatus = async () => {
-      try {
-        const response = await fetch('/api/user/pro-status');
-        const data = await response.json();
-        if (response.ok) {
-          setIsPro(data.isPro);
-        }
-      } catch (error) {
-        console.error('Failed to fetch pro status:', error);
+  const checkProStatus = async () => {
+    try {
+      const response = await fetch('/api/user/pro-status');
+      const data = await response.json();
+      if (response.ok) {
+        setIsPro(data.isPro);
       }
-    };
+    } catch (error) {
+      console.error('Failed to fetch pro status:', error);
+    }
+  };
 
+  useEffect(() => {
     checkProStatus();
   }, []);
 

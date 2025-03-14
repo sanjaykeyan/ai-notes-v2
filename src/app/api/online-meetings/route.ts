@@ -10,9 +10,9 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-    const audioFile = formData.get("file") as File; // Changed from "audio" to "file"
+    const audioFile = formData.get("file") as File;
     const title = formData.get("title") as string;
-    const isLiveRecorded = formData.get("isLiveRecorded") === "true"; // Add this line
+    const isLiveRecorded = formData.get("isLiveRecorded") === "true";
 
     if (!audioFile) {
       return NextResponse.json(
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       await response.json();
 
     // Save to database
-    const meeting = await prisma.onlineMeeting.create({
+    const meeting = await prisma.meeting.create({
       data: {
         title,
         transcript: transcription,
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
         duration,
         timestampMapping: timestamp_mapping,
         userId,
-        isLiveRecorded, // Add this line
+        isLiveRecorded,
       },
     });
 
@@ -81,13 +81,16 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const meetings = await prisma.onlineMeeting.findMany({
-      where: { userId },
+    const meetings = await prisma.meeting.findMany({
+      where: { 
+        userId,
+        isLiveRecorded: true 
+      },
       orderBy: { createdAt: "desc" },
     });
 

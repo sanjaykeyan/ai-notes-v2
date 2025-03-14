@@ -7,12 +7,19 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
+type RouteSegment = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  segment: RouteSegment
 ) {
   try {
-    const { userId } = await auth();  // Make sure to await the auth() call
+    const { userId } = await auth();
+    const { id } = await segment.params;
     
     if (!userId) {
       return NextResponse.json(
@@ -24,7 +31,7 @@ export async function GET(
     // Verify meeting ownership
     const meeting = await prisma.meeting.findUnique({
       where: { 
-        id: params.id,
+        id: id,
         userId: userId // Add this to ensure user owns the meeting
       },
       select: { 
@@ -55,7 +62,7 @@ export async function GET(
 
     // Check for existing smart filters
     const existingFilter = await prisma.smartFilter.findUnique({
-      where: { meetingId: params.id },
+      where: { meetingId: id },
       select: {
         content: true,
         createdAt: true,
@@ -80,9 +87,9 @@ export async function GET(
           });
         }
         // If validation fails, delete invalid cache
-        await prisma.smartFilter.delete({ where: { meetingId: params.id } });
+        await prisma.smartFilter.delete({ where: { meetingId: id } });
       } catch (e) {
-        await prisma.smartFilter.delete({ where: { meetingId: params.id } });
+        await prisma.smartFilter.delete({ where: { meetingId: id } });
       }
     }
 
@@ -92,9 +99,9 @@ export async function GET(
       throw new Error("GROQ API key is not configured");
     }
 
-    console.log("Looking for meeting:", params.id);
+    console.log("Looking for meeting:", id);
     const meetingData = await prisma.meeting.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       select: { transcript: true },
     });
 
@@ -200,7 +207,7 @@ Rules:
       // Store the validated JSON
       await prisma.smartFilter.create({
         data: {
-          meetingId: params.id,
+          meetingId: id,
           content: JSON.stringify(validated),
         },
       });
@@ -235,11 +242,12 @@ Rules:
 // Add DELETE endpoint to allow clearing cached filters if needed
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  segment: RouteSegment
 ) {
   try {
+    const { id } = await segment.params;
     await prisma.smartFilter.delete({
-      where: { meetingId: params.id },
+      where: { meetingId: id },
     });
     return NextResponse.json({ success: true });
   } catch (error) {

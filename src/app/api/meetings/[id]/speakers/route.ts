@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 
+type RouteSegment = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  segment: RouteSegment
 ) {
   try {
     // Verify Prisma client is available
@@ -22,7 +28,7 @@ export async function PUT(
     }
 
     // Validate meetingId
-    const meetingId = params.id;
+    const { id: meetingId } = await segment.params;
     if (!meetingId) {
       console.error("Missing meetingId in params");
       return NextResponse.json(
@@ -114,7 +120,6 @@ export async function PUT(
   } catch (error) {
     console.error("Error in PUT /api/meetings/[id]/speakers:", {
       error,
-      params,
       stack: error instanceof Error ? error.stack : undefined,
     });
 
@@ -130,10 +135,15 @@ export async function PUT(
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  segment: RouteSegment
 ) {
   try {
-    const meetingId = context.params.id;
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id: meetingId } = await segment.params;
     if (!meetingId) {
       return NextResponse.json({ error: "Missing meeting ID" }, { status: 400 });
     }

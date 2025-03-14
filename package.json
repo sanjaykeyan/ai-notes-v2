@@ -38,14 +38,15 @@
     "react-split": "^2.0.14",
     "react-use": "^17.6.0",
     "resend": "^4.1.1",
+    "svix": "^1.61.4",
     "tailwind-scrollbar": "^3.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/python-shell": "^0.4.2",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
     "eslint": "^9",
     "eslint-config-next": "15.1.4",
     "postcss": "^8",

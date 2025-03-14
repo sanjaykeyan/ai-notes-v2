@@ -8,7 +8,7 @@ interface Meeting {
   id: string;
   title: string;
   createdAt: Date;
-  duration: number;
+  duration: number | null;
 }
 
 interface MyRecordsSectionProps {
@@ -88,9 +88,9 @@ export default function MyRecordsSection({ meetings }: MyRecordsSectionProps) {
                   </Link>
                 </div>
                 <div className="w-[20%] text-xs text-gray-500 dark:text-gray-400">
-                  {`${Math.floor(meeting.duration / 60)}min ${
+                  {meeting.duration ? `${Math.floor(meeting.duration / 60)}min ${
                     meeting.duration % 60
-                  }s`}
+                  }s` : 'N/A'}
                 </div>
                 <div className="w-[20%] text-xs text-gray-500 dark:text-gray-400">
                   {new Date(meeting.createdAt).toLocaleDateString()}
