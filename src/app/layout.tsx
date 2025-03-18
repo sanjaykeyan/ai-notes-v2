@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MeetingNotes AI",
+  title: "Memoria AI",
   description: "Transform your meetings into actionable insights",
 };
 
