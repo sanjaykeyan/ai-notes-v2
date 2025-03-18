@@ -29,7 +29,7 @@ const HomePage = () => {
               into searchable text with Memoria AI. Transcribe, summarize, and
               collaborate all in one powerful workflow.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+            <div className="flex justify-center mb-12">
               <button
                 onClick={handleSignIn}
                 className="px-8 py-4 bg-blue-600 text-white rounded-xl font-medium
@@ -37,14 +37,6 @@ const HomePage = () => {
                          hover:shadow-xl hover:shadow-blue-500/20"
               >
                 Start for Free
-              </button>
-              <button
-                className="px-8 py-4 bg-white dark:bg-gray-800 rounded-xl font-medium
-                               border border-gray-200 dark:border-gray-700
-                               hover:border-blue-500 dark:hover:border-blue-500
-                               transition-all duration-300"
-              >
-                Watch Demo
               </button>
             </div>
 
@@ -83,29 +75,28 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Product Showcase 1: Real-time Transcription */}
+      {/* Product Showcase 1: Meeting Transcription */}
       <section className="py-24 overflow-hidden">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <h2 className="text-4xl font-bold leading-tight">
-                Real-time
+                Meeting
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   {" "}
                   Transcription
                 </span>
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300">
-                Watch as your conversations transform into accurate text in
-                real-time. Support for 50+ languages and automatic speaker
-                detection.
+                Transform your recorded meetings into accurate, searchable text.
+                Upload any meeting recording and get high-quality transcripts
+                with speaker detection.
               </p>
               <ul className="space-y-4">
                 {[
                   "99% accuracy in transcription",
-                  "Automatic speaker detection",
-                  "Multi-language support",
-                  "Real-time processing",
+                  "Automatic speaker identification",
+                  "Fast processing time",
                 ].map((feature) => (
                   <li key={feature} className="flex items-center gap-3">
                     <svg
@@ -131,13 +122,19 @@ const HomePage = () => {
             <div className="relative lg:ml-12">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl opacity-10 blur-3xl"></div>
               <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
-                <Image
-                  src="/screenshots/transcription-demo.png" // Add this screenshot
-                  alt="Real-time transcription demo"
-                  width={800}
-                  height={500}
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
                   className="w-full h-auto"
-                />
+                >
+                  <source
+                    src="/animations/transcription-demo.mp4"
+                    type="video/mp4"
+                  />
+                  Your browser does not support the video tag.
+                </video>
               </div>
             </div>
           </div>
@@ -241,9 +238,9 @@ const HomePage = () => {
             {[
               {
                 icon: "🎯",
-                title: "AI-Powered Transcription",
+                title: "Meeting Transcription",
                 description:
-                  "Real-time transcription with speaker detection in 50+ languages",
+                  "Convert your meeting recordings into text with speaker detection in 50+ languages",
               },
               {
                 icon: "💡",
@@ -295,22 +292,6 @@ const HomePage = () => {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">
-              Trusted by Industry Leaders
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              See how teams are transforming their meetings with Memoria AI
-            </p>
-          </div>
-
-          {/* Add testimonial cards here */}
         </div>
       </section>
 
