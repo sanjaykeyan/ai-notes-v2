@@ -163,51 +163,12 @@ const Navbar = () => {
             >
               Dashboard
             </button>
-            <div className="relative" ref={meetingsDropdownRef}>
-              <button
-                className="text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
-                onClick={() => setShowMeetingsDropdown(!showMeetingsDropdown)}
-              >
-                Meetings
-                <svg
-                  className={`w-4 h-4 transition-transform ${
-                    showMeetingsDropdown ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-              {showMeetingsDropdown && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
-                  <button
-                    onClick={() => {
-                      router.push("/meetings");
-                      setShowMeetingsDropdown(false);
-                    }}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 hover:text-blue-600"
-                  >
-                    Uploaded Meetings
-                  </button>
-                  <button
-                    onClick={() => {
-                      router.push("/online-meets");
-                      setShowMeetingsDropdown(false);
-                    }}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 hover:text-blue-600"
-                  >
-                    Online Meetings
-                  </button>
-                </div>
-              )}
-            </div>
+            <button
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+              onClick={() => router.push("/meetings")}
+            >
+              Meetings
+            </button>
             <button
               className="text-gray-600 hover:text-blue-600 transition-colors"
               onClick={() => router.push("/pricing")}
@@ -601,17 +562,11 @@ const Navbar = () => {
         </SignedIn>
         <SignedOut>
           <div className="flex items-center gap-4">
-            <button className="hidden md:block text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
-              About
-            </button>
-            <button className="hidden md:block text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200">
-              Pricing
-            </button>
             <Link
               href="/auth/sign-in"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg transition-all duration-200 hover:shadow-lg font-medium"
             >
-              Sign In
+              Get Started
             </Link>
             <ThemeToggleButton />
           </div>
